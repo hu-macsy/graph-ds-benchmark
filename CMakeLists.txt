@@ -93,6 +93,10 @@ install(FILES
 )
 
 set_property(TARGET gdsb PROPERTY VERSION ${version})
+
+# TODO: align version numbers or remove completely since
+#       the other VERSIONS will be taken as the value if
+#       SOVERSION not present
 set_property(TARGET gdsb PROPERTY SOVERSION 1)
 set_property(TARGET gdsb PROPERTY
   INTERFACE_gdsb_MAJOR_VERSION 1)
