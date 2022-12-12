@@ -9,8 +9,11 @@ namespace gdsb
 {
 
 using Weight = float;
+
 using Vertex = unsigned int;
+using Vertex64 = uint64_t;
 using Degree = unsigned int;
+using Degree64 = uint64_t;
 
 struct Target
 {
@@ -18,11 +21,27 @@ struct Target
     Weight weight;
 };
 
+template <typename V, typename W> struct Target_t
+{
+    V vertex;
+    W weight;
+};
+
+using Target64 = gdsb::Target_t<gdsb::Vertex64, gdsb::Weight>;
+
 struct Edge
 {
     Vertex source;
     Target target;
 };
+
+template <typename V, typename T> struct Edge_t
+{
+    V source;
+    T target;
+};
+
+using Edge64 = gdsb::Edge_t<gdsb::Vertex64, Target64>;
 
 Weight invalid_weight();
 Vertex invalid_vertex();
@@ -30,6 +49,7 @@ Edge invalid_edge();
 Target invalid_target();
 
 using Edges = std::vector<Edge>;
+using Edges64 = std::vector<Edge64>;
 using Targets = std::vector<Target>;
 using Timestamp = unsigned int;
 using Timestamps = std::vector<Timestamp>;
