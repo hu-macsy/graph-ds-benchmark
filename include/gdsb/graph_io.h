@@ -218,7 +218,7 @@ void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, 
         }
 
         using Weight_type = std::decay_t<decltype(weight_f())>;
-        Weight_type const weight_f_result = weight_f();
+        Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
         emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result);
         emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result);
     }

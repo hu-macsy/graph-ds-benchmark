@@ -17,6 +17,32 @@ static std::string weighted_temporal_graph{ "small_graph_temporal.edges" };
 
 using namespace gdsb;
 
+
+TEST_CASE("read_undirected_graph")
+{
+    Edges edges;
+    auto emplace = [&](Vertex u, Vertex v, Weight w) { edges.push_back(Edge{ u, Target{ v, w } }); };
+
+    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+
+    read_undirected_graph<Vertex, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
+
+    // Undirected: thus original edge count 103 x 2
+    CHECK(edges.size() == 103 * 2);
+
+    // CHECK if edge {16, 17} has weight 2008
+    for (Edge e : edges)
+    {
+        if (e.source == 16)
+        {
+            if (e.target.vertex == 17)
+            {
+                CHECK(e.target.weight == 2008.f);
+            }
+        }
+    }
+}
+
 TEST_CASE("read_unweighted")
 {
     Edges edges;
