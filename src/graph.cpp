@@ -33,20 +33,6 @@ Vertex max_nnz(Edges const& edges)
     return *std::max_element(std::begin(ids), std::end(ids));
 }
 
-unsigned int vertex_count(Edges const& edges)
-{
-    // Determine n as the maximal node ID.
-    unsigned int n = 0;
-    for (Edge const& edge : edges)
-    {
-        unsigned int const vertex = std::max(edge.source, edge.target.vertex);
-        n = std::max(n, vertex);
-    }
-    n++;
-
-    return n;
-}
-
 Edges gilbert_edges(float const p, unsigned int const n, std::mt19937& engine)
 {
     Edges random_edges;
