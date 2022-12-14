@@ -173,6 +173,57 @@ void read_undirected_graph_unweighted(std::istream& ins, F&& emplace, Weight_f&&
     }
 }
 
+template <typename V, typename F, typename Weight_f>
+void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, Weight_f&& weight_f)
+{
+    std::string line;
+    bool seen_header = false;
+    int ret = 0;
+    while (std::getline(ins, line))
+    {
+        if (line.empty()) continue;
+        if (line.front() == '%') continue;
+        if (line.front() == '#') continue;
+
+        unsigned long u = 0;
+        unsigned long v = 0;
+        float w = 0.;
+
+        if (weighted)
+        {
+            ret = sscanf(line.data(), "%lu %lu %f", &u, &v, &w);
+            if (ret != 3)
+            {
+                throw std::runtime_error("Parse error while reading input graph!");
+            }
+        }
+        else
+        {
+            ret = sscanf(line.data(), "%lu %lu", &u, &v);
+            if (ret != 2)
+            {
+                throw std::runtime_error("Parse error while reading input graph!");
+            }
+        }
+
+        if (!ret)
+        {
+            continue;
+        }
+
+        if (!seen_header)
+        {
+            seen_header = true;
+            continue;
+        }
+
+        using Weight_type = std::decay_t<decltype(weight_f())>;
+        Weight_type const weight_f_result = weight_f();
+        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result);
+        emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result);
+    }
+}
+
 template <typename Vertex, typename F, typename Weight_f>
 void read_undirected_graph_unweighted(std::string path, F&& emplace, Weight_f&& weight_f)
 {
