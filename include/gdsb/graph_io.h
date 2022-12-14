@@ -189,7 +189,7 @@ void read_undirected_graph_unweighted(std::string path, F&& emplace, Weight_f&& 
     read_undirected_graph_unweighted<Vertex, F, Weight_f>(graph_input, std::move(emplace), std::move(weight_f));
 }
 
-template <typename Vertex, typename F, typename Weight_f>
+template <typename V, typename F, typename Weight_f>
 void read_temporal_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, Weight_f&& weight_f)
 {
     std::string line;
@@ -233,9 +233,10 @@ void read_temporal_undirected_graph(std::istream& ins, bool const weighted, F&& 
         }
 
         using Weight_type = std::decay_t<decltype(weight_f())>;
-        Weight_type const weight_f_result = weight_f();
-        emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), weight_f_result, static_cast<Timestamp>(t));
-        emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), weight_f_result, static_cast<Timestamp>(t));
+        Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
+
+        emplace(V(u), V(v), weight_f_result, Timestamp(t));
+        emplace(V(v), V(u), weight_f_result, Timestamp(t));
     }
 }
 
