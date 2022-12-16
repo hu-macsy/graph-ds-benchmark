@@ -56,8 +56,10 @@ using Timestamps = std::vector<Timestamp>;
 
 gdsb::Vertex max_nnz(Edges const& edges);
 
-template <typename Vertex_t, typename Edges_t> Vertex_t vertex_count(Edges_t const& edges)
+template <typename Edges_t> decltype(Edges_t::value_type::source) vertex_count(Edges_t const& edges)
 {
+    using Vertex_t = decltype(Edges_t::value_type::source);
+
     // Determine n as the maximal node ID.
     Vertex_t n = 0;
     using Edge_type = typename Edges_t::value_type;
