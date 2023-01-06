@@ -7,11 +7,17 @@ namespace gdsb
 
 Weight invalid_weight() { return std::numeric_limits<Weight>::infinity(); }
 
-Vertex invalid_vertex() { return std::numeric_limits<Vertex>::max(); }
+Edge invalid_edge()
+{
+    using Vertex_type = decltype(Edge::source);
+    return { invalid_vertex<Vertex_type>(), { invalid_vertex<Vertex_type>(), invalid_weight() } };
+}
 
-Edge invalid_edge() { return { invalid_vertex(), { invalid_vertex(), invalid_weight() } }; }
-
-Target invalid_target() { return { invalid_vertex(), invalid_weight() }; }
+Target invalid_target()
+{
+    using Vertex_type = decltype(Target::vertex);
+    return { invalid_vertex<Vertex_type>(), invalid_weight() };
+}
 
 Vertex max_nnz(Edges const& edges)
 {

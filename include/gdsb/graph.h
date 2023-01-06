@@ -44,7 +44,8 @@ template <typename V, typename T> struct Edge_t
 using Edge64 = gdsb::Edge_t<gdsb::Vertex64, Target64>;
 
 Weight invalid_weight();
-Vertex invalid_vertex();
+
+template <typename V> V invalid_vertex() { return std::numeric_limits<V>::max(); }
 Edge invalid_edge();
 Target invalid_target();
 
