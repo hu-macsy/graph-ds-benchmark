@@ -82,7 +82,6 @@ template <typename Edges> struct TimestampedEdges
 
 template <typename E, typename EdgeIt> void sort(EdgeIt begin, EdgeIt end)
 {
-    // sorting the edges for later purpose: inserting them into the batches
     auto sort_cmp = [](E const& a, E const& b) { return a.source < b.source; };
     std::sort(begin, end, sort_cmp);
 }
@@ -99,5 +98,7 @@ template <typename Edges> TimestampedEdges<Edges>& sort(TimestampedEdges<Edges>&
 }
 
 Edges gilbert_edges(float const p, unsigned int const n, std::mt19937& engine);
+
+Edges64 gilbert_edges_64(float const p, Vertex64 const n, std::mt19937& engine);
 
 } // namespace gdsb
