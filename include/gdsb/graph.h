@@ -52,6 +52,7 @@ Target invalid_target();
 using Edges = std::vector<Edge>;
 using Edges64 = std::vector<Edge64>;
 using Targets = std::vector<Target>;
+using Targets64 = std::vector<Target64>;
 using Timestamp = unsigned int;
 using Timestamps = std::vector<Timestamp>;
 
