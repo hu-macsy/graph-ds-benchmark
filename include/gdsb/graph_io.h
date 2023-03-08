@@ -291,7 +291,7 @@ void read_undirected_graph_unweighted(std::string path, F&& emplace, Weight_f&& 
 }
 
 template <typename V, typename F, typename Weight_f>
-void read_temporal_directed_graph(std::istream& ins, bool const weighted, F&& emplace, Weight_f&& weight_f)
+void read_temporal_graph(std::istream& ins, bool const weighted, bool const directed, F&& emplace, Weight_f&& weight_f)
 {
     std::string line;
     bool seen_header = false;
@@ -337,57 +337,11 @@ void read_temporal_directed_graph(std::istream& ins, bool const weighted, F&& em
         Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
 
         emplace(V(u), V(v), weight_f_result, Timestamp(t));
-    }
-}
 
-template <typename V, typename F, typename Weight_f>
-void read_temporal_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, Weight_f&& weight_f)
-{
-    std::string line;
-    bool seen_header = false;
-    int ret = 0;
-    int const retrieved_elements = weighted ? 4 : 3;
-    while (std::getline(ins, line))
-    {
-        if (line.empty()) continue;
-        if (line.front() == '%') continue;
-        if (line.front() == '#') continue;
-
-        unsigned long u = 0;
-        unsigned long v = 0;
-        unsigned long t = 0;
-        float w = 0.;
-
-        if (weighted)
+        if (!directed)
         {
-            ret = sscanf(line.data(), "%lu %lu %f %lu", &u, &v, &w, &t);
+            emplace(V(v), V(u), weight_f_result, Timestamp(t));
         }
-        else
-        {
-            ret = sscanf(line.data(), "%lu %lu %lu", &u, &v, &t);
-        }
-
-        if (!ret)
-        {
-            continue;
-        }
-
-        if (ret != retrieved_elements)
-        {
-            throw std::runtime_error("Parse error while reading input graph!");
-        }
-
-        if (!seen_header)
-        {
-            seen_header = true;
-            continue;
-        }
-
-        using Weight_type = std::decay_t<decltype(weight_f())>;
-        Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
-
-        emplace(V(u), V(v), weight_f_result, Timestamp(t));
-        emplace(V(v), V(u), weight_f_result, Timestamp(t));
     }
 }
 
