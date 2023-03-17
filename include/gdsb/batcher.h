@@ -83,9 +83,9 @@ private:
     EIt m_end;
 };
 
-template <typename EdgeIt, typename EdgeContainer>
+template <typename EdgeIt, typename EdgeContainer, typename V>
 Batch<EdgeContainer>
-thread_batch(EdgeIt batch_begin, EdgeIt batch_end, unsigned int thread_count, unsigned int thread_id, Vertex invalid_vertex)
+thread_batch(EdgeIt batch_begin, EdgeIt batch_end, unsigned int thread_count, unsigned int thread_id, V invalid_vertex)
 {
     size_t const batch_size = std::distance(batch_begin, batch_end);
     size_t const elements = batch_size / thread_count;
