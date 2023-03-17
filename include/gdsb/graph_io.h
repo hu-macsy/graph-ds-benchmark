@@ -161,8 +161,8 @@ template <typename Vertex, typename F> void read_temporal_graph(std::istream& in
     }
 }
 
-template <typename Vertex, typename EdgeVector, typename F>
-TimestampedEdges<EdgeVector> read_temporal_graph(std::string path, bool const weighted, F&& emplace)
+template <typename Vertex, typename EdgeVector, typename Timestamps, typename F>
+TimestampedEdges<EdgeVector, Timestamps> read_temporal_graph(std::string path, bool const weighted, F&& emplace)
 {
     namespace fs = std::experimental::filesystem;
 
@@ -175,7 +175,7 @@ TimestampedEdges<EdgeVector> read_temporal_graph(std::string path, bool const we
 
     std::ifstream graph_input(graph_path);
 
-    TimestampedEdges<EdgeVector> timestamped_edges;
+    TimestampedEdges<EdgeVector, Timestamps> timestamped_edges;
     read_temporal_graph<Vertex>(graph_input, weighted,
                                 [&](unsigned int u, unsigned int v, unsigned int t)
                                 {
@@ -345,8 +345,9 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
     }
 }
 
-template <typename Vertex, typename EdgeVector, typename F, typename Weight_f>
-TimestampedEdges<EdgeVector> read_temporal_undirected_graph(std::string path, bool const weighted, F&& emplace, Weight_f&& weight_f)
+template <typename Vertex, typename EdgeVector, typename Timestamps, typename F, typename Weight_f>
+TimestampedEdges<EdgeVector, Timestamps>
+read_temporal_undirected_graph(std::string path, bool const weighted, F&& emplace, Weight_f&& weight_f)
 {
     namespace fs = std::experimental::filesystem;
 
@@ -359,10 +360,10 @@ TimestampedEdges<EdgeVector> read_temporal_undirected_graph(std::string path, bo
 
     std::ifstream graph_input(graph_path);
 
-    TimestampedEdges<EdgeVector> timestamped_edges;
+    TimestampedEdges<EdgeVector, Timestamps> timestamped_edges;
     read_temporal_undirected_graph<Vertex>(
         graph_input, weighted,
-        [&](unsigned int u, unsigned int v, float w, unsigned int t)
+        [&](uint64_t u, uint64_t v, float w, uint64_t t)
         {
             emplace(timestamped_edges.edges, u, v, w);
             timestamped_edges.timestamps.push_back(t);

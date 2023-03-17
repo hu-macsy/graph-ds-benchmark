@@ -53,8 +53,10 @@ using Edges = std::vector<Edge>;
 using Edges64 = std::vector<Edge64>;
 using Targets = std::vector<Target>;
 using Targets64 = std::vector<Target64>;
-using Timestamp = unsigned int;
+using Timestamp = uint32_t;
+using Timestamp64 = uint64_t;
 using Timestamps = std::vector<Timestamp>;
+using Timestamps64 = std::vector<Timestamp64>;
 
 gdsb::Vertex max_nnz(Edges const& edges);
 
@@ -75,10 +77,10 @@ template <typename Edges_t> decltype(Edges_t::value_type::source) vertex_count(E
     return n;
 }
 
-template <typename Edges> struct TimestampedEdges
+template <typename Edges, typename T> struct TimestampedEdges
 {
     Edges edges;
-    Timestamps timestamps;
+    T timestamps;
 };
 
 template <typename E, typename EdgeIt> void sort(EdgeIt begin, EdgeIt end)
@@ -87,9 +89,9 @@ template <typename E, typename EdgeIt> void sort(EdgeIt begin, EdgeIt end)
     std::sort(begin, end, sort_cmp);
 }
 
-template <typename Edges> TimestampedEdges<Edges>& sort(TimestampedEdges<Edges>& t_edges)
+template <typename Edges, typename T> TimestampedEdges<Edges, T>& sort(TimestampedEdges<Edges, T>& t_edges)
 {
-    Timestamps& timestamps = t_edges.timestamps;
+    T& timestamps = t_edges.timestamps;
 
     auto p = sort_permutation(timestamps, [](Timestamp const& a, Timestamp const& b) { return a < b; });
     apply_permutation_in_place(t_edges.edges, p);
