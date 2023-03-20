@@ -50,8 +50,18 @@ template <typename F, class DS, class E> std::chrono::milliseconds benchmark(F&&
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 }
 
-//! Use this function to ouput parameters that shall be profiled.
+//! Use this function to output parameters that shall be profiled.
 template <typename T> void out(std::string name, T value) { std::cout << name << ": " << value << std::endl; }
+
+//! Use this function to output ranges in yaml format.
+template <typename It> void out(std::string name, It begin, It end)
+{
+    std::cout << name << ": [";
+
+    std::for_each(begin, end, [&](auto const& e) { std::cout << e << ", "; });
+
+    std::cout << "]" << std::endl;
+}
 
 //! Returns the memory usage in KB for the calling process.
 unsigned long long memory_usage_in_kb();
