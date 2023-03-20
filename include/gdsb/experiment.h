@@ -2,6 +2,7 @@
 
 #include <gdsb/timer.h>
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 
