@@ -123,6 +123,7 @@ if (GDSB_TEST)
 
   add_executable(gdsb_test
     test/batcher.cpp
+    test/experiment_tests.cpp
     test/graph_io_tests.cpp
     test/graph.cpp
   )

@@ -59,11 +59,14 @@ template <typename It> void out(std::string name, It begin, It end)
 {
     std::cout << name << ": [";
 
-    std::for_each(begin, end - 1, [&](auto const& e) { std::cout << e << ", "; });
-
-    if (end - 1 != begin)
+    if (begin != end)
     {
-        std::cout << *(end - 1);
+        std::for_each(begin, end - 1, [&](auto const& e) { std::cout << e << ", "; });
+
+        if (end - 1 != begin)
+        {
+            std::cout << *(end - 1);
+        }
     }
 
     std::cout << "]" << std::endl;
