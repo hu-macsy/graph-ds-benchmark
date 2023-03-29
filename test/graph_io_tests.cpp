@@ -69,24 +69,23 @@ TEST_CASE("temporal")
 {
     auto emplace = [](Edges& edges, Vertex u, Vertex v) { edges.push_back(Edge{ u, Target{ v, 1.0 } }); };
 
-    TimestampedEdges<Edges> timestamped_edges =
-        read_temporal_graph<Vertex, Edges, decltype(emplace)>(graph_path + unweighted_temporal_graph, false, std::move(emplace));
+    TimestampedEdges<Edges, Timestamps> timestamped_edges =
+        read_temporal_graph<Vertex, Edges, Timestamps, Timestamp, decltype(emplace)>(graph_path + unweighted_temporal_graph,
+                                                                                     false, std::move(emplace));
 
     CHECK(timestamped_edges.edges.size() == 103); // File does not have header line, this one edge less
 }
 
 TEST_CASE("Temporal Directed Weighted Graph")
 {
-    auto emplace = [&](gdsb::Edges& edges, gdsb::Vertex u, gdsb::Vertex v) {
-        edges.push_back(gdsb::Edge{ u, { v, 1.f } });
-    };
+    auto emplace = [&](Edges& edges, Vertex u, Vertex v) { edges.push_back(Edge{ u, { v, 1.f } }); };
 
-    gdsb::TimestampedEdges<gdsb::Edges> temporal_edges =
-        gdsb::read_temporal_graph<gdsb::Vertex, gdsb::Edges, decltype(emplace)>(std::move(graph_path + weighted_temporal_graph),
-                                                                                true, std::move(emplace));
+    TimestampedEdges<Edges, Timestamps> temporal_edges =
+        read_temporal_graph<Vertex, Edges, Timestamps, Timestamp, decltype(emplace)>(std::move(graph_path + weighted_temporal_graph),
+                                                                                     true, std::move(emplace));
 
-    temporal_edges = gdsb::sort(temporal_edges);
-    gdsb::Edges edges = std::move(temporal_edges.edges);
+    temporal_edges = sort<Edges, Timestamps, Timestamp>(temporal_edges);
+    Edges edges = std::move(temporal_edges.edges);
 
     SECTION("Read In")
     {
@@ -110,9 +109,9 @@ TEST_CASE("temporal undirected")
     auto emplace = [](Edges& edges, Vertex u, Vertex v, Weight w) { edges.push_back(Edge{ u, Target{ v, w } }); };
     auto weight_f = []() -> Weight { return 1.f; };
 
-    TimestampedEdges<Edges> timestamped_edges =
-        read_temporal_undirected_graph<Vertex, Edges>(graph_path + unweighted_temporal_graph, false, std::move(emplace),
-                                                      std::move(weight_f));
+    TimestampedEdges<Edges, Timestamps> timestamped_edges =
+        read_temporal_undirected_graph<Vertex, Edges, Timestamps>(graph_path + unweighted_temporal_graph, false,
+                                                                  std::move(emplace), std::move(weight_f));
 
     CHECK(timestamped_edges.edges.size() == 103 * 2); // File does not have header line, this one edge less
 }

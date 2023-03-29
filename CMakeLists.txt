@@ -123,8 +123,8 @@ if (GDSB_TEST)
 
   add_executable(gdsb_test
     test/batcher.cpp
+    test/graph_io_tests.cpp
     test/graph.cpp
-    test/graph_io.cpp
   )
 
   target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)

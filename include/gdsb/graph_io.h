@@ -115,7 +115,8 @@ template <typename Vertex, typename F> void read_graph_unweighted(std::string pa
     read_graph_unweighted<Vertex, F>(graph_input, std::move(emplace));
 }
 
-template <typename Vertex, typename F> void read_temporal_graph(std::istream& ins, bool const weighted, F&& emplace)
+template <typename Vertex, typename T, typename F>
+void read_temporal_graph(std::istream& ins, bool const weighted, F&& emplace)
 {
     std::string line;
     bool seen_header = false;
@@ -157,12 +158,12 @@ template <typename Vertex, typename F> void read_temporal_graph(std::istream& in
             continue;
         }
 
-        emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
+        emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<T>(t));
     }
 }
 
-template <typename Vertex, typename EdgeVector, typename Timestamps, typename F>
-TimestampedEdges<EdgeVector, Timestamps> read_temporal_graph(std::string path, bool const weighted, F&& emplace)
+template <typename Vertex, typename EdgeVector, typename TStamps, typename T, typename F>
+TimestampedEdges<EdgeVector, TStamps> read_temporal_graph(std::string path, bool const weighted, F&& emplace)
 {
     namespace fs = std::experimental::filesystem;
 
@@ -175,13 +176,13 @@ TimestampedEdges<EdgeVector, Timestamps> read_temporal_graph(std::string path, b
 
     std::ifstream graph_input(graph_path);
 
-    TimestampedEdges<EdgeVector, Timestamps> timestamped_edges;
-    read_temporal_graph<Vertex>(graph_input, weighted,
-                                [&](unsigned int u, unsigned int v, unsigned int t)
-                                {
-                                    emplace(timestamped_edges.edges, u, v);
-                                    timestamped_edges.timestamps.push_back(t);
-                                });
+    TimestampedEdges<EdgeVector, TStamps> timestamped_edges;
+    read_temporal_graph<Vertex, T>(graph_input, weighted,
+                                   [&](unsigned int u, unsigned int v, unsigned int t)
+                                   {
+                                       emplace(timestamped_edges.edges, u, v);
+                                       timestamped_edges.timestamps.push_back(t);
+                                   });
 
     return timestamped_edges;
 }
@@ -290,7 +291,7 @@ void read_undirected_graph_unweighted(std::string path, F&& emplace, Weight_f&& 
     read_undirected_graph_unweighted<Vertex, F, Weight_f>(graph_input, std::move(emplace), std::move(weight_f));
 }
 
-template <typename V, typename F, typename Weight_f>
+template <typename V, typename T, typename F, typename Weight_f>
 void read_temporal_graph(std::istream& ins, bool const weighted, bool const directed, F&& emplace, Weight_f&& weight_f)
 {
     std::string line;
@@ -336,11 +337,11 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
         using Weight_type = std::decay_t<decltype(weight_f())>;
         Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
 
-        emplace(V(u), V(v), weight_f_result, Timestamp(t));
+        emplace(V(u), V(v), weight_f_result, T(t));
 
         if (!directed)
         {
-            emplace(V(v), V(u), weight_f_result, Timestamp(t));
+            emplace(V(v), V(u), weight_f_result, T(t));
         }
     }
 }
@@ -361,9 +362,9 @@ read_temporal_undirected_graph(std::string path, bool const weighted, F&& emplac
     std::ifstream graph_input(graph_path);
 
     TimestampedEdges<EdgeVector, Timestamps> timestamped_edges;
-    read_temporal_undirected_graph<Vertex>(
-        graph_input, weighted,
-        [&](uint64_t u, uint64_t v, float w, uint64_t t)
+    read_temporal_graph<Vertex, typename Timestamps::value_type>(
+        graph_input, weighted, false,
+        [&](uint64_t u, uint64_t v, float w, typename Timestamps::value_type t)
         {
             emplace(timestamped_edges.edges, u, v, w);
             timestamped_edges.timestamps.push_back(t);

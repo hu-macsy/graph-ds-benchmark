@@ -77,10 +77,10 @@ template <typename Edges_t> decltype(Edges_t::value_type::source) vertex_count(E
     return n;
 }
 
-template <typename Edges, typename T> struct TimestampedEdges
+template <typename Edges, typename TStamps> struct TimestampedEdges
 {
     Edges edges;
-    T timestamps;
+    TStamps timestamps;
 };
 
 template <typename E, typename EdgeIt> void sort(EdgeIt begin, EdgeIt end)
@@ -89,11 +89,12 @@ template <typename E, typename EdgeIt> void sort(EdgeIt begin, EdgeIt end)
     std::sort(begin, end, sort_cmp);
 }
 
-template <typename Edges, typename T> TimestampedEdges<Edges, T>& sort(TimestampedEdges<Edges, T>& t_edges)
+template <typename Edges, typename TStamps, typename T>
+TimestampedEdges<Edges, TStamps>& sort(TimestampedEdges<Edges, TStamps>& t_edges)
 {
-    T& timestamps = t_edges.timestamps;
+    TStamps& timestamps = t_edges.timestamps;
 
-    auto p = sort_permutation(timestamps, [](Timestamp const& a, Timestamp const& b) { return a < b; });
+    auto p = sort_permutation(timestamps, [](T const& a, T const& b) { return a < b; });
     apply_permutation_in_place(t_edges.edges, p);
     apply_permutation_in_place(timestamps, p);
 
