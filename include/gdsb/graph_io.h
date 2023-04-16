@@ -11,28 +11,38 @@
 namespace gdsb
 {
 
+inline unsigned long read_ulong(char const* input)
+{
+    constexpr int numerical_base = 10;
+    char* end = nullptr;
+    unsigned long value = strtoul(input, &end, numerical_base);
+    input = end;
+
+    if (errno == ERANGE)
+    {
+        throw std::runtime_error("Input can not be interpreted as number of base 10.");
+    }
+
+    return value;
+}
+
 template <typename Vertex, typename F> void read_graph_unweighted(std::istream& ins, F&& emplace)
 {
     std::string line;
     bool seen_header = false;
+    unsigned long u = 0;
+    unsigned long v = 0;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long v = 0;
-        auto ret = sscanf(line.data(), "%lu %lu", &u, &v);
-        if (!ret)
-        {
-            continue;
-        }
+        char const* p = line.c_str();
 
-        if (ret != 2)
-        {
-            throw std::runtime_error("Parse error while reading input graph!");
-        }
+        u = read_ulong(p);
+        v = read_ulong(p);
 
         if (!seen_header)
         {
@@ -49,37 +59,32 @@ void read_directed_graph(std::istream& ins, bool const weighted, F&& emplace, We
 {
     std::string line;
     bool seen_header = false;
-    int ret = 0;
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+    float w = 0.;
+
+    using Weight_type = std::decay_t<decltype(weight_f())>;
+    auto weight_f_result = [&](float w) -> Weight_type { return weighted ? w : weight_f(); };
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long v = 0;
-        float w = 0.;
+        char const* p = line.c_str();
 
         if (weighted)
         {
-            ret = sscanf(line.data(), "%lu %lu %f", &u, &v, &w);
-            if (ret != 3)
-            {
-                throw std::runtime_error("Parse error while reading input graph!");
-            }
+            u = read_ulong(p);
+            v = read_ulong(p);
+            w = read_ulong(p);
         }
         else
         {
-            ret = sscanf(line.data(), "%lu %lu", &u, &v);
-            if (ret != 2)
-            {
-                throw std::runtime_error("Parse error while reading input graph!");
-            }
-        }
-
-        if (!ret)
-        {
-            continue;
+            u = read_ulong(p);
+            v = read_ulong(p);
         }
 
         if (!seen_header)
@@ -88,15 +93,11 @@ void read_directed_graph(std::istream& ins, bool const weighted, F&& emplace, We
             continue;
         }
 
-        using Weight_type = std::decay_t<decltype(weight_f())>;
-        Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
-        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result);
+
+        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
     }
 }
 
-// TODO: Further optimisation of reading in graphs by manually parsing integers instead of
-//       using sscanf().
-//
 // TODO: Currently we will remove one edge from the graph file due to a possible header line.
 //       This must either be (somehow) automatically determined or flagged by the user to fix
 //       the removal of one edge.
@@ -120,36 +121,32 @@ void read_temporal_graph(std::istream& ins, bool const weighted, F&& emplace)
 {
     std::string line;
     bool seen_header = false;
-    int ret = 0;
-    int const retrieved_elements = weighted ? 4 : 3;
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+    unsigned long t = 0;
+    float w = 0.;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long v = 0;
-        unsigned long t = 0;
-        float w = 0.;
+        char const* p = line.c_str();
 
         if (weighted)
         {
-            ret = sscanf(line.data(), "%lu %lu %f %lu", &u, &v, &w, &t);
+            u = read_ulong(p);
+            v = read_ulong(p);
+            w = read_ulong(p);
+            t = read_ulong(p);
         }
         else
         {
-            ret = sscanf(line.data(), "%lu %lu %lu", &u, &v, &t);
-        }
-
-        if (!ret)
-        {
-            continue;
-        }
-
-        if (ret != retrieved_elements)
-        {
-            throw std::runtime_error("Parse error while reading input graph!");
+            u = read_ulong(p);
+            v = read_ulong(p);
+            t = read_ulong(p);
         }
 
         if (!seen_header)
@@ -192,24 +189,20 @@ void read_undirected_graph_unweighted(std::istream& ins, F&& emplace, Weight_f&&
 {
     std::string line;
     bool seen_header = false;
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long v = 0;
-        auto ret = sscanf(line.data(), "%lu %lu", &u, &v);
-        if (!ret)
-        {
-            continue;
-        }
+        char const* p = line.c_str();
 
-        if (ret != 2)
-        {
-            throw std::runtime_error("Parse error while reading input graph!");
-        }
+        u = read_ulong(p);
+        v = read_ulong(p);
 
         if (!seen_header)
         {
@@ -229,37 +222,32 @@ void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, 
 {
     std::string line;
     bool seen_header = false;
-    int ret = 0;
+
+    using Weight_type = std::decay_t<decltype(weight_f())>;
+    auto weight_f_result = [&](float w) -> Weight_type { return weighted ? w : weight_f(); };
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+    float w = 0.;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long v = 0;
-        float w = 0.;
+        char const* p = line.c_str();
 
         if (weighted)
         {
-            ret = sscanf(line.data(), "%lu %lu %f", &u, &v, &w);
-            if (ret != 3)
-            {
-                throw std::runtime_error("Parse error while reading input graph!");
-            }
+            u = read_ulong(p);
+            v = read_ulong(p);
+            w = read_ulong(p);
         }
         else
         {
-            ret = sscanf(line.data(), "%lu %lu", &u, &v);
-            if (ret != 2)
-            {
-                throw std::runtime_error("Parse error while reading input graph!");
-            }
-        }
-
-        if (!ret)
-        {
-            continue;
+            u = read_ulong(p);
+            v = read_ulong(p);
         }
 
         if (!seen_header)
@@ -268,10 +256,9 @@ void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, 
             continue;
         }
 
-        using Weight_type = std::decay_t<decltype(weight_f())>;
-        Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
-        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result);
-        emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result);
+
+        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
+        emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result(w));
     }
 }
 
@@ -296,37 +283,37 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
 {
     std::string line;
     bool seen_header = false;
-    int ret = 0;
-    int const retrieved_elements = weighted ? 4 : 3;
+
+    using Weight_type = std::decay_t<decltype(weight_f())>;
+    auto weight_f_result = [&](float w) -> Weight_type { return weighted ? w : weight_f(); };
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+    unsigned long t = 0;
+    float w = 0.;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long v = 0;
-        unsigned long t = 0;
-        float w = 0.;
+        char const* p = line.c_str();
 
         if (weighted)
         {
-            ret = sscanf(line.data(), "%lu %lu %f %lu", &u, &v, &w, &t);
+            u = read_ulong(p);
+            v = read_ulong(p);
+            w = read_ulong(p);
+            t = read_ulong(p);
         }
         else
         {
-            ret = sscanf(line.data(), "%lu %lu %lu", &u, &v, &t);
+            u = read_ulong(p);
+            v = read_ulong(p);
+            t = read_ulong(p);
         }
 
-        if (!ret)
-        {
-            continue;
-        }
-
-        if (ret != retrieved_elements)
-        {
-            throw std::runtime_error("Parse error while reading input graph!");
-        }
 
         if (!seen_header)
         {
@@ -334,14 +321,11 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
             continue;
         }
 
-        using Weight_type = std::decay_t<decltype(weight_f())>;
-        Weight_type const weight_f_result = [&]() { return weighted ? w : weight_f(); }();
-
-        emplace(V(u), V(v), weight_f_result, T(t));
+        emplace(V(u), V(v), weight_f_result(w), T(t));
 
         if (!directed)
         {
-            emplace(V(v), V(u), weight_f_result, T(t));
+            emplace(V(v), V(u), weight_f_result(w), T(t));
         }
     }
 }
@@ -378,28 +362,20 @@ template <typename Vertex, typename Label, typename F> void read_labels(std::ist
 {
     std::string line;
     int ret = 0;
-    int const retrieved_elements = 2;
+
+    unsigned long u = 0;
+    unsigned long l = 0;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        unsigned long u = 0;
-        unsigned long l = 0;
+        char const* p = line.c_str();
 
-        ret = sscanf(line.data(), "%lu %lu", &u, &l);
-
-
-        if (!ret)
-        {
-            continue;
-        }
-
-        if (ret != retrieved_elements)
-        {
-            throw std::runtime_error("Parse error while reading labeled node!");
-        }
+        u = read_ulong(p);
+        l = read_ulong(p);
 
         emplace(static_cast<Vertex>(u), static_cast<Label>(l));
     }
