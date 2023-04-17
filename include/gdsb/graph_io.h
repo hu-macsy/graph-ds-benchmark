@@ -2,6 +2,7 @@
 
 #include <gdsb/graph.h>
 
+#include <cstdlib>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
@@ -14,9 +15,7 @@ namespace gdsb
 inline unsigned long read_ulong(char const* input)
 {
     constexpr int numerical_base = 10;
-    char* end = nullptr;
-    unsigned long value = strtoul(input, &end, numerical_base);
-    input = end;
+    unsigned long value = std::strtoul(input, &end, numerical_base);
 
     if (errno == ERANGE)
     {
