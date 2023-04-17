@@ -2,6 +2,7 @@
 
 #include <gdsb/graph_io.h>
 
+#include <sstream>
 #include <string>
 
 // https://networkrepository.com/bio-celegans.php
@@ -17,6 +18,32 @@ static std::string weighted_temporal_graph{ "small_graph_temporal.edges" };
 
 using namespace gdsb;
 
+TEST_CASE("read_ulong")
+{
+    unsigned long const a = 40;
+    unsigned long const b = 200;
+    unsigned long const c = 11;
+    unsigned long const d = 29848572984;
+
+    std::stringstream ss;
+    ss << a << " " << b << " " << c << " " << d << "\n";
+    std::string test_string = ss.str();
+
+    char const* p = test_string.c_str();
+
+    char* end = nullptr;
+
+    unsigned long const a_read = read_ulong(p, end);
+    unsigned long const b_read = read_ulong(p, end);
+    unsigned long const c_read = read_ulong(p, end);
+    unsigned long const d_read = read_ulong(p, end);
+
+    CHECK(a == a_read);
+    CHECK(b == b_read);
+    CHECK(c == c_read);
+    CHECK(d == d_read);
+}
+
 
 TEST_CASE("read_undirected_graph")
 {
@@ -29,6 +56,30 @@ TEST_CASE("read_undirected_graph")
 
     // Undirected: thus original edge count 103 x 2
     CHECK(edges.size() == 103 * 2);
+
+    // CHECK if edge {16, 17} has weight 2008
+    for (Edge e : edges)
+    {
+        if (e.source == 16)
+        {
+            if (e.target.vertex == 17)
+            {
+                CHECK(e.target.weight == 2008.f);
+            }
+        }
+    }
+}
+
+TEST_CASE("read_directed_graph")
+{
+    Edges edges;
+    auto emplace = [&](Vertex u, Vertex v, Weight w) { edges.push_back(Edge{ u, Target{ v, w } }); };
+
+    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+
+    read_directed_graph<Vertex, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
+
+    CHECK(edges.size() == 103);
 
     // CHECK if edge {16, 17} has weight 2008
     for (Edge e : edges)
