@@ -38,16 +38,21 @@ template <typename Vertex, typename F> void read_graph_unweighted(std::istream& 
     unsigned long u = 0;
     unsigned long v = 0;
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
-        u = read_ulong(p);
-        v = read_ulong(p);
+        u = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        v = read_ulong(string_source, &string_position);
 
         if (!seen_header)
         {
@@ -72,24 +77,31 @@ void read_directed_graph(std::istream& ins, bool const weighted, F&& emplace, We
     using Weight_type = std::decay_t<decltype(weight_f())>;
     auto weight_f_result = [&](float w) -> Weight_type { return weighted ? w : weight_f(); };
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
         if (weighted)
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
-            w = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
         }
         else
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
         }
 
         if (!seen_header)
@@ -132,26 +144,35 @@ void read_temporal_graph(std::istream& ins, bool const weighted, F&& emplace)
     unsigned long t = 0;
     float w = 0.;
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
         if (weighted)
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
-            w = read_ulong(p);
-            t = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
         }
         else
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
-            t = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
         }
 
         if (!seen_header)
@@ -198,16 +219,21 @@ void read_undirected_graph_unweighted(std::istream& ins, F&& emplace, Weight_f&&
     unsigned long u = 0;
     unsigned long v = 0;
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
-        u = read_ulong(p);
-        v = read_ulong(p);
+        u = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        v = read_ulong(string_source, &string_position);
 
         if (!seen_header)
         {
@@ -235,24 +261,31 @@ void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, 
     unsigned long v = 0;
     float w = 0.;
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
         if (weighted)
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
-            w = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
         }
         else
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
         }
 
         if (!seen_header)
@@ -297,26 +330,35 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
     unsigned long t = 0;
     float w = 0.;
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
         if (weighted)
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
-            w = read_ulong(p);
-            t = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
         }
         else
         {
-            u = read_ulong(p);
-            v = read_ulong(p);
-            t = read_ulong(p);
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
         }
 
 
@@ -371,16 +413,21 @@ template <typename Vertex, typename Label, typename F> void read_labels(std::ist
     unsigned long u = 0;
     unsigned long l = 0;
 
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
     while (std::getline(ins, line))
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
         if (line.front() == '#') continue;
 
-        char const* p = line.c_str();
+        string_source = line.c_str();
+        string_position = nullptr;
 
-        u = read_ulong(p);
-        l = read_ulong(p);
+        u = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        l = read_ulong(string_source, &string_position);
 
         emplace(static_cast<Vertex>(u), static_cast<Label>(l));
     }
