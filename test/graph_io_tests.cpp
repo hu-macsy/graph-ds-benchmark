@@ -27,16 +27,18 @@ TEST_CASE("read_ulong")
 
     std::stringstream ss;
     ss << a << " " << b << " " << c << " " << d << "\n";
-    std::string test_string = ss.str();
+    std::string const test_string = ss.str();
 
-    char const* p = test_string.c_str();
+    char const* string_source = test_string.c_str();
+    char* string_position = nullptr;
 
-    char* end = nullptr;
-
-    unsigned long const a_read = read_ulong(p, end);
-    unsigned long const b_read = read_ulong(p, end);
-    unsigned long const c_read = read_ulong(p, end);
-    unsigned long const d_read = read_ulong(p, end);
+    unsigned long const a_read = read_ulong(string_source, &string_position);
+    string_source = string_position;
+    unsigned long const b_read = read_ulong(string_source, &string_position);
+    string_source = string_position;
+    unsigned long const c_read = read_ulong(string_source, &string_position);
+    string_source = string_position;
+    unsigned long const d_read = read_ulong(string_source, &string_position);
 
     CHECK(a == a_read);
     CHECK(b == b_read);
