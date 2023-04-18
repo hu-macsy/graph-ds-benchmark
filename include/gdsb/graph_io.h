@@ -6,20 +6,26 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <stdio.h>
 #include <vector>
 
 namespace gdsb
 {
 
-inline unsigned long read_ulong(char const* input)
+inline unsigned long read_ulong(char const* source, char** end = nullptr)
 {
     constexpr int numerical_base = 10;
-    unsigned long value = std::strtoul(input, &end, numerical_base);
+    unsigned long const value = std::strtoul(source, end, numerical_base);
 
     if (errno == ERANGE)
     {
         throw std::runtime_error("Input can not be interpreted as number of base 10.");
+    }
+
+    if (value == std::numeric_limits<unsigned long>::max())
+    {
+        throw std::range_error("Value out of range.");
     }
 
     return value;
