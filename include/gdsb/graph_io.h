@@ -496,4 +496,160 @@ template <typename Vertex, typename F> void read_graph_idx(std::istream& ins, F&
     }
 }
 
+template <typename V> struct Subgraph
+{
+    V source_begin;
+    V source_end;
+    V target_begin;
+    V target_end;
+};
+
+template <typename V, typename F, typename Weight_f>
+V read_subgraph(std::istream& ins, bool const directed, bool const weighted, Subgraph<V> const& subgraph, F&& emplace, Weight_f&& weight_f)
+{
+    using Weight_type = std::decay_t<decltype(weight_f())>;
+    auto weight_f_result = [&](float w) { return weighted ? w : weight_f(); };
+
+    V n = 0;
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+    float w = 0.;
+
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
+    std::string line;
+    bool seen_header = false;
+    while (std::getline(ins, line))
+    {
+        if (line.empty()) continue;
+        if (line.front() == '%') continue;
+        if (line.front() == '#') continue;
+
+        string_source = line.c_str();
+        string_position = nullptr;
+
+        if (weighted)
+        {
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
+        }
+        else
+        {
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+        }
+
+        if (!seen_header)
+        {
+            seen_header = true;
+            continue;
+        }
+
+        if (u > n)
+        {
+            n = u;
+        }
+        else if (v > n)
+        {
+            n = v;
+        }
+
+        if (u < subgraph.source_begin || u >= subgraph.source_end || v < subgraph.target_begin || v >= subgraph.target_end)
+        {
+            continue;
+        }
+
+        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
+
+        if (!directed)
+        {
+            emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result(w));
+        }
+    }
+
+    return ++n;
+}
+
+template <typename V, typename F, typename Weight_f>
+V read_temporal_subgraph(std::istream& ins, bool const directed, bool const weighted, Subgraph<V> const& subgraph, F&& emplace, Weight_f&& weight_f)
+{
+    using Weight_type = std::decay_t<decltype(weight_f())>;
+    auto weight_f_result = [&](float w) { return weighted ? w : weight_f(); };
+
+    unsigned long u = 0;
+    unsigned long v = 0;
+    unsigned long t = 0;
+    float w = 0.;
+
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
+    V n = 0;
+
+    std::string line;
+    bool seen_header = false;
+    while (std::getline(ins, line))
+    {
+        if (line.empty()) continue;
+        if (line.front() == '%') continue;
+        if (line.front() == '#') continue;
+
+        string_source = line.c_str();
+        string_position = nullptr;
+
+        if (weighted)
+        {
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
+        }
+        else
+        {
+            u = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            v = read_ulong(string_source, &string_position);
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
+        }
+
+        if (!seen_header)
+        {
+            seen_header = true;
+            continue;
+        }
+
+        if (u > n)
+        {
+            n = u;
+        }
+        else if (v > n)
+        {
+            n = v;
+        }
+
+        if (u < subgraph.source_begin || u >= subgraph.source_end || v < subgraph.target_begin || v >= subgraph.target_end)
+        {
+            continue;
+        }
+
+        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w), gdsb::Timestamp(t));
+        if (!directed)
+        {
+            emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result(w), gdsb::Timestamp(t));
+        }
+    }
+
+    return ++n;
+}
+
 } // namespace gdsb

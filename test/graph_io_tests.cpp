@@ -15,6 +15,7 @@ static std::string const graph_path =
 
 static std::string unweighted_temporal_graph{ "reptilia-tortoise-network-pv.edges" };
 static std::string weighted_temporal_graph{ "small_graph_temporal.edges" };
+static std::string unweighted_directed_graph{ "ENZYMES_g1.edges" };
 
 using namespace gdsb;
 
@@ -167,4 +168,58 @@ TEST_CASE("temporal undirected")
                                                                   std::move(emplace), std::move(weight_f));
 
     CHECK(timestamped_edges.edges.size() == 103 * 2); // File does not have header line, this one edge less
+}
+
+TEST_CASE("Decomposition")
+{
+    using namespace gdsb;
+
+    SECTION("Read in unweighted undirected subgraph")
+    {
+        std::ifstream graph_input(graph_path + unweighted_directed_graph);
+
+        // This will read in the subgraph including vertex 1 and 2 and all it's
+        // edges
+        Subgraph<Vertex> subgraph{ 2, 5, 0, 38 };
+
+        Edges edges;
+
+        Vertex n = read_subgraph<Vertex>(
+            graph_input, true, false, subgraph,
+            [&](Vertex u, Vertex v, Weight w) {
+                edges.push_back({ u, { v, w } });
+            },
+            [&]() { return 1.0f; });
+
+        CHECK(edges.size() == 16);
+        CHECK(n == 38);
+    }
+
+    SECTION("Read in weighted undirected timestamped subgraph")
+    {
+        std::ifstream graph_input(graph_path + weighted_temporal_graph);
+
+        Subgraph<Vertex> subgraph{ 0, 3, 0, 7 };
+
+        gdsb::TimestampedEdges<Edges, Timestamps64> timestamped_edges;
+
+        bool const directed = false;
+        bool const weighted = true;
+
+        Vertex n = read_temporal_subgraph<Vertex>(
+            graph_input, directed, weighted, subgraph,
+            [&](Vertex u, Vertex v, Weight w, gdsb::Timestamp t)
+            {
+                timestamped_edges.edges.push_back({ u, { v, w } });
+                timestamped_edges.timestamps.push_back(t);
+            },
+            [&]() { return 1.0f; });
+
+        timestamped_edges = gdsb::sort<Edges, Timestamps64, Timestamp64>(timestamped_edges);
+
+        Edges edges = std::move(timestamped_edges.edges);
+
+        CHECK(edges.size() == 6);
+        CHECK(n == 7);
+    }
 }
