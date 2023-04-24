@@ -9,3 +9,10 @@ Sah, Pratha, et al.
 refuge use in the desert tortoise, a relatively 
 solitary species." 
 Behavioral Ecology and Sociobiology 70.8 (2016): 1277-1289.
+
+# ENZYMES_g1.edges
+Source: https://networkrepository.com/ENZYMES-g1.php
+Ryan A. Rossi and Nesreen K. Ahmed
+"The Network Data Repository with Interactive Graph Analytics and Visualization"
+AAAI
+2015
