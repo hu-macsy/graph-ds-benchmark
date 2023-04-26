@@ -55,21 +55,21 @@ template <typename F, class DS, class E> std::chrono::milliseconds benchmark(F&&
 template <typename T> void out(std::string name, T value) { std::cout << name << ": " << value << std::endl; }
 
 //! Use this function to output ranges in yaml format.
-template <typename It> void out(std::string name, It begin, It end)
+template <typename It> void out(std::string name, It begin, It end, std::ostream& stream = std::cout)
 {
-    std::cout << name << ": [";
+    stream << name << ": [";
 
     if (begin != end)
     {
-        std::for_each(begin, end - 1, [&](auto const& e) { std::cout << e << ", "; });
+        std::for_each(begin, end - 1, [&](auto const& e) { stream << e << ", "; });
 
         if (end - 1 != begin)
         {
-            std::cout << *(end - 1);
+            stream << *(end - 1);
         }
     }
 
-    std::cout << "]" << std::endl;
+    stream << "]" << std::endl;
 }
 
 //! Returns the memory usage in KB for the calling process.
