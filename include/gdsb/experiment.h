@@ -62,11 +62,7 @@ template <typename It> void out(std::string name, It begin, It end, std::ostream
     if (begin != end)
     {
         std::for_each(begin, end - 1, [&](auto const& e) { stream << e << ", "; });
-
-        if (end - 1 != begin)
-        {
-            stream << *(end - 1);
-        }
+        stream << *(end - 1);
     }
 
     stream << "]" << std::endl;
