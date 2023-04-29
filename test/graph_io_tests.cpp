@@ -73,6 +73,33 @@ TEST_CASE("read_undirected_graph")
     }
 }
 
+TEST_CASE("read_undirected_graph, set max_edge_count")
+{
+    Edges edges;
+    auto emplace = [&](Vertex u, Vertex v, Weight w) { edges.push_back(Edge{ u, Target{ v, w } }); };
+
+    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+
+    uint64_t max_edge_count = 53;
+    read_undirected_graph<Vertex, decltype(emplace)>(
+        graph_input, true, std::move(emplace), []() { return 1.f; }, max_edge_count);
+
+    // Undirected: thus original edge count 103 x 2
+    CHECK(edges.size() == 54);
+
+    // CHECK if edge {16, 17} has weight 2008
+    for (Edge e : edges)
+    {
+        if (e.source == 16)
+        {
+            if (e.target.vertex == 17)
+            {
+                CHECK(e.target.weight == 2008.f);
+            }
+        }
+    }
+}
+
 TEST_CASE("read_directed_graph")
 {
     Edges edges;
@@ -83,6 +110,33 @@ TEST_CASE("read_directed_graph")
     read_directed_graph<Vertex, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
 
     CHECK(edges.size() == 103);
+
+    // CHECK if edge {16, 17} has weight 2008
+    for (Edge e : edges)
+    {
+        if (e.source == 16)
+        {
+            if (e.target.vertex == 17)
+            {
+                CHECK(e.target.weight == 2008.f);
+            }
+        }
+    }
+}
+
+TEST_CASE("read_directed_graph, set max_edge_count")
+{
+    Edges edges;
+    auto emplace = [&](Vertex u, Vertex v, Weight w) { edges.push_back(Edge{ u, Target{ v, w } }); };
+
+    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+
+    uint64_t max_edge_count = 53;
+    ;
+    read_directed_graph<Vertex, decltype(emplace)>(
+        graph_input, true, std::move(emplace), []() { return 1.f; }, max_edge_count);
+
+    CHECK(edges.size() == 53);
 
     // CHECK if edge {16, 17} has weight 2008
     for (Edge e : edges)
@@ -117,6 +171,25 @@ TEST_CASE("read undirected unweighted")
                                                                                     std::move(emplace), std::move(weight_f));
 
     CHECK(edges.size() == (103 * 2)); // File does not have header line, this one edge less
+}
+
+TEST_CASE("temporal, set max_count_edges")
+{
+    TimestampedEdges<Edges, Timestamps> timestamped_edges;
+    auto emplace = [&](Vertex u, Vertex v, float w, Timestamp t)
+    {
+        timestamped_edges.edges.push_back(Edge{ u, Target{ v, w } });
+        timestamped_edges.timestamps.push_back(t);
+    };
+
+    auto weight_f = []() -> Weight { return 1.f; };
+
+    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+
+    uint64_t const max_count_edges = 53;
+    read_temporal_graph<Vertex, Timestamp>(graph_input, false, true, std::move(emplace), std::move(weight_f), max_count_edges);
+
+    CHECK(timestamped_edges.edges.size() == max_count_edges);
 }
 
 TEST_CASE("temporal")

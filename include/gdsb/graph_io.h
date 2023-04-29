@@ -6,6 +6,7 @@
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
+#include <limits>
 #include <stdexcept>
 #include <stdio.h>
 #include <vector>
@@ -65,7 +66,11 @@ template <typename Vertex, typename F> void read_graph_unweighted(std::istream& 
 }
 
 template <typename V, typename F, typename Weight_f>
-void read_directed_graph(std::istream& ins, bool const weighted, F&& emplace, Weight_f&& weight_f)
+void read_directed_graph(std::istream& ins,
+                         bool const weighted,
+                         F&& emplace,
+                         Weight_f&& weight_f,
+                         uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     std::string line;
     bool seen_header = false;
@@ -80,7 +85,8 @@ void read_directed_graph(std::istream& ins, bool const weighted, F&& emplace, We
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    while (std::getline(ins, line))
+    uint64_t edge_counter = 0;
+    while (std::getline(ins, line) && edge_counter < edge_count_max)
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
@@ -112,6 +118,7 @@ void read_directed_graph(std::istream& ins, bool const weighted, F&& emplace, We
 
 
         emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
+        ++edge_counter;
     }
 }
 
@@ -211,7 +218,10 @@ TimestampedEdges<EdgeVector, TStamps> read_temporal_graph(std::string path, bool
 }
 
 template <typename Vertex, typename F, typename Weight_f>
-void read_undirected_graph_unweighted(std::istream& ins, F&& emplace, Weight_f&& weight_f)
+void read_undirected_graph_unweighted(std::istream& ins,
+                                      F&& emplace,
+                                      Weight_f&& weight_f,
+                                      uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     std::string line;
     bool seen_header = false;
@@ -222,7 +232,8 @@ void read_undirected_graph_unweighted(std::istream& ins, F&& emplace, Weight_f&&
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    while (std::getline(ins, line))
+    uint64_t edge_counter = 0;
+    while (std::getline(ins, line) && edge_counter < edge_count_max)
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
@@ -245,11 +256,16 @@ void read_undirected_graph_unweighted(std::istream& ins, F&& emplace, Weight_f&&
         Weight_type const w = weight_f();
         emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
         emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+        edge_counter += 2;
     }
 }
 
 template <typename V, typename F, typename Weight_f>
-void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, Weight_f&& weight_f)
+void read_undirected_graph(std::istream& ins,
+                           bool const weighted,
+                           F&& emplace,
+                           Weight_f&& weight_f,
+                           uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     std::string line;
     bool seen_header = false;
@@ -264,7 +280,8 @@ void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, 
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    while (std::getline(ins, line))
+    uint64_t edge_counter = 0;
+    while (std::getline(ins, line) && edge_counter < edge_count_max)
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
@@ -297,6 +314,7 @@ void read_undirected_graph(std::istream& ins, bool const weighted, F&& emplace, 
 
         emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
         emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result(w));
+        edge_counter += 2;
     }
 }
 
@@ -317,7 +335,12 @@ void read_undirected_graph_unweighted(std::string path, F&& emplace, Weight_f&& 
 }
 
 template <typename V, typename T, typename F, typename Weight_f>
-void read_temporal_graph(std::istream& ins, bool const weighted, bool const directed, F&& emplace, Weight_f&& weight_f)
+void read_temporal_graph(std::istream& ins,
+                         bool const weighted,
+                         bool const directed,
+                         F&& emplace,
+                         Weight_f&& weight_f,
+                         uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     std::string line;
     bool seen_header = false;
@@ -333,7 +356,8 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    while (std::getline(ins, line))
+    uint64_t edge_counter = 0;
+    while (std::getline(ins, line) && edge_counter < edge_count_max)
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
@@ -369,10 +393,12 @@ void read_temporal_graph(std::istream& ins, bool const weighted, bool const dire
         }
 
         emplace(V(u), V(v), weight_f_result(w), T(t));
+        ++edge_counter;
 
         if (!directed)
         {
             emplace(V(v), V(u), weight_f_result(w), T(t));
+            ++edge_counter;
         }
     }
 }
