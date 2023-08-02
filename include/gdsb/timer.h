@@ -20,7 +20,7 @@ protected:
     TimePoint m_end_point;
 };
 
-//! Use to measure system time duration. This will include time the process is not execude by the
+//! Use to measure system time duration. This will include time the process is not executed by the
 //! CPU.
 class WallTimer : public Timer<std::chrono::high_resolution_clock::time_point, std::chrono::nanoseconds>
 {
