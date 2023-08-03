@@ -142,6 +142,4 @@ template <typename VertexT, typename EdgesT> EdgesT gilbert_edges(float const p,
     return random_edges;
 }
 
-Edges64 gilbert_edges_64(float const p, Vertex64 const n, std::mt19937& engine);
-
 } // namespace gdsb

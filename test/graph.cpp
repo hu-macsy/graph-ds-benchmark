@@ -19,12 +19,12 @@ TEST_CASE("Vertex Counting")
 {
     SECTION("Using type Edges")
     {
-        Edges edges;
-        auto emplace = [&](Vertex u, Vertex v, Weight w) { edges.push_back(Edge{ u, Target{ v, w } }); };
+        Edges32 edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
 
         std::ifstream graph_input(graph_path + unweighted_temporal_graph);
 
-        read_undirected_graph<Vertex, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
+        read_undirected_graph<Vertex32, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
 
         CHECK(vertex_count(edges) == 36);
     }
@@ -47,9 +47,9 @@ TEST_CASE("Graph")
 {
     SECTION("Invalid Edge")
     {
-        Edge invalid = invalid_edge();
-        CHECK(invalid.source == std::numeric_limits<Vertex>::max());
-        CHECK(invalid.target.vertex == std::numeric_limits<Vertex>::max());
+        Edge32 invalid = invalid_edge<Edge32>();
+        CHECK(invalid.source == std::numeric_limits<Vertex32>::max());
+        CHECK(invalid.target.vertex == std::numeric_limits<Vertex32>::max());
         CHECK(invalid.target.weight == std::numeric_limits<Weight>::infinity());
     }
 
@@ -57,7 +57,7 @@ TEST_CASE("Graph")
     {
         std::mt19937 engine{ 42 };
 
-        Edges edges = gilbert_edges(0.01, 100, engine);
+        Edges32 edges = gilbert_edges<Vertex32, Edges32>(0.01, 100, engine);
         CHECK(edges.size() >= 100);
     }
 }

@@ -602,8 +602,9 @@ V read_subgraph(std::istream& ins, bool const directed, bool const weighted, Sub
     return ++n;
 }
 
-template <typename V, typename F, typename Weight_f>
-V read_temporal_subgraph(std::istream& ins, bool const directed, bool const weighted, Subgraph<V> const& subgraph, F&& emplace, Weight_f&& weight_f)
+template <typename VertexT, typename F, typename Weight_f>
+VertexT
+read_temporal_subgraph(std::istream& ins, bool const directed, bool const weighted, Subgraph<VertexT> const& subgraph, F&& emplace, Weight_f&& weight_f)
 {
     using Weight_type = std::decay_t<decltype(weight_f())>;
     auto weight_f_result = [&](float w) { return weighted ? w : weight_f(); };
@@ -616,7 +617,7 @@ V read_temporal_subgraph(std::istream& ins, bool const directed, bool const weig
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    V n = 0;
+    VertexT n = 0;
 
     std::string line;
     bool seen_header = false;
@@ -668,10 +669,10 @@ V read_temporal_subgraph(std::istream& ins, bool const directed, bool const weig
             continue;
         }
 
-        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w), gdsb::Timestamp(t));
+        emplace(static_cast<VertexT>(u), static_cast<VertexT>(v), weight_f_result(w), gdsb::Timestamp32(t));
         if (!directed)
         {
-            emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result(w), gdsb::Timestamp(t));
+            emplace(static_cast<VertexT>(v), static_cast<VertexT>(u), weight_f_result(w), gdsb::Timestamp32(t));
         }
     }
 

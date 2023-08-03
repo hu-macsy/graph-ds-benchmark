@@ -111,7 +111,7 @@ thread_batch(EdgeIt batch_begin, EdgeIt batch_end, unsigned int thread_count, un
 
     if (start != end)
     {
-        Vertex const predecessor = (start == batch_begin) ? invalid_vertex : std::prev(start, 1)->source;
+        V const predecessor = (start == batch_begin) ? invalid_vertex : std::prev(start, 1)->source;
 
         while (start != end && predecessor == start->source)
         {
@@ -120,7 +120,7 @@ thread_batch(EdgeIt batch_begin, EdgeIt batch_end, unsigned int thread_count, un
 
         if (start != end)
         {
-            for (Vertex successor = (end == batch_end) ? invalid_vertex : end->source;
+            for (V successor = (end == batch_end) ? invalid_vertex : end->source;
                  end != batch_end && successor == (end - 1)->source && end->source != predecessor; successor = end->source)
             {
                 std::advance(end, 1);
