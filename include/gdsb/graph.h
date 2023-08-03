@@ -10,55 +10,76 @@ namespace gdsb
 
 using Weight = float;
 
-using Vertex = unsigned int;
+using Vertex32 = unsigned int;
 using Vertex64 = uint64_t;
-using Degree = unsigned int;
+using Degree32 = unsigned int;
 using Degree64 = uint64_t;
 
-struct Target
+template <typename VertexT, typename WeightT> struct Target
 {
-    Vertex vertex;
-    Weight weight;
+    VertexT vertex;
+    WeightT weight;
 };
 
-template <typename V, typename W> struct Target_t
+
+template <typename VertexT, typename TargetT> struct Edge
 {
-    V vertex;
-    W weight;
+    VertexT source;
+    TargetT target;
 };
-
-using Target64 = gdsb::Target_t<gdsb::Vertex64, gdsb::Weight>;
-
-struct Edge
-{
-    Vertex source;
-    Target target;
-};
-
-template <typename V, typename T> struct Edge_t
-{
-    V source;
-    T target;
-};
-
-using Edge64 = gdsb::Edge_t<gdsb::Vertex64, Target64>;
 
 Weight invalid_weight();
 
 template <typename V> V invalid_vertex() { return std::numeric_limits<V>::max(); }
-Edge invalid_edge();
-Target invalid_target();
 
-using Edges = std::vector<Edge>;
+template <typename EdgeT> EdgeT invalid_edge()
+{
+    using Vertex_type = decltype(EdgeT::source);
+    return { invalid_vertex<Vertex_type>(), { invalid_vertex<Vertex_type>(), invalid_weight() } };
+}
+
+template <typename TargetT> TargetT invalid_target()
+{
+    using Vertex_type = decltype(TargetT::vertex);
+    return { invalid_vertex<Vertex_type>(), invalid_weight() };
+}
+
+using Target32 = Target<Vertex32, Weight>;
+using Edge32 = Edge<Vertex32, Target32>;
+using Edges32 = std::vector<Edge32>;
+
+using Target64 = Target<Vertex64, Weight>;
+using Edge64 = Edge<Vertex64, Target64>;
 using Edges64 = std::vector<Edge64>;
-using Targets = std::vector<Target>;
+
+using Targets32 = std::vector<Target32>;
 using Targets64 = std::vector<Target64>;
-using Timestamp = uint32_t;
+
+using Timestamp32 = uint32_t;
 using Timestamp64 = uint64_t;
-using Timestamps = std::vector<Timestamp>;
+
+using Timestamps32 = std::vector<Timestamp32>;
 using Timestamps64 = std::vector<Timestamp64>;
 
-gdsb::Vertex max_nnz(Edges const& edges);
+template <typename EdgesT> auto max_nnz(EdgesT const& edges)
+{
+    std::vector<EdgesT> ids;
+
+    for (auto const& e : edges)
+    {
+        if (e.source >= ids.size())
+        {
+            ids.resize(e.source + 1);
+            ids[e.source] = 1;
+        }
+        else
+        {
+            ids[e.source]++;
+        }
+    }
+
+    return *std::max_element(std::begin(ids), std::end(ids));
+}
 
 template <typename Edges_t> decltype(Edges_t::value_type::source) vertex_count(Edges_t const& edges)
 {
@@ -101,7 +122,25 @@ TimestampedEdges<Edges, TStamps>& sort(TimestampedEdges<Edges, TStamps>& t_edges
     return t_edges;
 }
 
-Edges gilbert_edges(float const p, unsigned int const n, std::mt19937& engine);
+template <typename VertexT, typename EdgesT> EdgesT gilbert_edges(float const p, VertexT const n, std::mt19937& engine)
+{
+    EdgesT random_edges;
+    std::uniform_real_distribution<float> distrib{ 0.0f, 1.0f };
+
+    for (VertexT i = 0; i < n; ++i)
+    {
+        for (VertexT j = 0; j < n; ++j)
+        {
+            // j != i -> no loops in simple directed graphs
+            if (j != i && distrib(engine) <= p)
+            {
+                random_edges.push_back({ i, j, 1.f });
+            }
+        }
+    }
+
+    return random_edges;
+}
 
 Edges64 gilbert_edges_64(float const p, Vertex64 const n, std::mt19937& engine);
 
