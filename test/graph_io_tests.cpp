@@ -79,9 +79,29 @@ TEST_CASE("read_graph_generic")
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
     std::ifstream graph_input(graph_path + unweighted_temporal_graph);
 
+    SECTION("undirected, unweighted")
+    {
+        read_graph_generic<false, false, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+
+        // directed: thus original edge count 103
+        CHECK(103 * 2 == edges.size());
+        
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 1.f);
+                }
+            }
+        }
+    }
+
     SECTION("directed, unweighted")
     {
-        read_graph_generic<true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+        read_graph_generic<true, false, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 == edges.size());
@@ -100,9 +120,9 @@ TEST_CASE("read_graph_generic")
     }
 
 
-    SECTION("undirected, unweighted")
+    SECTION("undirected, weighted")
     {
-        read_graph_generic<false, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+        read_graph_generic<false, true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 * 2 == edges.size());
@@ -114,11 +134,32 @@ TEST_CASE("read_graph_generic")
             {
                 if (e.target.vertex == 17)
                 {
-                    CHECK(e.target.weight == 1.f);
+                    CHECK(e.target.weight == 2008.f);
                 }
             }
         }
     }
+
+    SECTION("directed, weighted")
+    {
+        read_graph_generic<true, true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+
+        // directed: thus original edge count 103
+        CHECK(103 == edges.size());
+
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 2008.f);
+                }
+            }
+        }
+    }
+
 
 
 }

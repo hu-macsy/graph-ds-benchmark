@@ -18,13 +18,14 @@ namespace gdsb
 //! to read next from for subsequent reads of integers within one string (stream).
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
-template <bool Directed, typename Vertex, typename EmplaceF>
+template <bool Directed, bool Weighted, typename Vertex, typename EmplaceF>
 void read_graph_generic(std::istream& input, EmplaceF&& emplace)
 {
     std::string line;
     bool seen_header = false;
     unsigned long u = 0;
     unsigned long v = 0;
+    float w = 1.;
 
     char const* string_source = nullptr;
     char* string_position = nullptr;
@@ -42,6 +43,12 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace)
         string_source = string_position;
         v = read_ulong(string_source, &string_position);
 
+        if constexpr (Weighted)
+        {
+            string_source = string_position;
+            w = read_ulong(string_source, &string_position);
+        }
+
         if (!seen_header)
         {
             seen_header = true;
@@ -50,12 +57,13 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace)
 
         if constexpr (Directed)
         {
-            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), 1.0);
+            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+            
         }
         else 
         {
-            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), 1.0);
-            emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), 1.0);
+            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+            emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
         }
     }
 }
