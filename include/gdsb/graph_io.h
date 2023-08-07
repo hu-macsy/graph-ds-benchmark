@@ -19,7 +19,7 @@ namespace gdsb
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
 template <bool Directed, bool Weighted, typename Vertex, typename EmplaceF>
-void read_graph_generic(std::istream& input, EmplaceF&& emplace)
+void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     std::string line;
     bool seen_header = false;
@@ -30,7 +30,7 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace)
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    while (std::getline(input, line))
+    for (uint64_t edge_counter = 0; std::getline(input, line) && edge_counter < edge_count_max;)
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
@@ -65,6 +65,8 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace)
             emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
             emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
         }
+
+        ++edge_counter;
     }
 }
 

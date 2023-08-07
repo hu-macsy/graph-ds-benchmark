@@ -160,8 +160,26 @@ TEST_CASE("read_graph_generic")
         }
     }
 
+    SECTION("directed, weighted, max_vertex set")
+    {
+        uint64_t const max_vertex_count = 53;
+        read_graph_generic<true, true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace), max_vertex_count);
 
+        // directed: thus original edge count 103
+        CHECK(max_vertex_count == edges.size());
 
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 2008.f);
+                }
+            }
+        }
+    }
 }
 
 TEST_CASE("read_undirected_graph, set max_edge_count")
