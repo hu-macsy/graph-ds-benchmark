@@ -8,7 +8,7 @@ Sorted alphabetically.
 
 | Name                      | E-Mail                                  | Affiliation |
 |---------------------------|-----------------------------------------|-------------|
-| Alexander van der Grinten | avdgrinten@hu-berlin.de                 | HU Berlin   |
+| Alexander van der Grinten | n/a                                     | n/a         |
 | Florian Willich           | florian.willich@informatik.hu-berlin.de | HU Berlin   |
 
 # Build 
