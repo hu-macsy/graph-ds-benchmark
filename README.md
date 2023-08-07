@@ -29,9 +29,7 @@ Build the library using CMake, generator Ninja.
 mkdir install
 mkdir build
 cd build
-mkdir gdsb
-cd gdsb
-cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../../install ../../
+cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../install ../
 ninja
 ninja install
 ```
@@ -42,7 +40,7 @@ ninja install
 You can build the tests by setting the CMake option `GDSB_TEST` to `On`.
 
 ```
-cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DGDSB_TEST=On -DCMAKE_INSTALL_PREFIX=../../install ../../
+cmake -GNinja -DCMAKE_BUILD_TYPE=Release -DGDSB_TEST=On -DCMAKE_INSTALL_PREFIX=../install ../
 ninja install
 ninja
 ```
