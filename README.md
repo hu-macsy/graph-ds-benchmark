@@ -2,6 +2,16 @@
 
 This library offers various tools for graph data structure experiments.
 
+## Releases
+
+### v0.0.1
+
+This version includes timer, graph (I/O), and sorting functionality. Also includes a batcher system and an experiment environment for benchmarking.
+
+| Version Number        | Tag       | URL                                                        |
+| ----------------------|-----------|------------------------------------------------------------|
+| 0.0.1                 | v0.0.1    | https://github.com/hu-macsy/graph-ds-benchmark/tree/v0.0.1 |
+
 ## Authors
 
 Sorted alphabetically.
