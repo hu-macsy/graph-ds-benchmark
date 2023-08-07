@@ -2,35 +2,21 @@
 
 #include <gdsb/graph.h>
 
-#include <cstdlib>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
-#include <limits>
-#include <stdexcept>
-#include <stdio.h>
 #include <vector>
 
 namespace gdsb
 {
 
-inline unsigned long read_ulong(char const* source, char** end = nullptr)
-{
-    constexpr int numerical_base = 10;
-    unsigned long const value = std::strtoul(source, end, numerical_base);
-
-    if (errno == ERANGE)
-    {
-        throw std::runtime_error("Input can not be interpreted as number of base 10.");
-    }
-
-    if (value == std::numeric_limits<unsigned long>::max())
-    {
-        throw std::range_error("Value out of range.");
-    }
-
-    return value;
-}
+//! Reads in space separated integers of type unsigned long. Returns max if
+//! integer at position source can not be interpreted as a number.
+//! @param source   Points to the beginning of the character (sub string) to be
+//! interpreted.
+//! @param end      Points to nullptr on first call, will (point) out position
+//! to read next from for subsequent reads of integers within one string (stream).
+unsigned long read_ulong(char const* source, char** end = nullptr);
 
 template <typename Vertex, typename F> void read_graph_unweighted(std::istream& ins, F&& emplace)
 {

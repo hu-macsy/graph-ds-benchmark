@@ -24,6 +24,7 @@ set(public_headers
 target_sources(gdsb
   PRIVATE
     src/timer.cpp
+    src/graph_io.cpp
     src/graph.cpp
     src/experiment.cpp
 )
