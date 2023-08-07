@@ -73,6 +73,56 @@ TEST_CASE("read_undirected_graph")
     }
 }
 
+TEST_CASE("read_graph_generic")
+{
+    Edges32 edges;
+    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+
+    SECTION("directed, unweighted")
+    {
+        read_graph_generic<true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+
+        // directed: thus original edge count 103
+        CHECK(103 == edges.size());
+
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 1.f);
+                }
+            }
+        }
+    }
+
+
+    SECTION("undirected, unweighted")
+    {
+        read_graph_generic<false, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+
+        // directed: thus original edge count 103
+        CHECK(103 * 2 == edges.size());
+        
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 1.f);
+                }
+            }
+        }
+    }
+
+
+}
+
 TEST_CASE("read_undirected_graph, set max_edge_count")
 {
     Edges32 edges;

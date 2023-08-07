@@ -18,6 +18,48 @@ namespace gdsb
 //! to read next from for subsequent reads of integers within one string (stream).
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
+template <bool Directed, typename Vertex, typename EmplaceF>
+void read_graph_generic(std::istream& input, EmplaceF&& emplace)
+{
+    std::string line;
+    bool seen_header = false;
+    unsigned long u = 0;
+    unsigned long v = 0;
+
+    char const* string_source = nullptr;
+    char* string_position = nullptr;
+
+    while (std::getline(input, line))
+    {
+        if (line.empty()) continue;
+        if (line.front() == '%') continue;
+        if (line.front() == '#') continue;
+
+        string_source = line.c_str();
+        string_position = nullptr;
+
+        u = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        v = read_ulong(string_source, &string_position);
+
+        if (!seen_header)
+        {
+            seen_header = true;
+            continue;
+        }
+
+        if constexpr (Directed)
+        {
+            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), 1.0);
+        }
+        else 
+        {
+            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), 1.0);
+            emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), 1.0);
+        }
+    }
+}
+
 template <typename Vertex, typename F> void read_graph_unweighted(std::istream& ins, F&& emplace)
 {
     std::string line;
