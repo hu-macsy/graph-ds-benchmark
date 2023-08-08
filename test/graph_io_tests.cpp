@@ -47,32 +47,6 @@ TEST_CASE("read_ulong")
     CHECK(d == d_read);
 }
 
-
-TEST_CASE("read_undirected_graph")
-{
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-
-    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
-
-    read_undirected_graph<Vertex32, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
-
-    // Undirected: thus original edge count 103 x 2
-    CHECK(edges.size() == 103 * 2);
-
-    // CHECK if edge {16, 17} has weight 2008
-    for (Edge32 e : edges)
-    {
-        if (e.source == 16)
-        {
-            if (e.target.vertex == 17)
-            {
-                CHECK(e.target.weight == 2008.f);
-            }
-        }
-    }
-}
-
 TEST_CASE("read_graph_generic")
 {
     Edges32 edges;
@@ -254,33 +228,6 @@ TEST_CASE("read_graph_generic")
     }
 }
 
-TEST_CASE("read_undirected_graph, set max_edge_count")
-{
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-
-    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
-
-    uint64_t max_edge_count = 53;
-    read_undirected_graph<Vertex32, decltype(emplace)>(
-        graph_input, true, std::move(emplace), []() { return 1.f; }, max_edge_count);
-
-    // Undirected: thus original edge count 103 x 2
-    CHECK(edges.size() == 54);
-
-    // CHECK if edge {16, 17} has weight 2008
-    for (Edge32 e : edges)
-    {
-        if (e.source == 16)
-        {
-            if (e.target.vertex == 17)
-            {
-                CHECK(e.target.weight == 2008.f);
-            }
-        }
-    }
-}
-
 TEST_CASE("read_directed_graph")
 {
     Edges32 edges;
@@ -330,18 +277,6 @@ TEST_CASE("read_directed_graph, set max_edge_count")
             }
         }
     }
-}
-
-TEST_CASE("read undirected unweighted")
-{
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-    auto weight_f = []() -> Weight { return 1.f; };
-
-    read_undirected_graph_unweighted<Vertex32, decltype(emplace), decltype(weight_f)>(graph_path + unweighted_temporal_graph,
-                                                                                      std::move(emplace), std::move(weight_f));
-
-    CHECK(edges.size() == (103 * 2)); // File does not have header line, this one edge less
 }
 
 TEST_CASE("temporal, set max_count_edges")

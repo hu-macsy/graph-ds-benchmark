@@ -286,64 +286,6 @@ void read_undirected_graph_unweighted(std::istream& ins,
     }
 }
 
-template <typename V, typename F, typename Weight_f>
-void read_undirected_graph(std::istream& ins,
-                           bool const weighted,
-                           F&& emplace,
-                           Weight_f&& weight_f,
-                           uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
-{
-    std::string line;
-    bool seen_header = false;
-
-    using Weight_type = std::decay_t<decltype(weight_f())>;
-    auto weight_f_result = [&](float w) -> Weight_type { return weighted ? w : weight_f(); };
-
-    unsigned long u = 0;
-    unsigned long v = 0;
-    float w = 0.;
-
-    char const* string_source = nullptr;
-    char* string_position = nullptr;
-
-    uint64_t edge_counter = 0;
-    while (std::getline(ins, line) && edge_counter < edge_count_max)
-    {
-        if (line.empty()) continue;
-        if (line.front() == '%') continue;
-        if (line.front() == '#') continue;
-
-        string_source = line.c_str();
-        string_position = nullptr;
-
-        if (weighted)
-        {
-            u = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            v = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            w = read_ulong(string_source, &string_position);
-        }
-        else
-        {
-            u = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            v = read_ulong(string_source, &string_position);
-        }
-
-        if (!seen_header)
-        {
-            seen_header = true;
-            continue;
-        }
-
-
-        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
-        emplace(static_cast<V>(v), static_cast<V>(u), weight_f_result(w));
-        edge_counter += 2;
-    }
-}
-
 template <typename Vertex, typename F, typename Weight_f>
 void read_undirected_graph_unweighted(std::string path, F&& emplace, Weight_f&& weight_f)
 {
