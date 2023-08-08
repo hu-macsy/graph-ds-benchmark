@@ -228,57 +228,6 @@ TEST_CASE("read_graph_generic")
     }
 }
 
-TEST_CASE("read_directed_graph")
-{
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-
-    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
-
-    read_directed_graph<Vertex32, decltype(emplace)>(graph_input, true, std::move(emplace), []() { return 1.f; });
-
-    CHECK(edges.size() == 103);
-
-    // CHECK if edge {16, 17} has weight 2008
-    for (Edge32 e : edges)
-    {
-        if (e.source == 16)
-        {
-            if (e.target.vertex == 17)
-            {
-                CHECK(e.target.weight == 2008.f);
-            }
-        }
-    }
-}
-
-TEST_CASE("read_directed_graph, set max_edge_count")
-{
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-
-    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
-
-    uint64_t max_edge_count = 53;
-    ;
-    read_directed_graph<Vertex32, decltype(emplace)>(
-        graph_input, true, std::move(emplace), []() { return 1.f; }, max_edge_count);
-
-    CHECK(edges.size() == 53);
-
-    // CHECK if edge {16, 17} has weight 2008
-    for (Edge32 e : edges)
-    {
-        if (e.source == 16)
-        {
-            if (e.target.vertex == 17)
-            {
-                CHECK(e.target.weight == 2008.f);
-            }
-        }
-    }
-}
-
 TEST_CASE("temporal, set max_count_edges")
 {
     TimestampedEdges<Edges32, Timestamps32> timestamped_edges;

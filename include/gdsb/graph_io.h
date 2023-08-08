@@ -94,63 +94,6 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
     }
 }
 
-template <typename V, typename F, typename Weight_f>
-void read_directed_graph(std::istream& ins,
-                         bool const weighted,
-                         F&& emplace,
-                         Weight_f&& weight_f,
-                         uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
-{
-    std::string line;
-    bool seen_header = false;
-
-    unsigned long u = 0;
-    unsigned long v = 0;
-    float w = 0.;
-
-    using Weight_type = std::decay_t<decltype(weight_f())>;
-    auto weight_f_result = [&](float w) -> Weight_type { return weighted ? w : weight_f(); };
-
-    char const* string_source = nullptr;
-    char* string_position = nullptr;
-
-    uint64_t edge_counter = 0;
-    while (std::getline(ins, line) && edge_counter < edge_count_max)
-    {
-        if (line.empty()) continue;
-        if (line.front() == '%') continue;
-        if (line.front() == '#') continue;
-
-        string_source = line.c_str();
-        string_position = nullptr;
-
-        if (weighted)
-        {
-            u = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            v = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            w = read_ulong(string_source, &string_position);
-        }
-        else
-        {
-            u = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            v = read_ulong(string_source, &string_position);
-        }
-
-        if (!seen_header)
-        {
-            seen_header = true;
-            continue;
-        }
-
-
-        emplace(static_cast<V>(u), static_cast<V>(v), weight_f_result(w));
-        ++edge_counter;
-    }
-}
-
 // TODO: Currently we will remove one edge from the graph file due to a possible header line.
 //       This must either be (somehow) automatically determined or flagged by the user to fix
 //       the removal of one edge.
