@@ -72,6 +72,8 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
             {
                 emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
             }
+
+            ++edge_counter;
         }
         else 
         {
@@ -85,9 +87,10 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
                 emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
                 emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
             }
+            
+            edge_counter  += 2;
         }
 
-        ++edge_counter;
     }
 }
 
