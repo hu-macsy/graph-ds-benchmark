@@ -113,31 +113,6 @@ void read_graph_generic(std::string const& path, EmplaceF&& emplace, uint64_t co
     read_graph_generic<Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
-template <typename Vertex, typename EdgeVector, typename TStamps, typename T, typename F>
-TimestampedEdges<EdgeVector, TStamps> read_temporal_graph(std::string path, bool const weighted, F&& emplace)
-{
-    namespace fs = std::experimental::filesystem;
-
-    fs::path graph_path(std::move(path));
-
-    if (!fs::exists(graph_path))
-    {
-        throw std::runtime_error("Path to graph does not exist!");
-    }
-
-    std::ifstream graph_input(graph_path);
-
-    TimestampedEdges<EdgeVector, TStamps> timestamped_edges;
-    read_temporal_graph<Vertex, T>(graph_input, weighted,
-                                   [&](unsigned int u, unsigned int v, unsigned int t)
-                                   {
-                                       emplace(timestamped_edges.edges, u, v);
-                                       timestamped_edges.timestamps.push_back(t);
-                                   });
-
-    return timestamped_edges;
-}
-
 template <typename Vertex, typename F, typename Weight_f>
 void read_undirected_graph_unweighted(std::istream& ins,
                                       F&& emplace,
