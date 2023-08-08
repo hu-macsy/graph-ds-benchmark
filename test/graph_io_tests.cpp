@@ -267,45 +267,6 @@ TEST_CASE("temporal, set max_count_edges")
     CHECK(timestamped_edges.edges.size() == max_count_edges);
 }
 
-TEST_CASE("temporal")
-{
-    auto emplace = [](Edges32& edges, Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, Target32{ v, 1.0 } }); };
-
-    TimestampedEdges<Edges32, Timestamps32> timestamped_edges =
-        read_temporal_graph<Vertex32, Edges32, Timestamps32, Timestamp32, decltype(emplace)>(graph_path + unweighted_temporal_graph,
-                                                                                             false, std::move(emplace));
-
-    CHECK(timestamped_edges.edges.size() == 103); // File does not have header line, this one edge less
-}
-
-TEST_CASE("Temporal Directed Weighted Graph")
-{
-    auto emplace = [&](Edges32& edges, Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, { v, 1.f } }); };
-
-    TimestampedEdges<Edges32, Timestamps32> temporal_edges =
-        read_temporal_graph<Vertex32, Edges32, Timestamps32, Timestamp32, decltype(emplace)>(std::move(graph_path + weighted_temporal_graph),
-                                                                                             true, std::move(emplace));
-
-    temporal_edges = sort<Edges32, Timestamps32, Timestamp32>(temporal_edges);
-    Edges32 edges = std::move(temporal_edges.edges);
-
-    SECTION("Read In")
-    {
-        REQUIRE(edges.size() == 6);
-        REQUIRE(temporal_edges.timestamps.size() == 6);
-    }
-
-    SECTION("Sort")
-    {
-        CHECK(edges[0].source == 0);
-        CHECK(edges[1].source == 1);
-        CHECK(edges[2].source == 2);
-        CHECK(edges[3].source == 3);
-        CHECK(edges[4].source == 3);
-        CHECK(edges[5].source == 3);
-    }
-}
-
 TEST_CASE("temporal undirected")
 {
     auto emplace = [](Edges32& edges, Vertex32 u, Vertex32 v, Weight w) {

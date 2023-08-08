@@ -113,58 +113,6 @@ void read_graph_generic(std::string const& path, EmplaceF&& emplace, uint64_t co
     read_graph_generic<Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
-template <typename Vertex, typename T, typename F>
-void read_temporal_graph(std::istream& ins, bool const weighted, F&& emplace)
-{
-    std::string line;
-    bool seen_header = false;
-
-    unsigned long u = 0;
-    unsigned long v = 0;
-    unsigned long t = 0;
-    float w = 0.;
-
-    char const* string_source = nullptr;
-    char* string_position = nullptr;
-
-    while (std::getline(ins, line))
-    {
-        if (line.empty()) continue;
-        if (line.front() == '%') continue;
-        if (line.front() == '#') continue;
-
-        string_source = line.c_str();
-        string_position = nullptr;
-
-        if (weighted)
-        {
-            u = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            v = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            w = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            t = read_ulong(string_source, &string_position);
-        }
-        else
-        {
-            u = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            v = read_ulong(string_source, &string_position);
-            string_source = string_position;
-            t = read_ulong(string_source, &string_position);
-        }
-
-        if (!seen_header)
-        {
-            seen_header = true;
-            continue;
-        }
-
-        emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<T>(t));
-    }
-}
-
 template <typename Vertex, typename EdgeVector, typename TStamps, typename T, typename F>
 TimestampedEdges<EdgeVector, TStamps> read_temporal_graph(std::string path, bool const weighted, F&& emplace)
 {
