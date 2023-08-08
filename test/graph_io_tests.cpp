@@ -226,6 +226,26 @@ TEST_CASE("read_graph_generic")
             CHECK(edges[5].source == 3);
         }
     }
+
+    SECTION("read graph from string path")
+    {
+        read_graph_generic<Vertex32, decltype(emplace), false, false>(graph_path + unweighted_temporal_graph, std::move(emplace));
+
+        // directed: thus original edge count 103
+        CHECK(103 * 2 == edges.size());
+        
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 1.f);
+                }
+            }
+        }
+    }
 }
 
 TEST_CASE("temporal, set max_count_edges")

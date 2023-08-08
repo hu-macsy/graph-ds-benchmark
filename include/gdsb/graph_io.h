@@ -18,6 +18,9 @@ namespace gdsb
 //! to read next from for subsequent reads of integers within one string (stream).
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
+//! TODO: Currently we will remove one edge from the graph file due to a possible header line.
+//!       This must either be (somehow) automatically determined or flagged by the user to fix
+//!       the removal of one edge.
 template <typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
 void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
@@ -94,14 +97,12 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
     }
 }
 
-// TODO: Currently we will remove one edge from the graph file due to a possible header line.
-//       This must either be (somehow) automatically determined or flagged by the user to fix
-//       the removal of one edge.
-template <typename Vertex, typename F> void read_graph_unweighted(std::string path, F&& emplace)
+template <typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
+void read_graph_generic(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     namespace fs = std::experimental::filesystem;
 
-    fs::path graph_path(std::move(path));
+    fs::path graph_path(path);
 
     if (!fs::exists(graph_path))
     {
@@ -109,7 +110,7 @@ template <typename Vertex, typename F> void read_graph_unweighted(std::string pa
     }
 
     std::ifstream graph_input(graph_path);
-    read_graph_unweighted<Vertex, F>(graph_input, std::move(emplace));
+    read_graph_generic<Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
 template <typename Vertex, typename T, typename F>
