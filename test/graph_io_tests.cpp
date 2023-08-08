@@ -77,11 +77,12 @@ TEST_CASE("read_graph_generic")
 {
     Edges32 edges;
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
+    std::ifstream graph_input_unweighted_temporal(graph_path + unweighted_temporal_graph);
+    std::ifstream graph_input_weighted_temporal(graph_path + weighted_temporal_graph);
 
     SECTION("undirected, unweighted")
     {
-        read_graph_generic<false, false, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+        read_graph_generic<Vertex32, decltype(emplace), false, false>(graph_input_unweighted_temporal, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 * 2 == edges.size());
@@ -101,7 +102,7 @@ TEST_CASE("read_graph_generic")
 
     SECTION("directed, unweighted")
     {
-        read_graph_generic<true, false, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+        read_graph_generic<Vertex32, decltype(emplace), true, false>(graph_input_unweighted_temporal, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 == edges.size());
@@ -122,7 +123,7 @@ TEST_CASE("read_graph_generic")
 
     SECTION("undirected, weighted")
     {
-        read_graph_generic<false, true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+        read_graph_generic<Vertex32, decltype(emplace), false, true>(graph_input_unweighted_temporal, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 * 2 == edges.size());
@@ -142,7 +143,7 @@ TEST_CASE("read_graph_generic")
 
     SECTION("directed, weighted")
     {
-        read_graph_generic<true, true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace));
+        read_graph_generic<Vertex32, decltype(emplace), true, true>(graph_input_unweighted_temporal, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 == edges.size());
@@ -163,7 +164,7 @@ TEST_CASE("read_graph_generic")
     SECTION("directed, weighted, max_vertex set")
     {
         uint64_t const max_vertex_count = 53;
-        read_graph_generic<true, true, Vertex32, decltype(emplace)>(graph_input, std::move(emplace), max_vertex_count);
+        read_graph_generic<Vertex32, decltype(emplace), true, true>(graph_input_unweighted_temporal, std::move(emplace), max_vertex_count);
 
         // directed: thus original edge count 103
         CHECK(max_vertex_count == edges.size());
@@ -178,6 +179,77 @@ TEST_CASE("read_graph_generic")
                     CHECK(e.target.weight == 2008.f);
                 }
             }
+        }
+    }
+
+
+    SECTION("undirected, unweighted, dynamic")
+    {
+        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
+        {
+            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.timestamps.push_back(t);
+        };
+
+        read_graph_generic<Vertex32, decltype(emplace), false, false, true, Timestamp32>(graph_input_unweighted_temporal, std::move(emplace));
+
+        CHECK(timestamped_edges.edges.size() == 103 * 2);
+    }
+
+    SECTION("undirected, weighted, dynamic")
+    {
+        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
+        {
+            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.timestamps.push_back(t);
+        };
+
+        read_graph_generic<Vertex32, decltype(emplace), false, true, true, Timestamp32>(graph_input_unweighted_temporal, std::move(emplace));
+
+        CHECK(timestamped_edges.edges.size() == 103 * 2);
+
+        for (Edge32 e : timestamped_edges.edges)
+        {
+            if (e.source == 16)
+            {
+                if (e.target.vertex == 17)
+                {
+                    CHECK(e.target.weight == 2008.f);
+                }
+            }
+        }
+    }
+
+    SECTION("directed, weighted, dynamic")
+    {
+        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
+        {
+            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.timestamps.push_back(t);
+        };
+
+        read_graph_generic<Vertex32, decltype(emplace), true, true, true, Timestamp32>(graph_input_weighted_temporal, std::move(emplace));
+
+        timestamped_edges = sort<Edges32, Timestamps32, Timestamp32>(timestamped_edges);
+        Edges32 edges = std::move(timestamped_edges.edges);
+
+        SECTION("Read In")
+        {
+            REQUIRE(edges.size() == 6);
+            REQUIRE(timestamped_edges.timestamps.size() == 6);
+        }
+
+        SECTION("Sort")
+        {
+            CHECK(edges[0].source == 0);
+            CHECK(edges[1].source == 1);
+            CHECK(edges[2].source == 2);
+            CHECK(edges[3].source == 3);
+            CHECK(edges[4].source == 3);
+            CHECK(edges[5].source == 3);
         }
     }
 }

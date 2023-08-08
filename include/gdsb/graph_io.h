@@ -18,7 +18,7 @@ namespace gdsb
 //! to read next from for subsequent reads of integers within one string (stream).
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
-template <bool Directed, bool Weighted, typename Vertex, typename EmplaceF>
+template <typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
 void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     std::string line;
@@ -26,6 +26,7 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
     unsigned long u = 0;
     unsigned long v = 0;
     float w = 1.;
+    unsigned long t = 0;
 
     char const* string_source = nullptr;
     char* string_position = nullptr;
@@ -49,6 +50,12 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
             w = read_ulong(string_source, &string_position);
         }
 
+        if constexpr (Dynamic)
+        {
+            string_source = string_position;
+            t = read_ulong(string_source, &string_position);
+        }
+
         if (!seen_header)
         {
             seen_header = true;
@@ -57,13 +64,27 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
 
         if constexpr (Directed)
         {
-            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
-            
+            if constexpr (Dynamic)
+            {
+                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+            }
+            else 
+            {
+                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+            }
         }
         else 
         {
-            emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
-            emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+            if constexpr (Dynamic)
+            {
+                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
+            }
+            else 
+            {
+                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+            }
         }
 
         ++edge_counter;
