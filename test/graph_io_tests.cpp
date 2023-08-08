@@ -53,6 +53,7 @@ TEST_CASE("read_graph_generic")
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
     std::ifstream graph_input_unweighted_temporal(graph_path + unweighted_temporal_graph);
     std::ifstream graph_input_weighted_temporal(graph_path + weighted_temporal_graph);
+    std::ifstream graph_input_unweighed_directed(graph_path + unweighted_directed_graph);
 
     SECTION("undirected, unweighted")
     {
@@ -229,7 +230,8 @@ TEST_CASE("read_graph_generic")
 
     SECTION("read graph from string path")
     {
-        read_graph_generic<Vertex32, decltype(emplace), false, false>(graph_path + unweighted_temporal_graph, std::move(emplace));
+        std::string const input_graph_str{graph_path + unweighted_temporal_graph};
+        read_graph_generic<Vertex32, decltype(emplace), false, false>(input_graph_str, std::move(emplace));
 
         // directed: thus original edge count 103
         CHECK(103 * 2 == edges.size());
@@ -246,28 +248,14 @@ TEST_CASE("read_graph_generic")
             }
         }
     }
-}
-
-TEST_CASE("Decomposition")
-{
-    using namespace gdsb;
 
     SECTION("Read in unweighted undirected subgraph")
     {
-        std::ifstream graph_input(graph_path + unweighted_directed_graph);
-
         // This will read in the subgraph including vertex 1 and 2 and all it's
         // edges
         Subgraph<Vertex32> subgraph{ 2, 5, 0, 38 };
 
-        Edges32 edges;
-
-        Vertex32 n = read_subgraph<Vertex32>(
-            graph_input, true, false, subgraph,
-            [&](Vertex32 u, Vertex32 v, Weight w) {
-                edges.push_back({ u, { v, w } });
-            },
-            [&]() { return 1.0f; });
+        Vertex32 const n = read_graph_generic<Vertex32, decltype(emplace), true, false, false, uint64_t, true>(graph_input_unweighed_directed, std::move(emplace), std::numeric_limits<uint64_t>::max(), std::move(subgraph));
 
         CHECK(edges.size() == 16);
         CHECK(n == 38);
@@ -275,29 +263,23 @@ TEST_CASE("Decomposition")
 
     SECTION("Read in weighted undirected timestamped subgraph")
     {
-        std::ifstream graph_input(graph_path + weighted_temporal_graph);
-
         Subgraph<Vertex32> subgraph{ 0, 3, 0, 7 };
 
-        gdsb::TimestampedEdges<Edges32, Timestamps64> timestamped_edges;
+        gdsb::TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
 
-        bool const directed = false;
-        bool const weighted = true;
+        auto emplace_timestamped = [&](Vertex32 u, Vertex32 v, Weight w, gdsb::Timestamp32 t)
+        {
+            timestamped_edges.edges.push_back({ u, { v, w } });
+            timestamped_edges.timestamps.push_back(t);
+        };
 
-        Vertex32 n = read_temporal_subgraph<Vertex32>(
-            graph_input, directed, weighted, subgraph,
-            [&](Vertex32 u, Vertex32 v, Weight w, gdsb::Timestamp32 t)
-            {
-                timestamped_edges.edges.push_back({ u, { v, w } });
-                timestamped_edges.timestamps.push_back(t);
-            },
-            [&]() { return 1.0f; });
+        Vertex32 const n = read_graph_generic<Vertex32, decltype(emplace_timestamped), false, true, true, Timestamp32, true>(graph_input_weighted_temporal, std::move(emplace_timestamped), std::numeric_limits<uint64_t>::max(), std::move(subgraph));
 
-        timestamped_edges = gdsb::sort<Edges32, Timestamps64, Timestamp64>(timestamped_edges);
+        timestamped_edges = gdsb::sort<Edges32, Timestamps32, Timestamp32>(timestamped_edges);
 
-        Edges32 edges = std::move(timestamped_edges.edges);
+        Edges32 resulting_edges = std::move(timestamped_edges.edges);
 
-        CHECK(edges.size() == 6);
+        CHECK(resulting_edges.size() == 6);
         CHECK(n == 7);
     }
 }
