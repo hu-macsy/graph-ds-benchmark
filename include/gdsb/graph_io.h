@@ -91,39 +91,6 @@ void read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const 
     }
 }
 
-template <typename Vertex, typename F> void read_graph_unweighted(std::istream& ins, F&& emplace)
-{
-    std::string line;
-    bool seen_header = false;
-    unsigned long u = 0;
-    unsigned long v = 0;
-
-    char const* string_source = nullptr;
-    char* string_position = nullptr;
-
-    while (std::getline(ins, line))
-    {
-        if (line.empty()) continue;
-        if (line.front() == '%') continue;
-        if (line.front() == '#') continue;
-
-        string_source = line.c_str();
-        string_position = nullptr;
-
-        u = read_ulong(string_source, &string_position);
-        string_source = string_position;
-        v = read_ulong(string_source, &string_position);
-
-        if (!seen_header)
-        {
-            seen_header = true;
-            continue;
-        }
-
-        emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
-    }
-}
-
 template <typename V, typename F, typename Weight_f>
 void read_directed_graph(std::istream& ins,
                          bool const weighted,

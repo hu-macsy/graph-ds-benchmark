@@ -332,16 +332,6 @@ TEST_CASE("read_directed_graph, set max_edge_count")
     }
 }
 
-TEST_CASE("read_unweighted")
-{
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, Target32{ v, 1.0 } }); };
-
-    read_graph_unweighted<Vertex32, decltype(emplace)>(graph_path + unweighted_temporal_graph, std::move(emplace));
-
-    CHECK(edges.size() == 103); // File does not have header line, this one edge less
-}
-
 TEST_CASE("read undirected unweighted")
 {
     Edges32 edges;
