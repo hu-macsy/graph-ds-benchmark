@@ -30,7 +30,7 @@ template <typename V> struct Subgraph
 //!       This must either be (somehow) automatically determined or flagged by the user to fix
 //!       the removal of one edge.
 template <typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
-Vertex read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(), Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
+Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(), Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
 {
     std::string line;
     bool seen_header = false;
@@ -125,7 +125,7 @@ Vertex read_graph_generic(std::istream& input, EmplaceF&& emplace, uint64_t cons
 }
 
 template <typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
-Vertex read_graph_generic(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
+Vertex read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     namespace fs = std::experimental::filesystem;
 
@@ -137,7 +137,7 @@ Vertex read_graph_generic(std::string const& path, EmplaceF&& emplace, uint64_t 
     }
 
     std::ifstream graph_input(graph_path);
-    return read_graph_generic<Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace), edge_count_max);
+    return read_graph<Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)

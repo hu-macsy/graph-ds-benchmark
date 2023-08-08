@@ -24,7 +24,7 @@ TEST_CASE("Vertex Counting")
 
         std::ifstream graph_input(graph_path + unweighted_temporal_graph);
 
-        read_graph_generic<Vertex32, decltype(emplace), false, true, false>(graph_input, std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), false, true, false>(graph_input, std::move(emplace));
 
         CHECK(vertex_count(edges) == 36);
     }
@@ -37,7 +37,7 @@ TEST_CASE("Vertex Counting")
 
         std::ifstream graph_input(graph_path + unweighted_temporal_graph);
 
-        read_graph_generic<Vertex64, decltype(emplace), false, true, false>(graph_input, std::move(emplace));
+        read_graph<Vertex64, decltype(emplace), false, true, false>(graph_input, std::move(emplace));
 
         CHECK(vertex_count(edges) == 36);
     }
