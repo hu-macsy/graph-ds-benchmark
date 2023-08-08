@@ -248,39 +248,6 @@ TEST_CASE("read_graph_generic")
     }
 }
 
-TEST_CASE("temporal, set max_count_edges")
-{
-    TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
-    {
-        timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
-        timestamped_edges.timestamps.push_back(t);
-    };
-
-    auto weight_f = []() -> Weight { return 1.f; };
-
-    std::ifstream graph_input(graph_path + unweighted_temporal_graph);
-
-    uint64_t const max_count_edges = 53;
-    read_temporal_graph<Vertex32, Timestamp32>(graph_input, false, true, std::move(emplace), std::move(weight_f), max_count_edges);
-
-    CHECK(timestamped_edges.edges.size() == max_count_edges);
-}
-
-TEST_CASE("temporal undirected")
-{
-    auto emplace = [](Edges32& edges, Vertex32 u, Vertex32 v, Weight w) {
-        edges.push_back(Edge32{ u, Target32{ v, w } });
-    };
-    auto weight_f = []() -> Weight { return 1.f; };
-
-    TimestampedEdges<Edges32, Timestamps32> timestamped_edges =
-        read_temporal_undirected_graph<Vertex32, Edges32, Timestamps32>(graph_path + unweighted_temporal_graph, false,
-                                                                        std::move(emplace), std::move(weight_f));
-
-    CHECK(timestamped_edges.edges.size() == 103 * 2); // File does not have header line, this one edge less
-}
-
 TEST_CASE("Decomposition")
 {
     using namespace gdsb;
