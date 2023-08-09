@@ -26,6 +26,18 @@ template <typename V> struct Subgraph
     V target_end = std::numeric_limits<V>::max();
 };
 
+namespace input
+{
+constexpr bool directed = true;
+constexpr bool undirected = false;
+constexpr bool weighted = true;
+constexpr bool unweighted = false;
+constexpr bool dynamic = true;
+constexpr bool _static = false;
+constexpr bool extract_subgraph = true;
+constexpr bool full_graph = false;
+} // namespace input
+
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #. The first line which is not a comment will
 //! be disregarded. Most formats add a vertex and edge count in that first line.
