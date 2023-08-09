@@ -46,6 +46,10 @@ constexpr bool full_graph = false;
 //! be expected to be separated by spaces but only if the template parameters
 //! are set accordingly.
 //!
+//! For easier specification of the input graphs parameter such as if it is
+//! directed, weighted, dynamic or if you want to extract a subgraph please use
+//! the boolean variables in the input namespace.
+//!
 //! @input              The graph file input stream.
 //! @emplace            An emplace function that will be called passing u, v,
 //!                     (w, t) to emplace the read data points e.g. in a data
@@ -54,10 +58,11 @@ constexpr bool full_graph = false;
 //! @edge_count_max     The maximum count of edges to read from. Set to max if
 //!                     not specified.
 //! @subgraph           A subgraph to extract from the file. Use default or any
-//!                     other Subgraph object if not specified by ExtractSubgraph.
+//!                     other Subgraph object if not specified by
+//!                     ExtractSubgraph.
 //!
 //! TODO: Currently we will remove one edge from the graph file due to a
-//!       possible header line. This must either be (somehow) automatically
+//!       possible header line. This could either be (somehow) automatically
 //!       determined or flagged by the user to fix the removal of one edge.
 template <typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
 Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(), Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
