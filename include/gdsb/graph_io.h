@@ -50,16 +50,16 @@ constexpr bool full_graph = false;
 //! directed, weighted, dynamic or if you want to extract a subgraph please use
 //! the boolean variables in the input namespace.
 //!
-//! @input              The graph file input stream.
-//! @emplace            An emplace function that will be called passing u, v,
-//!                     (w, t) to emplace the read data points e.g. in a data
-//!                     structure. But emplace() can also be used to process the
-//!                     passed data points in any other way.
-//! @edge_count_max     The maximum count of edges to read from. Set to max if
-//!                     not specified.
-//! @subgraph           A subgraph to extract from the file. Use default or any
-//!                     other Subgraph object if not specified by
-//!                     ExtractSubgraph.
+//! @param  input           The graph file input stream.
+//! @param  emplace         An emplace function that will be called passing u,
+//!                         v, (w, t) to emplace the read data points e.g. in a
+//!                         data structure. But emplace() can also be used to
+//!                         process the passed data points in any other way.
+//! @param  edge_count_max  The maximum count of edges to read from. Set to max
+//!                         if not specified.
+//! @param  subgraph        A subgraph to extract from the file. Use default or
+//!                         any other Subgraph object if not specified by
+//!                         ExtractSubgraph.
 //!
 //! TODO: Currently we will remove one edge from the graph file due to a
 //!       possible header line. This could either be (somehow) automatically
