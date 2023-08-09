@@ -26,14 +26,15 @@ template <typename V> struct Subgraph
     V target_end = std::numeric_limits<V>::max();
 };
 
+//! Use these boolean variables to easy the parameterisation for read_graph().
 namespace input
 {
 constexpr bool directed = true;
 constexpr bool undirected = false;
 constexpr bool weighted = true;
 constexpr bool unweighted = false;
-constexpr bool dynamic = true;
-constexpr bool _static = false;
+constexpr bool dynamic_graph = true;
+constexpr bool static_graph = false;
 constexpr bool extract_subgraph = true;
 constexpr bool full_graph = false;
 } // namespace input

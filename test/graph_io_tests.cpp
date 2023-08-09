@@ -172,7 +172,7 @@ TEST_CASE("read_graph")
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace), input::undirected, input::unweighted, input::dynamic, Timestamp32>(
+        read_graph<Vertex32, decltype(emplace), input::undirected, input::unweighted, input::dynamic_graph, Timestamp32>(
             graph_input_unweighted_temporal, std::move(emplace));
 
         CHECK(timestamped_edges.edges.size() == 103 * 2);
@@ -187,8 +187,8 @@ TEST_CASE("read_graph")
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace), input::undirected, input::weighted, input::dynamic>(graph_input_unweighted_temporal,
-                                                                                                    std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), input::undirected, input::weighted, input::dynamic_graph>(graph_input_unweighted_temporal,
+                                                                                                          std::move(emplace));
 
         CHECK(timestamped_edges.edges.size() == 103 * 2);
 
@@ -213,8 +213,8 @@ TEST_CASE("read_graph")
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace), input::directed, input::weighted, input::dynamic, Timestamp32>(graph_input_weighted_temporal,
-                                                                                                               std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), input::directed, input::weighted, input::dynamic_graph, Timestamp32>(
+            graph_input_weighted_temporal, std::move(emplace));
 
         timestamped_edges = sort<Edges32, Timestamps32, Timestamp32>(timestamped_edges);
         Edges32 edges = std::move(timestamped_edges.edges);
@@ -264,7 +264,7 @@ TEST_CASE("read_graph")
         Subgraph<Vertex32> subgraph{ 2, 5, 0, 38 };
 
         Vertex32 const n =
-            read_graph<Vertex32, decltype(emplace), input::directed, input::unweighted, input::_static, uint64_t, true>(
+            read_graph<Vertex32, decltype(emplace), input::directed, input::unweighted, input::static_graph, uint64_t, true>(
                 graph_input_unweighed_directed, std::move(emplace), std::numeric_limits<uint64_t>::max(), std::move(subgraph));
 
         CHECK(edges.size() == 16);
@@ -284,7 +284,7 @@ TEST_CASE("read_graph")
         };
 
         Vertex32 const n =
-            read_graph<Vertex32, decltype(emplace_timestamped), input::undirected, input::weighted, input::dynamic, Timestamp32, true>(
+            read_graph<Vertex32, decltype(emplace_timestamped), input::undirected, input::weighted, input::dynamic_graph, Timestamp32, true>(
                 graph_input_weighted_temporal, std::move(emplace_timestamped), std::numeric_limits<uint64_t>::max(),
                 std::move(subgraph));
 
