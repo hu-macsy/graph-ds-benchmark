@@ -2,8 +2,7 @@
 cmake_minimum_required(VERSION 3.11.4)
 
 # Set project name and version
-project(gdsb)
-set(version 0.0.1)
+project(gdsb VERSION 0.2.0)
 
 include(GNUInstallDirs)
 
@@ -95,15 +94,7 @@ install(FILES
 
 set_property(TARGET gdsb PROPERTY VERSION ${version})
 
-# TODO: align version numbers or remove completely since
-#       the other VERSIONS will be taken as the value if
-#       SOVERSION not present
-set_property(TARGET gdsb PROPERTY SOVERSION 1)
-set_property(TARGET gdsb PROPERTY
-  INTERFACE_gdsb_MAJOR_VERSION 1)
-set_property(TARGET gdsb APPEND PROPERTY
-  COMPATIBLE_INTERFACE_STRING gdsb_MAJOR_VERSION
-)
+set_target_properties(gdsb PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 
 option(GDSB_TEST "Build test target." OFF)
 if (GDSB_TEST)
