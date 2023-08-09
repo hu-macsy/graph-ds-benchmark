@@ -26,9 +26,27 @@ template <typename V> struct Subgraph
     V target_end = std::numeric_limits<V>::max();
 };
 
-//! TODO: Currently we will remove one edge from the graph file due to a possible header line.
-//!       This must either be (somehow) automatically determined or flagged by the user to fix
-//!       the removal of one edge.
+//! Reads in the input expecting a graph file to be streamed which can contain
+//! comments using characters % or #. The first line which is not a comment will
+//! be disregarded. Most formats add a vertex and edge count in that first line.
+//! Therafter, it is expected that a file contains v and u separated by
+//! space(s). All follow up data points such as weight, or timestamp will also
+//! be expected to be separated by spaces but only if the template parameters
+//! are set accordingly.
+//!
+//! @input              The graph file input stream.
+//! @emplace            An emplace function that will be called passing u, v,
+//!                     (w, t) to emplace the read data points e.g. in a data
+//!                     structure. But emplace() can also be used to process the
+//!                     passed data points in any other way.
+//! @edge_count_max     The maximum count of edges to read from. Set to max if
+//!                     not specified.
+//! @subgraph           A subgraph to extract from the file. Use default or any
+//!                     other Subgraph object if not specified by ExtractSubgraph.
+//!
+//! TODO: Currently we will remove one edge from the graph file due to a
+//!       possible header line. This must either be (somehow) automatically
+//!       determined or flagged by the user to fix the removal of one edge.
 template <typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
 Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(), Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
 {
