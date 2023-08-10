@@ -42,7 +42,7 @@ constexpr bool full_graph = false;
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #. The first line which is not a comment will
 //! be disregarded. Most formats add a vertex and edge count in that first line.
-//! Therafter, it is expected that a file contains v and u separated by
+//! Thereafter, it is expected that a file contains v and u separated by
 //! space(s). All follow up data points such as weight, or timestamp will also
 //! be expected to be separated by spaces but only if the template parameters
 //! are set accordingly.
@@ -55,7 +55,11 @@ constexpr bool full_graph = false;
 //! @param  emplace         An emplace function that will be called passing u,
 //!                         v, (w, t) to emplace the read data points e.g. in a
 //!                         data structure. But emplace() can also be used to
-//!                         process the passed data points in any other way.
+//!                         process the passed data points in any other way. If
+//!                         reading a directed graph, emplace() will be called
+//!                         once with emplace(u, v, ...), if undirected
+//!                         emplace() will be called with 1st emplace(u, v,
+//!                         ...), 2nd with emplace(v, u, ...).
 //! @param  edge_count_max  The maximum count of edges to read from. Set to max
 //!                         if not specified.
 //! @param  subgraph        A subgraph to extract from the file. Use default or
