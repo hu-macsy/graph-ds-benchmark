@@ -40,12 +40,15 @@ constexpr bool full_graph = false;
 } // namespace input
 
 //! Reads in the input expecting a graph file to be streamed which can contain
-//! comments using characters % or #. The first line which is not a comment will
-//! be disregarded. Most formats add a vertex and edge count in that first line.
-//! Thereafter, it is expected that a file contains v and u separated by
-//! space(s). All follow up data points such as weight, or timestamp will also
-//! be expected to be separated by spaces but only if the template parameters
-//! are set accordingly.
+//! comments using characters % or #.
+//!
+//! Supported graph file formats:
+//! - edge list aka ".edges"
+//!
+//! It is expected that the first valid (non comment) line, and all following
+//! contain v (0) and u (1) separated by space(s). All follow up data points
+//! such as weight (2), or timestamp (4) will also be expected to be separated
+//! by spaces but only if the template parameters are set accordingly.
 //!
 //! For easier specification of the input graphs parameter such as if it is
 //! directed, weighted, dynamic or if you want to extract a subgraph please use
@@ -65,15 +68,13 @@ constexpr bool full_graph = false;
 //! @param  subgraph        A subgraph to extract from the file. Use default or
 //!                         any other Subgraph object if not specified by
 //!                         ExtractSubgraph.
-//!
-//! TODO: Currently we will remove one edge from the graph file due to a
-//!       possible header line. This could either be (somehow) automatically
-//!       determined or flagged by the user to fix the removal of one edge.
 template <typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
-Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(), Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
+std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
+                                        EmplaceF&& emplace,
+                                        uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(),
+                                        Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
 {
     std::string line;
-    bool seen_header = false;
     unsigned long u = 0;
     unsigned long v = 0;
     float w = 1.;
@@ -83,7 +84,8 @@ Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_c
     char const* string_source = nullptr;
     char* string_position = nullptr;
 
-    for (uint64_t edge_counter = 0; std::getline(input, line) && edge_counter < edge_count_max;)
+    uint64_t edge_counter = 0;
+    while (std::getline(input, line) && edge_counter < edge_count_max)
     {
         if (line.empty()) continue;
         if (line.front() == '%') continue;
@@ -125,12 +127,6 @@ Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_c
             t = read_ulong(string_source, &string_position);
         }
 
-        if (!seen_header)
-        {
-            seen_header = true;
-            continue;
-        }
-
         if constexpr (IsDirected)
         {
             if constexpr (IsDynamic)
@@ -161,11 +157,12 @@ Vertex read_graph(std::istream& input, EmplaceF&& emplace, uint64_t const edge_c
         }
     }
 
-    return ++n;
+    return { ++n, edge_counter };
 }
 
 template <typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
-Vertex read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
+std::tuple<Vertex, uint64_t>
+read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
     namespace fs = std::experimental::filesystem;
 
