@@ -39,11 +39,19 @@ constexpr bool extract_subgraph = true;
 constexpr bool full_graph = false;
 } // namespace input
 
+
+enum class FileType
+{
+    edge_list,
+    matrix_market
+};
+
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #.
 //!
 //! Supported graph file formats:
-//! - edge list aka ".edges"
+//! - edge list aka ".edges" using FileType::edge_list
+//! - market matrix aka ".mtx" using Filetype::matrix_market
 //!
 //! It is expected that the first valid (non comment) line, and all following
 //! contain v (0) and u (1) separated by space(s). All follow up data points
@@ -54,6 +62,7 @@ constexpr bool full_graph = false;
 //! directed, weighted, dynamic or if you want to extract a subgraph please use
 //! the boolean variables in the input namespace.
 //!
+//! @param  file_type       Choose the FileType to read in.
 //! @param  input           The graph file input stream.
 //! @param  emplace         An emplace function that will be called passing u,
 //!                         v, (w, t) to emplace the read data points e.g. in a
@@ -68,13 +77,35 @@ constexpr bool full_graph = false;
 //! @param  subgraph        A subgraph to extract from the file. Use default or
 //!                         any other Subgraph object if not specified by
 //!                         ExtractSubgraph.
-template <typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
+template <FileType file_type, typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
 std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
                                         EmplaceF&& emplace,
                                         uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(),
                                         Subgraph<Vertex>&& subgraph = Subgraph<Vertex>{})
 {
     std::string line;
+
+    if constexpr (file_type == FileType::edge_list)
+    {
+        bool continue_reading = true;
+        while (std::getline(input, line) && continue_reading)
+        {
+            continue_reading = (line.front() == '%' || line.front() == '#');
+        }
+    }
+    else if constexpr (file_type == FileType::matrix_market)
+    {
+        bool continue_reading = true;
+        while (std::getline(input, line) && continue_reading)
+        {
+            continue_reading = (line.front() == '%' || line.front() == '#');
+        }
+
+        // This will discard the first line including parameter N and M
+        // TODO: perhaps we want to make sure that these are actually 3 integers?
+        std::getline(input, line);
+    }
+
     unsigned long u = 0;
     unsigned long v = 0;
     float w = 1.;
@@ -85,11 +116,9 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
     char* string_position = nullptr;
 
     uint64_t edge_counter = 0;
-    while (std::getline(input, line) && edge_counter < edge_count_max)
+    do
     {
         if (line.empty()) continue;
-        if (line.front() == '%') continue;
-        if (line.front() == '#') continue;
 
         string_source = line.c_str();
         string_position = nullptr;
@@ -155,7 +184,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
             
             edge_counter  += 2;
         }
-    }
+    } while (std::getline(input, line) && edge_counter < edge_count_max);
 
     return { ++n, edge_counter };
 }
