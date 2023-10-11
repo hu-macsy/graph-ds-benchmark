@@ -189,7 +189,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
     return { ++n, edge_counter };
 }
 
-template <typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
+template <FileType file_type, typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
 std::tuple<Vertex, uint64_t>
 read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
@@ -203,7 +203,8 @@ read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_coun
     }
 
     std::ifstream graph_input(graph_path);
-    return read_graph<Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace), edge_count_max);
+    return read_graph<file_type, Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace),
+                                                                                           edge_count_max);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)
