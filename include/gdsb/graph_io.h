@@ -88,7 +88,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
     if constexpr (file_type == FileType::edge_list)
     {
         bool continue_reading = true;
-        while (std::getline(input, line) && continue_reading)
+        while (continue_reading && std::getline(input, line))
         {
             continue_reading = (line.front() == '%' || line.front() == '#');
         }
@@ -96,7 +96,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
     else if constexpr (file_type == FileType::matrix_market)
     {
         bool continue_reading = true;
-        while (std::getline(input, line) && continue_reading)
+        while (continue_reading && std::getline(input, line))
         {
             continue_reading = (line.front() == '%' || line.front() == '#');
         }
