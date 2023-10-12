@@ -16,6 +16,7 @@ static std::string const graph_path =
 static std::string undirected_unweighted_temporal_reptilia_tortoise{ "reptilia-tortoise-network-pv.edges" };
 static std::string small_weighted_temporal_graph{ "small_graph_temporal.edges" };
 static std::string unweighted_directed_graph_enzymes{ "ENZYMES_g1.edges" };
+static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
 
 using namespace gdsb;
 
@@ -47,7 +48,7 @@ TEST_CASE("read_ulong")
     CHECK(d == d_read);
 }
 
-TEST_CASE("read_graph")
+TEST_CASE("read_graph, edge_list")
 {
     Edges32 edges;
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
@@ -302,5 +303,37 @@ TEST_CASE("read_graph")
         CHECK(resulting_edges.size() == 6);
         CHECK(6 == edge_count);
         CHECK(vertex_count == 7);
+    }
+}
+
+TEST_CASE("read_graph, market_matrix")
+{
+    Edges32 edges;
+    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+    std::ifstream undirected_unweighted_graph(graph_path + undirected_unweighted_soc_dolphins);
+
+    SECTION("undirected, unweighted")
+    {
+        auto const [vertex_count, edge_count] =
+            read_graph<FileType::matrix_market, Vertex32, decltype(emplace), input::undirected, input::unweighted>(
+                undirected_unweighted_graph, std::move(emplace));
+
+        // directed: thus original edge count 103
+        CHECK(159 * 2 == edge_count);
+        CHECK(159 * 2 == edges.size());
+        // + 1 since we are counting 0 as the first vertex ID
+        CHECK(62 + 1 == vertex_count);
+
+        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        for (Edge32 e : edges)
+        {
+            if (e.source == 43)
+            {
+                if (e.target.vertex == 1)
+                {
+                    CHECK(e.target.weight == 1.f);
+                }
+            }
+        }
     }
 }
