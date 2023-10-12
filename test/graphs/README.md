@@ -16,3 +16,12 @@ Ryan A. Rossi and Nesreen K. Ahmed
 "The Network Data Repository with Interactive Graph Analytics and Visualization"
 AAAI
 2015
+
+# soc-dolphins.mtx
+Source: https://networkrepository.com/soc-dolphins.php
+Lusseau, David et al.
+"The bottlenose dolphin community of Doubtful Sound features a large proportion of long-lasting associations"
+Behavioral Ecology and Sociobiology, 54, 2003
+
+# small_graph_temporal.edges
+A synthetic graph made for testing purposes by the author.
