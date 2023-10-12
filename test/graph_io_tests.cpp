@@ -318,13 +318,13 @@ TEST_CASE("read_graph, market_matrix")
             read_graph<FileType::matrix_market, Vertex32, decltype(emplace), input::undirected, input::unweighted>(
                 undirected_unweighted_graph, std::move(emplace));
 
-        // directed: thus original edge count 103
+        // undirected
         CHECK(159 * 2 == edge_count);
         CHECK(159 * 2 == edges.size());
         // + 1 since we are counting 0 as the first vertex ID
         CHECK(62 + 1 == vertex_count);
 
-        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
+        // CHECK if edge {43, 1} has edge weight 1.f
         for (Edge32 e : edges)
         {
             if (e.source == 43)
