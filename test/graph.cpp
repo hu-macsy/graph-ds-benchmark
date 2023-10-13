@@ -24,7 +24,8 @@ TEST_CASE("Vertex Counting")
 
         std::ifstream graph_input(graph_path + unweighted_temporal_graph);
 
-        read_graph<FileType::edge_list, Vertex32, decltype(emplace), false, true, false>(graph_input, std::move(emplace));
+        using EdgeListUndirectedWeightedStatic = GraphParameters<FileType::edge_list, Undirected, Weighted>;
+        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
 
         CHECK(vertex_count(edges) == 36);
     }
@@ -37,7 +38,8 @@ TEST_CASE("Vertex Counting")
 
         std::ifstream graph_input(graph_path + unweighted_temporal_graph);
 
-        read_graph<FileType::edge_list, Vertex64, decltype(emplace), false, true, false>(graph_input, std::move(emplace));
+        using EdgeListUndirectedWeightedStatic = GraphParameters<FileType::edge_list, Undirected, Weighted>;
+        read_graph<Vertex64, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
 
         CHECK(vertex_count(edges) == 36);
     }

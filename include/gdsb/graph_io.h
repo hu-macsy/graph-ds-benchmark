@@ -26,24 +26,63 @@ template <typename V> struct Subgraph
     V target_end = std::numeric_limits<V>::max();
 };
 
-//! Use these boolean variables to easy the parameterisation for read_graph().
-namespace input
+template <bool value> class GraphParameter
 {
-constexpr bool directed = true;
-constexpr bool undirected = false;
-constexpr bool weighted = true;
-constexpr bool unweighted = false;
-constexpr bool dynamic_graph = true;
-constexpr bool static_graph = false;
-constexpr bool extract_subgraph = true;
-constexpr bool full_graph = false;
-} // namespace input
+public:
+    static constexpr bool is() { return value; }
+};
 
+class Directed : private GraphParameter<true>
+{
+public:
+    static constexpr bool is_directed() { return GraphParameter::is(); }
+};
+
+class Undirected : private GraphParameter<false>
+{
+public:
+    static constexpr bool is_directed() { return GraphParameter::is(); }
+};
+
+class Weighted : private GraphParameter<true>
+{
+public:
+    static constexpr bool is_weighted() { return GraphParameter::is(); }
+};
+
+class Unweighted : private GraphParameter<false>
+{
+public:
+    static constexpr bool is_weighted() { return GraphParameter::is(); }
+};
+
+class Dynamic : private GraphParameter<true>
+{
+public:
+    static constexpr bool is_dynamic() { return GraphParameter::is(); }
+};
+
+class Static : private GraphParameter<false>
+{
+public:
+    static constexpr bool is_dynamic() { return GraphParameter::is(); }
+};
 
 enum class FileType
 {
     edge_list,
     matrix_market
+};
+
+//! @param  file_type       Choose the FileType to read in.
+template <FileType file_type, typename Directed = Undirected, typename Weighted = Unweighted, typename Dynamic = Static>
+class GraphParameters
+{
+public:
+    static constexpr bool is_directed() { return Directed::is_directed(); }
+    static constexpr bool is_weighted() { return Weighted::is_weighted(); }
+    static constexpr bool is_dynamic() { return Dynamic::is_dynamic(); }
+    static constexpr FileType filetype() { return file_type; }
 };
 
 //! Reads in the input expecting a graph file to be streamed which can contain
@@ -53,16 +92,15 @@ enum class FileType
 //! - edge list aka ".edges" using FileType::edge_list
 //! - market matrix aka ".mtx" using Filetype::matrix_market
 //!
-//! It is expected that the first valid (non comment) line, and all following
-//! contain v (0) and u (1) separated by space(s). All follow up data points
-//! such as weight (2), or timestamp (4) will also be expected to be separated
-//! by spaces but only if the template parameters are set accordingly.
+//! It is expected that the first valid edge line, and all following contain v
+//! (0) and u (1) separated by space(s). All follow up data points such as
+//! weight (2), or timestamp (4) will also be expected to be separated by spaces
+//! but only if the template parameters are set accordingly.
 //!
 //! For easier specification of the input graphs parameter such as if it is
 //! directed, weighted, dynamic or if you want to extract a subgraph please use
-//! the boolean variables in the input namespace.
+//! the GraphParameters template parameter.
 //!
-//! @param  file_type       Choose the FileType to read in.
 //! @param  input           The graph file input stream.
 //! @param  emplace         An emplace function that will be called passing u,
 //!                         v, (w, t) to emplace the read data points e.g. in a
@@ -77,7 +115,7 @@ enum class FileType
 //! @param  subgraph        A subgraph to extract from the file. Use default or
 //!                         any other Subgraph object if not specified by
 //!                         ExtractSubgraph.
-template <FileType file_type, typename Vertex, typename EmplaceF, bool IsDirected, bool IsWeighted, bool IsDynamic = false, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
+template <typename Vertex, typename EmplaceF, typename GraphParameters = GraphParameters<FileType::edge_list>, typename Timestamp = uint64_t, bool ExtractSubgraph = false>
 std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
                                         EmplaceF&& emplace,
                                         uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max(),
@@ -85,7 +123,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
 {
     std::string line;
 
-    if constexpr (file_type == FileType::edge_list)
+    if constexpr (GraphParameters::filetype() == FileType::edge_list)
     {
         bool continue_reading = true;
         while (continue_reading && std::getline(input, line))
@@ -93,7 +131,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
             continue_reading = (line.front() == '%' || line.front() == '#');
         }
     }
-    else if constexpr (file_type == FileType::matrix_market)
+    else if constexpr (GraphParameters::filetype() == FileType::matrix_market)
     {
         bool continue_reading = true;
         while (continue_reading && std::getline(input, line))
@@ -144,21 +182,21 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
             }
         }
 
-        if constexpr (IsWeighted)
+        if constexpr (GraphParameters::is_weighted())
         {
             string_source = string_position;
             w = read_ulong(string_source, &string_position);
         }
 
-        if constexpr (IsDynamic)
+        if constexpr (GraphParameters::is_dynamic())
         {
             string_source = string_position;
             t = read_ulong(string_source, &string_position);
         }
 
-        if constexpr (IsDirected)
+        if constexpr (GraphParameters::is_directed())
         {
-            if constexpr (IsDynamic)
+            if constexpr (GraphParameters::is_dynamic())
             {
                 emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
             }
@@ -171,7 +209,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
         }
         else 
         {
-            if constexpr (IsDynamic)
+            if constexpr (GraphParameters::is_dynamic())
             {
                 emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
                 emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
@@ -189,7 +227,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
     return { ++n, edge_counter };
 }
 
-template <FileType file_type, typename Vertex, typename EmplaceF, bool Directed, bool Weighted, bool Dynamic = false, typename Timestamp = uint64_t>
+template <typename Vertex, typename EmplaceF, typename GraphParameters = GraphParameters<FileType::edge_list>, typename Timestamp = uint64_t>
 std::tuple<Vertex, uint64_t>
 read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
@@ -203,8 +241,7 @@ read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_coun
     }
 
     std::ifstream graph_input(graph_path);
-    return read_graph<file_type, Vertex, EmplaceF, Directed, Weighted, Dynamic, Timestamp>(graph_input, std::move(emplace),
-                                                                                           edge_count_max);
+    return read_graph<Vertex, EmplaceF, GraphParameters, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)
