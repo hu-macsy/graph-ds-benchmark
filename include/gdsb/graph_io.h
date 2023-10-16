@@ -117,9 +117,9 @@ using MatrixMarketUndirectedUnweightedDynamic = GraphParameters<FileType::matrix
 //! weight (2), or timestamp (4) will also be expected to be separated by spaces
 //! but only if the template parameters are set accordingly.
 //!
-//! For easier specification of the input graphs parameter such as if it is
-//! directed, weighted, dynamic or if you want to extract a subgraph please use
-//! the GraphParameters template parameter.
+//! Use the GraphParameters template parameter for specification of the input
+//! graphs parameter such as what file format to read, and if it is directed,
+//! weighted, dynamic.
 //!
 //! @param  input           The graph file input stream.
 //! @param  emplace         An emplace function that will be called passing u,
