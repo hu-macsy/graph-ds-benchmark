@@ -85,6 +85,26 @@ public:
     static constexpr FileType filetype() { return file_type; }
 };
 
+//! Some useful using directives for edge list input file types
+using EdgeListDirectedWeightedStatic = GraphParameters<FileType::edge_list, Directed, Weighted, Static>;
+using EdgeListDirectedWeightedDynamic = GraphParameters<FileType::edge_list, Directed, Weighted, Dynamic>;
+using EdgeListDirectedUnweightedStatic = GraphParameters<FileType::edge_list, Directed, Unweighted, Static>;
+using EdgeListDirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Directed, Unweighted, Dynamic>;
+using EdgeListUndirectedWeightedStatic = GraphParameters<FileType::edge_list, Undirected, Weighted, Static>;
+using EdgeListUndirectedWeightedDynamic = GraphParameters<FileType::edge_list, Undirected, Weighted, Dynamic>;
+using EdgeListUndirectedUnweightedStatic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Static>;
+using EdgeListUndirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Dynamic>;
+
+//! Some useful using directives for matrix market input file types
+using MatrixMarketDirectedWeightedStatic = GraphParameters<FileType::matrix_market, Directed, Weighted, Static>;
+using MatrixMarketDirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Directed, Weighted, Dynamic>;
+using MatrixMarketDirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Static>;
+using MatrixMarketDirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Dynamic>;
+using MatrixMarketUndirectedWeightedStatic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Static>;
+using MatrixMarketUndirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Dynamic>;
+using MatrixMarketUndirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Static>;
+using MatrixMarketUndirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Dynamic>;
+
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #.
 //!
