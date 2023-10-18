@@ -2,6 +2,7 @@
 
 #include <gdsb/timer.h>
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -50,8 +51,22 @@ template <typename F, class DS, class E> std::chrono::milliseconds benchmark(F&&
     return std::chrono::duration_cast<std::chrono::milliseconds>(duration);
 }
 
-//! Use this function to ouput parameters that shall be profiled.
+//! Use this function to output parameters that shall be profiled.
 template <typename T> void out(std::string name, T value) { std::cout << name << ": " << value << std::endl; }
+
+//! Use this function to output ranges in yaml format.
+template <typename It> void out(std::string name, It begin, It end, std::ostream& stream = std::cout)
+{
+    stream << name << ": [";
+
+    if (begin != end)
+    {
+        std::for_each(begin, end - 1, [&](auto const& e) { stream << e << ", "; });
+        stream << *(end - 1);
+    }
+
+    stream << "]" << std::endl;
+}
 
 //! Returns the memory usage in KB for the calling process.
 unsigned long long memory_usage_in_kb();

@@ -2,12 +2,11 @@
 cmake_minimum_required(VERSION 3.11.4)
 
 # Set project name and version
-project(gdsb)
-set(version 0.0.1)
+project(gdsb VERSION 0.2.0)
 
 include(GNUInstallDirs)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_library(gdsb STATIC)
@@ -24,6 +23,7 @@ set(public_headers
 target_sources(gdsb
   PRIVATE
     src/timer.cpp
+    src/graph_io.cpp
     src/graph.cpp
     src/experiment.cpp
 )
@@ -94,15 +94,7 @@ install(FILES
 
 set_property(TARGET gdsb PROPERTY VERSION ${version})
 
-# TODO: align version numbers or remove completely since
-#       the other VERSIONS will be taken as the value if
-#       SOVERSION not present
-set_property(TARGET gdsb PROPERTY SOVERSION 1)
-set_property(TARGET gdsb PROPERTY
-  INTERFACE_gdsb_MAJOR_VERSION 1)
-set_property(TARGET gdsb APPEND PROPERTY
-  COMPATIBLE_INTERFACE_STRING gdsb_MAJOR_VERSION
-)
+set_target_properties(gdsb PROPERTIES VERSION ${PROJECT_VERSION} SOVERSION ${PROJECT_VERSION_MAJOR})
 
 option(GDSB_TEST "Build test target." OFF)
 if (GDSB_TEST)
@@ -123,8 +115,9 @@ if (GDSB_TEST)
 
   add_executable(gdsb_test
     test/batcher.cpp
+    test/experiment_tests.cpp
+    test/graph_io_tests.cpp
     test/graph.cpp
-    test/graph_io.cpp
   )
 
   target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)
