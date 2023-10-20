@@ -75,13 +75,13 @@ enum class FileType
 };
 
 //! @param  file_type       Choose the FileType to read in.
-template <FileType file_type, typename Directed = Undirected, typename Weighted = Unweighted, typename Dynamic = Static>
+template <FileType file_type, typename DirectedT = Undirected, typename WeightedT = Unweighted, typename DynamicT = Static>
 class GraphParameters
 {
 public:
-    static constexpr bool is_directed() { return Directed::is_directed(); }
-    static constexpr bool is_weighted() { return Weighted::is_weighted(); }
-    static constexpr bool is_dynamic() { return Dynamic::is_dynamic(); }
+    static constexpr bool is_directed() { return DirectedT::is_directed(); }
+    static constexpr bool is_weighted() { return WeightedT::is_weighted(); }
+    static constexpr bool is_dynamic() { return DynamicT::is_dynamic(); }
     static constexpr FileType filetype() { return file_type; }
 };
 
