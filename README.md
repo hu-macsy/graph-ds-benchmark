@@ -6,14 +6,14 @@ This library offers various tools for graph data structure experiments including
 - experiment environment to benchmark procedures, see
   [experiment.h](/include/gdsb/experiment.h)
 - time measurement facilities, see [timer.h](/include/gdsb/timer.h)
-- sorting containers using a specific permutation
+- sorting containers using a specific permutation, see
   [sort_permutation.h](/include/gdsb/sort_permutation.h)
 - a batcher system to create and apply edge batches which may be fed to a graph
-  data structure [sort_permutation.h](/include/gdsb/batcher.h)
+  data structure, see [sort_permutation.h](/include/gdsb/batcher.h)
 
 ## Releases
 
-### v0.2.0
+### Version 0.2.0
 
 A complete revision of graph file I/O to read edges from a file reducing the
 formerly defined functions to read in directed, undirected, weighted,
@@ -24,18 +24,18 @@ nature as well as a few minor fixes.
 In short, this version addresses the complexity of file I/O options trying to
 simplify the API.
 
-| Version Number        | Tag       | URL                                                        |
-| ----------------------|-----------|------------------------------------------------------------|
-| 0.2.0                 | v0.2.0    | https://github.com/hu-macsy/graph-ds-benchmark/tree/v0.2.0 |
+| Version Number           | Tag       | URL                                                        |
+| -------------------------|-----------|------------------------------------------------------------|
+| `0.2.0`                  | `v0.2.0`  | https://github.com/hu-macsy/graph-ds-benchmark/tree/v0.2.0 |
 
-### v0.0.1
+### Version 0.0.1
 
 This version includes timer, graph (I/O), and sorting functionality. Also
 includes a batcher system and an experiment environment for benchmarking.
 
 | Version Number        | Tag       | URL                                                        |
 | ----------------------|-----------|------------------------------------------------------------|
-| 0.0.1                 | v0.0.1    | https://github.com/hu-macsy/graph-ds-benchmark/tree/v0.0.1 |
+| `0.0.1`               | `v0.0.1`  | https://github.com/hu-macsy/graph-ds-benchmark/tree/v0.0.1 |
 
 ## Authors
 
