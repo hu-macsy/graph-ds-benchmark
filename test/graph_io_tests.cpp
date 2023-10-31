@@ -1,22 +1,11 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include "test_graph.h"
+
 #include <gdsb/graph_io.h>
 
 #include <sstream>
 #include <string>
-
-// https://networkrepository.com/bio-celegans.php
-static std::string const graph_path =
-#ifdef GDSB_TEST_GRAPH_DIR
-    std::string(GDSB_TEST_GRAPH_DIR) + "/";
-#else
-    "test/graphs/";
-#endif
-
-static std::string undirected_unweighted_temporal_reptilia_tortoise{ "reptilia-tortoise-network-pv.edges" };
-static std::string small_weighted_temporal_graph{ "small_graph_temporal.edges" };
-static std::string unweighted_directed_graph_enzymes{ "ENZYMES_g1.edges" };
-static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
 
 using namespace gdsb;
 
@@ -54,7 +43,7 @@ TEST_CASE("read_graph, edge_list")
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
     std::ifstream undirected_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
     std::ifstream graph_input_weighted_temporal(graph_path + small_weighted_temporal_graph);
-    std::ifstream graph_input_unweighed_directed(graph_path + unweighted_directed_graph_enzymes);
+    std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
 
     SECTION("undirected, unweighted")
     {
@@ -268,7 +257,7 @@ TEST_CASE("read_graph, edge_list")
         Subgraph<Vertex32> subgraph{ 2, 5, 0, 38 };
         auto const [vertex_count, edge_count] =
             read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedStatic, uint64_t, true>(
-                graph_input_unweighed_directed, std::move(emplace), std::numeric_limits<uint64_t>::max(), std::move(subgraph));
+                graph_input_unweighted_directed, std::move(emplace), std::numeric_limits<uint64_t>::max(), std::move(subgraph));
 
         CHECK(edges.size() == 16);
         CHECK(edges.size() == edge_count);
