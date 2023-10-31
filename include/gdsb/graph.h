@@ -142,4 +142,13 @@ template <typename VertexT, typename EdgesT> EdgesT gilbert_edges(float const p,
     return random_edges;
 }
 
+//! Shuffles the range of edges [begin, end) using the std::default_random_engine seeded with 7.
+template <typename BeginIt, typename EndIt> void shuffle_edges(BeginIt begin, EndIt end)
+{
+    // Shuffle edges pseudo randomly to break up any structure given by the
+    // order of edges in the file which might influence the caching behaviour.
+    constexpr int pseudo_seed = 7;
+    std::shuffle(begin, end, std::default_random_engine(pseudo_seed));
+}
+
 } // namespace gdsb
