@@ -117,7 +117,7 @@ if (GDSB_TEST)
     test/batcher.cpp
     test/experiment_tests.cpp
     test/graph_io_tests.cpp
-    test/graph.cpp
+    test/graph_test.cpp
   )
 
   target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)
