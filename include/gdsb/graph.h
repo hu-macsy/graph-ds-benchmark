@@ -151,4 +151,25 @@ template <typename BeginIt, typename EndIt> void shuffle_edges(BeginIt begin, En
     std::shuffle(begin, end, std::default_random_engine(pseudo_seed));
 }
 
+// This will break up any order given by the timestamped edges within each
+// epoch. Doing so will guarantee that all edges within the same epoch will be
+// shuffled but the order by timestamps will remain.
+template <class EdgesT, typename TimestampsT>
+void shuffle_timestamped_edges(TimestampedEdges<EdgesT, TimestampsT>& timestamped_edges)
+{
+    typename TimestampsT::size_type const timestamps_size = timestamped_edges.timestamps.size();
+    typename TimestampsT::value_type current_timestamp = std::numeric_limits<typename TimestampsT::value_type>::max();
+    size_t last_index = 0u;
+    for (size_t idx = 0u; idx < timestamps_size; ++idx)
+    {
+        if (timestamped_edges.timestamps[idx] != current_timestamp)
+        {
+            auto edges_begin = timestamped_edges.edges.begin();
+            shuffle_edges(edges_begin + last_index, edges_begin + idx);
+            last_index = idx;
+            current_timestamp = timestamped_edges.timestamps[idx];
+        }
+    }
+}
+
 } // namespace gdsb
