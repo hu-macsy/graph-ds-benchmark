@@ -54,11 +54,11 @@ TEST_CASE("Graph")
 
 TEST_CASE("Edge Shuffling")
 {
-    Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
-
-    SECTION("shuffle_edges")
+    SECTION("shuffle_edges, sequence not equal")
     {
+        Edges32 edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+
         std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
         auto const [vertex_count, edge_count] =
             read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(graph_input_unweighted_directed,
@@ -69,15 +69,77 @@ TEST_CASE("Edge Shuffling")
         shuffle_edges(std::begin(edges), std::end(edges));
 
         uint32_t equality_sequence = 0;
+        auto sum_edges = std::make_tuple<uint32_t, uint32_t>(0, 0);
+        auto sum_edges_copy = std::make_tuple<uint32_t, uint32_t>(0, 0);
 
         auto it_e = std::begin(edges);
         auto it_e_copy = std::begin(edges_copy);
-        for (; it_e != std::end(edges) && it_e_copy != std::end(edges_copy) && equality_sequence <= 1; ++it_e, ++it_e_copy)
+        for (; it_e != std::end(edges) && it_e_copy != std::end(edges_copy); ++it_e, ++it_e_copy)
         {
-            equality_sequence +=
-                uint32_t((it_e->source == it_e_copy->source) && (it_e->target.vertex == it_e_copy->target.vertex));
+            Vertex32 u = it_e->source;
+            Vertex32 v = it_e->target.vertex;
+            Vertex32 u_c = it_e_copy->source;
+            Vertex32 v_c = it_e_copy->target.vertex;
+
+            equality_sequence += uint32_t((u == u_c) && (v == v_c));
+            std::get<0>(sum_edges) += u;
+            std::get<1>(sum_edges) += v;
+            std::get<0>(sum_edges_copy) += u_c;
+            std::get<1>(sum_edges_copy) += v_c;
         }
 
-        CHECK(equality_sequence <= 1);
+        REQUIRE(sum_edges == sum_edges_copy);
+
+        //! Here we check that there is no sequence equal between the shuffled
+        //! edges and the copy before shuffling. Having a maximum of (1/2 *
+        //! size) of edges might seem a bit generous, but we do not have any
+        //! data that shows what the maximum sequence should be that is equal
+        //! for both. Thus, we chose (1/2 * size) would be sufficient for now.
+        CHECK(equality_sequence < uint32_t(edges.size() / 2));
+    }
+
+    SECTION("shuffle_timestamped_edges, sequence not equal")
+    {
+        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v, Weight w)
+        {
+            timestamped_edges.timestamps.push_back(t);
+            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+        };
+
+        std::ifstream graph_input_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
+        auto const [vertex_count, edge_count] =
+            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedDynamic>(graph_input_unweighted_temporal,
+                                                                                         std::move(emplace));
+
+        Edges32 edges_copy = timestamped_edges.edges;
+
+        shuffle_timestamped_edges(timestamped_edges);
+
+        Edges32 const& edges = timestamped_edges.edges;
+
+        uint32_t equality_sequence = 0;
+        auto sum_edges = std::make_tuple<uint32_t, uint32_t>(0, 0);
+        auto sum_edges_copy = std::make_tuple<uint32_t, uint32_t>(0, 0);
+
+        auto it_e = std::begin(edges);
+        auto it_e_copy = std::begin(edges_copy);
+        for (; it_e != std::end(edges) && it_e_copy != std::end(edges) && equality_sequence <= 1; ++it_e, ++it_e_copy)
+        {
+            Vertex32 u = it_e->source;
+            Vertex32 v = it_e->target.vertex;
+            Vertex32 u_c = it_e_copy->source;
+            Vertex32 v_c = it_e_copy->target.vertex;
+
+            equality_sequence += uint32_t((u == u_c) && (v == v_c));
+            std::get<0>(sum_edges) += u;
+            std::get<1>(sum_edges) += v;
+            std::get<0>(sum_edges_copy) += u_c;
+            std::get<1>(sum_edges_copy) += v_c;
+        }
+
+        REQUIRE(sum_edges == sum_edges_copy);
+
+        CHECK(equality_sequence < uint32_t(edges.size() / 2));
     }
 }
