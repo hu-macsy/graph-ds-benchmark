@@ -2,37 +2,21 @@
 
 #include "test_graph.h"
 
-#include <gdsb/graph_io.h>
-
-#include <sstream>
-#include <string>
+#include <gdsb/mpi_graph_io.h>
 
 using namespace gdsb;
 
-TEST_CASE("read_ulong")
+TEST_CASE("Open MPI File")
 {
-    unsigned long const a = 40;
-    unsigned long const b = 200;
-    unsigned long const c = 11;
-    unsigned long const d = 29848572984;
+    constexpr int required_thread_support = MPI_THREAD_MULTIPLE;
+    int provided_thread_support = required_thread_support;
 
-    std::stringstream ss;
-    ss << a << " " << b << " " << c << " " << d << "\n";
-    std::string const test_string = ss.str();
+    int dumy_argc = 0;
+    char** dummy_argv;
+    MPI_Init_thread(&dumy_argc, &dummy_argv, required_thread_support, &provided_thread_support);
+    assert(required_thread_support == provided_thread_support);
 
-    char const* string_source = test_string.c_str();
-    char* string_position = nullptr;
+    SECTION("Does not throw") { CHECK_NOTHROW(gdsb::mpi::open_file(graph_path + unweighted_directed_graph_enzymes)); }
 
-    unsigned long const a_read = read_ulong(string_source, &string_position);
-    string_source = string_position;
-    unsigned long const b_read = read_ulong(string_source, &string_position);
-    string_source = string_position;
-    unsigned long const c_read = read_ulong(string_source, &string_position);
-    string_source = string_position;
-    unsigned long const d_read = read_ulong(string_source, &string_position);
-
-    CHECK(a == a_read);
-    CHECK(b == b_read);
-    CHECK(c == c_read);
-    CHECK(d == d_read);
+    MPI_Finalize();
 }
