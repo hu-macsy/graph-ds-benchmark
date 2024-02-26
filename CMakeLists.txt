@@ -30,6 +30,20 @@ target_sources(gdsb
 
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+
+# Set this option if you want to use the MPI facilities of GDSB 
+option(GDSB_MPI "Build GDSB MPI library.")
+
+if (GDSB_MPI)
+  set(public_headers
+    ${public_headers}
+    include/gdsb/mpi_graph_io.h
+  )
+
+  find_package(MPI REQUIRED)
+  target_link_libraries(gdsb PRIVATE MPI::MPI_CXX)
+endif()
+
 target_include_directories(gdsb
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -111,6 +125,7 @@ if (GDSB_TEST)
       "Could not find test graph directory.")
   endif()
 
+  # GDSB test target
   add_executable(gdsb_test
     test/batcher.cpp
     test/experiment_tests.cpp
@@ -125,8 +140,24 @@ if (GDSB_TEST)
     RUNTIME DESTINATION bin
   )
 
+  # GDSB MPI test target
+  if (GDSB_MPI)
+    add_executable(gdsb_mpi_test
+      test/mpi_graph_io_tests.cpp
+    )
+
+    target_link_libraries(gdsb_mpi_test PRIVATE gdsb Catch2::Catch2WithMain MPI::MPI_CXX)
+
+    install(
+      TARGETS gdsb_mpi_test
+      RUNTIME DESTINATION bin
+    )
+  endif()
+
   # Test setup. Use CTest + Catch2's CTest integration.
   include(CTest)
   include(${PROJECT_SOURCE_DIR}/test/lib/Catch2/extras/Catch.cmake)
   catch_discover_tests(gdsb_test)
 endif()
+
+
