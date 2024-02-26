@@ -18,10 +18,11 @@ inline MPI_File open_file(std::string const& file_name)
     return f;
 }
 
-template <typename T>
-edge_id_t read_graph_mpi(std::string const& file_name, int partition_id, int partition_num, T*& edge, edge_id_t const edge_count)
+template <typename T> Vertex64 read_graph_mpi(std::string const& file_name)
 {
     MPI_File f = open_file(file_name);
+
+    return 0;
 }
 
 } // namespace mpi
