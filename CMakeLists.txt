@@ -132,6 +132,7 @@ if (GDSB_TEST)
     test/experiment_tests.cpp
     test/graph_input_tests.cpp
     test/graph_test.cpp
+    test/graph_output_tests.cpp
   )
 
   target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)
