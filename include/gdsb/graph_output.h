@@ -13,7 +13,7 @@ namespace gdsb
 std::ofstream open_binary_file(std::filesystem::path const& file_path)
 {
     std::ofstream output_file;
-    output_file.open(file_path.c_str(), std::ios::binary | std::ios::out);
+    output_file.open(file_path.c_str(), std::ios::out | std::ios::binary);
     return output_file;
 }
 
