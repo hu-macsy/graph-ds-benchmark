@@ -12,7 +12,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(gdsb STATIC)
 
 set(public_headers
-  include/gdsb/graph_io.h
+  include/gdsb/graph_input.h
   include/gdsb/timer.h
   include/gdsb/experiment.h
   include/gdsb/batcher.h
@@ -23,7 +23,7 @@ set(public_headers
 target_sources(gdsb
   PRIVATE
     src/timer.cpp
-    src/graph_io.cpp
+    src/graph_input.cpp
     src/graph.cpp
     src/experiment.cpp
 )
@@ -130,7 +130,7 @@ if (GDSB_TEST)
   add_executable(gdsb_test
     test/batcher.cpp
     test/experiment_tests.cpp
-    test/graph_io_tests.cpp
+    test/graph_input_tests.cpp
     test/graph_test.cpp
   )
 

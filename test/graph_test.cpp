@@ -3,7 +3,7 @@
 #include "test_graph.h"
 
 #include <gdsb/graph.h>
-#include <gdsb/graph_io.h>
+#include <gdsb/graph_input.h>
 
 using namespace gdsb;
 
