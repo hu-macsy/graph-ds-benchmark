@@ -17,4 +17,16 @@ std::ofstream open_binary_file(std::filesystem::path const& file_path)
     return output_file;
 }
 
+template <typename Edges, typename WriteEdgeF>
+void write_graph(std::ofstream& output_file, Edges&& edges, WriteEdgeF&& write_edge_f)
+{
+    for (auto const e : edges)
+    {
+        write_edge_f(output_file, e);
+        output_file << '\n';
+    }
+
+    output_file << std::endl;
+}
+
 } // namespace gdsb
