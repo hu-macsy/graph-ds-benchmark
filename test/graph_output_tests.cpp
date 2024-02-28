@@ -20,7 +20,7 @@ TEST_CASE("open_binary_file")
     REQUIRE(std::remove(file_path.c_str()) == 0);
 }
 
-TEST_CASE("write_graph")
+TEST_CASE("write_graph, binary")
 {
     // First we read in a test graph
     gdsb::Edges32 edges;
@@ -32,6 +32,7 @@ TEST_CASE("write_graph")
         gdsb::read_graph<gdsb::Vertex32, decltype(emplace), gdsb::EdgeListDirectedUnweightedStatic>(graph_input_unweighted_directed,
                                                                                                     std::move(emplace));
 
+    CHECK(edges.size() == 168);
 
     // Open File
     std::filesystem::path file_path{ graph_path + "test_graph.bin" };
