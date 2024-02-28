@@ -34,7 +34,7 @@ TEST_CASE("write_graph")
 
 
     // Open File
-    std::filesystem::path file_path{ graph_path + "write_test.gdsb" };
+    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
