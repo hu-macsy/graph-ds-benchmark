@@ -48,5 +48,5 @@ TEST_CASE("write_graph")
                     o.write(reinterpret_cast<const char*>(&edge.target.weight), sizeof(edge.target.weight));
                 });
 
-    // REQUIRE(std::remove(file_path.c_str()) == 0);
+    REQUIRE(std::remove(file_path.c_str()) == 0);
 }
