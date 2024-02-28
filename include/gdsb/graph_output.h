@@ -23,9 +23,9 @@ void write_graph(std::ofstream& output_file, Edges&& edges, WriteEdgeF&& write_e
     for (auto const e : edges)
     {
         write_edge_f(output_file, e);
-        output_file << '\n';
     }
 
+    // flush file
     output_file << std::endl;
 }
 
