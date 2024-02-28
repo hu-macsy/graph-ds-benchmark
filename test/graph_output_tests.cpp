@@ -2,6 +2,7 @@
 
 #include "test_graph.h"
 
+#include <gdsb/graph.h>
 #include <gdsb/graph_input.h>
 #include <gdsb/graph_output.h>
 
@@ -20,7 +21,7 @@ TEST_CASE("open_binary_file")
     REQUIRE(std::remove(file_path.c_str()) == 0);
 }
 
-TEST_CASE("write_graph, binary")
+TEST_CASE("write_graph, enzymes, binary")
 {
     // First we read in a test graph
     gdsb::Edges32 edges;
@@ -47,6 +48,42 @@ TEST_CASE("write_graph, binary")
                     o.write(reinterpret_cast<const char*>(&edge.source), sizeof(edge.source));
                     o.write(reinterpret_cast<const char*>(&edge.target.vertex), sizeof(edge.target.vertex));
                     o.write(reinterpret_cast<const char*>(&edge.target.weight), sizeof(edge.target.weight));
+                });
+
+    REQUIRE(std::remove(file_path.c_str()) == 0);
+}
+
+TEST_CASE("write_graph, small weighted temporal, binary")
+{
+    // First we read in a test graph
+    gdsb::TimestampedEdges32 timestamped_edges;
+    auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v, gdsb::Weight w, gdsb::Timestamp32 t) {
+        timestamped_edges.push_back(std::make_tuple(gdsb::Edge32{ u, gdsb::Target32{ v, w } }, t));
+    };
+
+    std::ifstream graph_input_small_temporal(graph_path + small_weighted_temporal_graph);
+    auto const [vertex_count, edge_count] =
+        gdsb::read_graph<gdsb::Vertex32, decltype(emplace), gdsb::EdgeListDirectedWeightedDynamic>(graph_input_small_temporal,
+                                                                                                   std::move(emplace));
+
+    CHECK(timestamped_edges.size() == 6);
+
+    // Open File
+    std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
+    std::ofstream out_file = gdsb::open_binary_file(file_path);
+
+    REQUIRE(out_file);
+
+    // Write Graph
+    write_graph(out_file, timestamped_edges,
+                [](std::ofstream& o, auto edge)
+                {
+                    o.write(reinterpret_cast<const char*>(&std::get<0>(edge).source), sizeof(std::get<0>(edge).source));
+                    o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.vertex),
+                            sizeof(std::get<0>(edge).target.vertex));
+                    o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.weight),
+                            sizeof(std::get<0>(edge).target.weight));
+                    o.write(reinterpret_cast<const char*>(&std::get<1>(edge)), sizeof(std::get<1>(edge)));
                 });
 
     REQUIRE(std::remove(file_path.c_str()) == 0);
