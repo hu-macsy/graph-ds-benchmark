@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <gdsb/sort_permutation.h>
 #include <random>
+#include <tuple>
 #include <vector>
 
 namespace gdsb
@@ -60,6 +61,8 @@ using Timestamp64 = uint64_t;
 
 using Timestamps32 = std::vector<Timestamp32>;
 using Timestamps64 = std::vector<Timestamp64>;
+
+using TimestampedEdges32 = std::vector<std::tuple<Edge32, Timestamp32>>;
 
 template <typename EdgesT> auto max_nnz(EdgesT const& edges)
 {
