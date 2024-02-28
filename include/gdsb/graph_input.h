@@ -105,21 +105,6 @@ using MatrixMarketUndirectedWeightedDynamic = GraphParameters<FileType::matrix_m
 using MatrixMarketUndirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Static>;
 using MatrixMarketUndirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Dynamic>;
 
-template <typename ReadF>
-uint64_t
-read_binary_graph(std::ifstream& input, ReadF&& read, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
-{
-    bool continue_reading = true;
-    uint64_t edge_count = 0;
-
-    for (edge_count = 0; edge_count < edge_count_max && !input.eof() && continue_reading; ++edge_count)
-    {
-        continue_reading = read(input);
-    }
-
-    return edge_count;
-}
-
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #.
 //!
@@ -277,6 +262,21 @@ read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_coun
 
     std::ifstream graph_input(graph_path);
     return read_graph<Vertex, EmplaceF, GraphParameters, Timestamp>(graph_input, std::move(emplace), edge_count_max);
+}
+
+template <typename ReadF>
+uint64_t
+read_binary_graph(std::ifstream& input, ReadF&& read, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
+{
+    bool continue_reading = true;
+    uint64_t edge_count = 0;
+
+    for (edge_count = 0; edge_count < edge_count_max && !input.eof() && continue_reading; ++edge_count)
+    {
+        continue_reading = read(input);
+    }
+
+    return edge_count;
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)
