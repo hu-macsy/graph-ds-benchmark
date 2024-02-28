@@ -13,4 +13,5 @@ static std::string const graph_path =
 static std::string undirected_unweighted_temporal_reptilia_tortoise{ "reptilia-tortoise-network-pv.edges" };
 static std::string small_weighted_temporal_graph{ "small_graph_temporal.edges" };
 static std::string unweighted_directed_graph_enzymes{ "ENZYMES_g1.edges" };
+static std::string unweighted_directed_graph_enzymes_bin{ "ENZYMES_g1.bin" };
 static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
