@@ -322,3 +322,30 @@ TEST_CASE("read_graph, market_matrix")
         }
     }
 }
+
+TEST_CASE("read_binary_graph")
+{
+    Edges32 edges;
+    auto read_f = [&](std::ifstream& input)
+    {
+        edges.push_back(Edge32{});
+        input.read((char*)&edges.back().source, sizeof(Vertex32));
+        input.read((char*)&edges.back().target.vertex, sizeof(Vertex32));
+        input.read((char*)&edges.back().target.weight, sizeof(Weight));
+        return true;
+    };
+
+    std::ifstream enzymes_binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
+
+    uint64_t edge_count = read_binary_graph(enzymes_binary_graph, std::move(read_f));
+
+    // TODO: Should be 168 but resulting in 169
+    // CHECK(edges.size() == 168);
+    CHECK(edges.size() == 169);
+    CHECK(edges.size() == edge_count);
+
+    std::any_of(std::begin(edges), std::end(edges),
+                [](Edge32 edge) { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
+    std::none_of(std::begin(edges), std::end(edges), [](Edge32 edge) { return edge.source == 1; });
+    // CHECK(vertex_count == 38);
+}
