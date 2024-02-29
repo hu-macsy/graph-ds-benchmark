@@ -1,5 +1,8 @@
 #pragma once
 
+namespace gdsb
+{
+
 template <bool value> class GraphParameter
 {
 public:
@@ -89,3 +92,5 @@ using BinaryUndirectedWeightedStatic = GraphParameters<FileType::binary, Undirec
 using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undirected, Weighted, Dynamic>;
 using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, Static>;
 using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, Dynamic>;
+
+} // namespace gdsb
