@@ -1,6 +1,7 @@
 #pragma once
 
 #include <gdsb/graph.h>
+#include <gdsb/graph_io_parameters.h>
 
 #include <filesystem>
 #include <fstream>
@@ -25,85 +26,6 @@ template <typename V> struct Subgraph
     V target_begin = 0;
     V target_end = std::numeric_limits<V>::max();
 };
-
-template <bool value> class GraphParameter
-{
-public:
-    static constexpr bool is() { return value; }
-};
-
-class Directed : private GraphParameter<true>
-{
-public:
-    static constexpr bool is_directed() { return GraphParameter::is(); }
-};
-
-class Undirected : private GraphParameter<false>
-{
-public:
-    static constexpr bool is_directed() { return GraphParameter::is(); }
-};
-
-class Weighted : private GraphParameter<true>
-{
-public:
-    static constexpr bool is_weighted() { return GraphParameter::is(); }
-};
-
-class Unweighted : private GraphParameter<false>
-{
-public:
-    static constexpr bool is_weighted() { return GraphParameter::is(); }
-};
-
-class Dynamic : private GraphParameter<true>
-{
-public:
-    static constexpr bool is_dynamic() { return GraphParameter::is(); }
-};
-
-class Static : private GraphParameter<false>
-{
-public:
-    static constexpr bool is_dynamic() { return GraphParameter::is(); }
-};
-
-enum class FileType
-{
-    edge_list,
-    matrix_market
-};
-
-//! @param  file_type       Choose the FileType to read in.
-template <FileType file_type, typename DirectedT = Undirected, typename WeightedT = Unweighted, typename DynamicT = Static>
-class GraphParameters
-{
-public:
-    static constexpr bool is_directed() { return DirectedT::is_directed(); }
-    static constexpr bool is_weighted() { return WeightedT::is_weighted(); }
-    static constexpr bool is_dynamic() { return DynamicT::is_dynamic(); }
-    static constexpr FileType filetype() { return file_type; }
-};
-
-//! Some useful using directives for edge list input file types
-using EdgeListDirectedWeightedStatic = GraphParameters<FileType::edge_list, Directed, Weighted, Static>;
-using EdgeListDirectedWeightedDynamic = GraphParameters<FileType::edge_list, Directed, Weighted, Dynamic>;
-using EdgeListDirectedUnweightedStatic = GraphParameters<FileType::edge_list, Directed, Unweighted, Static>;
-using EdgeListDirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Directed, Unweighted, Dynamic>;
-using EdgeListUndirectedWeightedStatic = GraphParameters<FileType::edge_list, Undirected, Weighted, Static>;
-using EdgeListUndirectedWeightedDynamic = GraphParameters<FileType::edge_list, Undirected, Weighted, Dynamic>;
-using EdgeListUndirectedUnweightedStatic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Static>;
-using EdgeListUndirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Dynamic>;
-
-//! Some useful using directives for matrix market input file types
-using MatrixMarketDirectedWeightedStatic = GraphParameters<FileType::matrix_market, Directed, Weighted, Static>;
-using MatrixMarketDirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Directed, Weighted, Dynamic>;
-using MatrixMarketDirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Static>;
-using MatrixMarketDirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Dynamic>;
-using MatrixMarketUndirectedWeightedStatic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Static>;
-using MatrixMarketUndirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Dynamic>;
-using MatrixMarketUndirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Static>;
-using MatrixMarketUndirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Dynamic>;
 
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #.
