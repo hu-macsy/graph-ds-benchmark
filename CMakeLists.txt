@@ -12,12 +12,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(gdsb STATIC)
 
 set(public_headers
-  include/gdsb/graph_input.h
-  include/gdsb/timer.h
-  include/gdsb/experiment.h
   include/gdsb/batcher.h
-  include/gdsb/sort_permutation.h
+  include/gdsb/experiment.h
+  include/gdsb/graph_input.h
+  include/gdsb/graph_io_parameters.h
+  include/gdsb/graph_output.h
   include/gdsb/graph.h
+  include/gdsb/sort_permutation.h
+  include/gdsb/timer.h
 )
 
 target_sources(gdsb
