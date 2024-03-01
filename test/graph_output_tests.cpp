@@ -4,6 +4,7 @@
 
 #include <gdsb/graph.h>
 #include <gdsb/graph_input.h>
+#include <gdsb/graph_io_parameters.h>
 #include <gdsb/graph_output.h>
 
 #include <cstdio>
@@ -36,21 +37,23 @@ TEST_CASE("write_graph, enzymes, binary")
     CHECK(edges.size() == 168);
 
     // Open File
-    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+    // std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+    std::filesystem::path file_path{ graph_path + "ENZYMES_g1.bin" };
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph(out_file, edges,
-                [](std::ofstream& o, auto edge)
-                {
-                    o.write(reinterpret_cast<const char*>(&edge.source), sizeof(edge.source));
-                    o.write(reinterpret_cast<const char*>(&edge.target.vertex), sizeof(edge.target.vertex));
-                    o.write(reinterpret_cast<const char*>(&edge.target.weight), sizeof(edge.target.weight));
-                });
+    gdsb::write_graph<gdsb::BinaryDirectedUnweightedStatic>(out_file, edges, vertex_count, edge_count,
+                                                            [](std::ofstream& o, auto edge)
+                                                            {
+                                                                o.write(reinterpret_cast<const char*>(&edge.source),
+                                                                        sizeof(edge.source));
+                                                                o.write(reinterpret_cast<const char*>(&edge.target.vertex),
+                                                                        sizeof(edge.target.vertex));
+                                                            });
 
-    REQUIRE(std::remove(file_path.c_str()) == 0);
+    // REQUIRE(std::remove(file_path.c_str()) == 0);
 }
 
 TEST_CASE("write_graph, small weighted temporal, binary")
@@ -69,22 +72,22 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     CHECK(timestamped_edges.size() == 6);
 
     // Open File
-    std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
+    // std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
+    std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph(out_file, timestamped_edges,
-                [](std::ofstream& o, auto edge)
-                {
-                    o.write(reinterpret_cast<const char*>(&std::get<0>(edge).source), sizeof(std::get<0>(edge).source));
-                    o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.vertex),
-                            sizeof(std::get<0>(edge).target.vertex));
-                    o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.weight),
-                            sizeof(std::get<0>(edge).target.weight));
-                    o.write(reinterpret_cast<const char*>(&std::get<1>(edge)), sizeof(std::get<1>(edge)));
-                });
+    gdsb::write_graph<gdsb::BinaryDirectedWeightedDynamic>(
+        out_file, timestamped_edges, vertex_count, edge_count,
+        [](std::ofstream& o, auto edge)
+        {
+            o.write(reinterpret_cast<const char*>(&std::get<0>(edge).source), sizeof(std::get<0>(edge).source));
+            o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.vertex), sizeof(std::get<0>(edge).target.vertex));
+            o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.weight), sizeof(std::get<0>(edge).target.weight));
+            o.write(reinterpret_cast<const char*>(&std::get<1>(edge)), sizeof(std::get<1>(edge)));
+        });
 
-    REQUIRE(std::remove(file_path.c_str()) == 0);
+    // REQUIRE(std::remove(file_path.c_str()) == 0);
 }
