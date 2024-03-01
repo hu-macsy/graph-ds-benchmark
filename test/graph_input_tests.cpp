@@ -342,9 +342,10 @@ TEST_CASE("read_binary_graph, small weighted temporal")
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 6);
 
-    // char eof_marker;
-    // binary_graph.read(&eof_marker, sizeof(char));
-    // REQUIRE(binary_graph.eof());
+    // Note: EOF is an int (for most OS?)
+    int eof_marker;
+    binary_graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
+    REQUIRE(binary_graph.eof());
 
     // File content:
     // 0 1 1 1
