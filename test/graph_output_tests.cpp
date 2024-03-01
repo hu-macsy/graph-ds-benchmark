@@ -37,8 +37,8 @@ TEST_CASE("write_graph, enzymes, binary")
     CHECK(edges.size() == 168);
 
     // Open File
-    // std::filesystem::path file_path{ graph_path + "test_graph.bin" };
-    std::filesystem::path file_path{ graph_path + "ENZYMES_g1.bin" };
+    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+    // std::filesystem::path file_path{ graph_path + "ENZYMES_g1.bin" };
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
@@ -53,7 +53,7 @@ TEST_CASE("write_graph, enzymes, binary")
                                                                         sizeof(edge.target.vertex));
                                                             });
 
-    // REQUIRE(std::remove(file_path.c_str()) == 0);
+    REQUIRE(std::remove(file_path.c_str()) == 0);
 }
 
 TEST_CASE("write_graph, small weighted temporal, binary")
