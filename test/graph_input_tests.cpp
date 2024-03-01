@@ -396,15 +396,32 @@ TEST_CASE("read_binary_graph, small weighted temporal")
     REQUIRE(timestamped_edges.size() == idx);
 }
 
-    uint64_t edge_count = read_binary_graph(enzymes_binary_graph, std::move(read_f));
+TEST_CASE("read_binary_graph, undirected, unweighted, static")
+{
+    Edges32 edges;
+    auto read_f = [&](std::ifstream& input)
+    {
+        edges.push_back(Edge32{});
+        input.read((char*)&edges.back().source, sizeof(Vertex32));
+        input.read((char*)&edges.back().target.vertex, sizeof(Vertex32));
+        return true;
+    };
+
+    std::ifstream binary_Graph(graph_path + unweighted_directed_graph_enzymes_bin);
+
+    auto [vertex_count, edge_count] = read_binary_graph(binary_Graph, std::move(read_f));
+
+    // Note: EOF is an int (for most OS?)
+    int eof_marker;
+    binary_Graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
+    REQUIRE(binary_Graph.eof());
 
     // TODO: Should be 168 but resulting in 169
-    // CHECK(edges.size() == 168);
-    CHECK(edges.size() == 169);
-    CHECK(edges.size() == edge_count);
+    CHECK(vertex_count == 38);
+    CHECK(edge_count == 168);
+    REQUIRE(edges.size() == edge_count);
 
     std::any_of(std::begin(edges), std::end(edges),
                 [](Edge32 edge) { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
     std::none_of(std::begin(edges), std::end(edges), [](Edge32 edge) { return edge.source == 1; });
-    // CHECK(vertex_count == 38);
 }
