@@ -72,8 +72,8 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     CHECK(timestamped_edges.size() == 6);
 
     // Open File
-    // std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
-    std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
+    std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
+    // std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
@@ -89,5 +89,5 @@ TEST_CASE("write_graph, small weighted temporal, binary")
             o.write(reinterpret_cast<const char*>(&std::get<1>(edge)), sizeof(std::get<1>(edge)));
         });
 
-    // REQUIRE(std::remove(file_path.c_str()) == 0);
+    REQUIRE(std::remove(file_path.c_str()) == 0);
 }
