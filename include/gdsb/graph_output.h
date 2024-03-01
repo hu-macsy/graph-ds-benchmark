@@ -17,21 +17,6 @@ std::ofstream open_binary_file(std::filesystem::path const& file_path)
     return output_file;
 }
 
-struct alignas(8) BinaryGraphHeaderIdentifier
-{
-    char identifier[4] = { 'G', 'D', 'S', 'B' };
-    uint32_t version = 1;
-};
-
-struct alignas(8) BinaryGraphHeaderMetaDataV1
-{
-    uint64_t vertex_count = 2;
-    uint64_t edge_count = 1;
-    bool directed = false;
-    bool weighted = false;
-    bool dynamic = false;
-};
-
 template <typename GraphParameters = GraphParameters<FileType::binary>>
 void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& header_id, uint64_t const vertex_count, uint64_t const edge_count)
 {
