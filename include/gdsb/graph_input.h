@@ -3,9 +3,11 @@
 #include <gdsb/graph.h>
 #include <gdsb/graph_io_parameters.h>
 
+#include <cstring>
 #include <experimental/filesystem>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace gdsb
@@ -186,19 +188,45 @@ read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_coun
     return read_graph<Vertex, EmplaceF, GraphParameters, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
-template <typename ReadF>
-uint64_t
-read_binary_graph(std::ifstream& input, ReadF&& read, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
+inline BinaryGraphHeaderMetaDataV1 read_binary_graph_header(std::ifstream& input)
 {
-    bool continue_reading = true;
-    uint64_t edge_count = 0;
+    BinaryGraphHeaderIdentifier id;
+    input.read(reinterpret_cast<char*>(&id), sizeof(BinaryGraphHeaderIdentifier));
 
-    for (edge_count = 0; edge_count < edge_count_max && !input.eof() && continue_reading; ++edge_count)
+    GraphParameters<FileType::binary> graph_parameters;
+
+    switch (id.version)
+    {
+    case 1:
+    {
+        if (!std::strcmp(id.identifier, "GDSB"))
+        {
+            throw std::logic_error(std::string("Binary graph file has wrong identifier: ") + std::string(id.identifier));
+        }
+
+        BinaryGraphHeaderMetaDataV1 meta_data;
+        input.read(reinterpret_cast<char*>(&meta_data), sizeof(BinaryGraphHeaderMetaDataV1));
+
+        return meta_data;
+    }
+    default:
+        throw std::logic_error("Binary graph version not supported: " + std::to_string(id.version));
+    }
+}
+
+template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, ReadF&& read)
+{
+    BinaryGraphHeaderMetaDataV1 data = read_binary_graph_header(input);
+
+    bool continue_reading = true;
+    uint64_t edge_count = data.edge_count;
+
+    for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
 
-    return edge_count;
+    return std::make_tuple(data.vertex_count, data.edge_count);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)

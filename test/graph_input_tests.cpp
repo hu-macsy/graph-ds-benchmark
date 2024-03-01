@@ -323,19 +323,77 @@ TEST_CASE("read_graph, market_matrix")
     }
 }
 
-TEST_CASE("read_binary_graph")
+TEST_CASE("read_binary_graph, small weighted temporal")
 {
-    Edges32 edges;
+    TimestampedEdges32 timestamped_edges;
     auto read_f = [&](std::ifstream& input)
     {
-        edges.push_back(Edge32{});
-        input.read((char*)&edges.back().source, sizeof(Vertex32));
-        input.read((char*)&edges.back().target.vertex, sizeof(Vertex32));
-        input.read((char*)&edges.back().target.weight, sizeof(Weight));
+        timestamped_edges.push_back(std::tuple<Edge32, Timestamp32>{});
+        input.read((char*)&std::get<0>(timestamped_edges.back()).source, sizeof(Vertex32));
+        input.read((char*)&std::get<0>(timestamped_edges.back()).target.vertex, sizeof(Vertex32));
+        input.read((char*)&std::get<0>(timestamped_edges.back()).target.weight, sizeof(Weight));
+        input.read((char*)&std::get<1>(timestamped_edges.back()), sizeof(Timestamp32));
         return true;
     };
 
-    std::ifstream enzymes_binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
+
+    auto const [vertex_count, edge_count] = read_binary_graph(binary_graph, std::move(read_f));
+    REQUIRE(vertex_count == 7);
+    REQUIRE(edge_count == 6);
+
+    // char eof_marker;
+    // binary_graph.read(&eof_marker, sizeof(char));
+    // REQUIRE(binary_graph.eof());
+
+    // File content:
+    // 0 1 1 1
+    // 2 3 1 3
+    // 1 2 1 2
+    // 3 4 1 4
+    // 3 5 1 6
+    // 3 6 1 7
+
+    size_t idx = 0;
+    REQUIRE(timestamped_edges.size() == edge_count);
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 0);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 1);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 1);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 2);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 3);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 1);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 2);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 2);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 4);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 4);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 5);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 6);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 6);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 7);
+
+    ++idx;
+    REQUIRE(timestamped_edges.size() == idx);
+}
 
     uint64_t edge_count = read_binary_graph(enzymes_binary_graph, std::move(read_f));
 

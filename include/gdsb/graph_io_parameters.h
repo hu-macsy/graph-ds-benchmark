@@ -2,7 +2,6 @@
 
 namespace gdsb
 {
-
 template <bool value> class GraphParameter
 {
 public:
@@ -92,5 +91,20 @@ using BinaryUndirectedWeightedStatic = GraphParameters<FileType::binary, Undirec
 using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undirected, Weighted, Dynamic>;
 using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, Static>;
 using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, Dynamic>;
+
+struct alignas(8) BinaryGraphHeaderIdentifier
+{
+    char identifier[4] = { 'G', 'D', 'S', 'B' };
+    uint32_t version = 1;
+};
+
+struct alignas(8) BinaryGraphHeaderMetaDataV1
+{
+    uint64_t vertex_count = 2;
+    uint64_t edge_count = 1;
+    bool directed = false;
+    bool weighted = false;
+    bool dynamic = false;
+};
 
 } // namespace gdsb
