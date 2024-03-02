@@ -61,7 +61,7 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     // First we read in a test graph
     gdsb::TimestampedEdges32 timestamped_edges;
     auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v, gdsb::Weight w, gdsb::Timestamp32 t) {
-        timestamped_edges.push_back(std::make_tuple(gdsb::Edge32{ u, gdsb::Target32{ v, w } }, t));
+        timestamped_edges.push_back({ { u, { v, w } }, t });
     };
 
     std::ifstream graph_input_small_temporal(graph_path + small_weighted_temporal_graph);
@@ -83,10 +83,10 @@ TEST_CASE("write_graph, small weighted temporal, binary")
         out_file, timestamped_edges, vertex_count, edge_count,
         [](std::ofstream& o, auto edge)
         {
-            o.write(reinterpret_cast<const char*>(&std::get<0>(edge).source), sizeof(std::get<0>(edge).source));
-            o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.vertex), sizeof(std::get<0>(edge).target.vertex));
-            o.write(reinterpret_cast<const char*>(&std::get<0>(edge).target.weight), sizeof(std::get<0>(edge).target.weight));
-            o.write(reinterpret_cast<const char*>(&std::get<1>(edge)), sizeof(std::get<1>(edge)));
+            o.write(reinterpret_cast<const char*>(&edge.edge.source), sizeof(int32_t));
+            o.write(reinterpret_cast<const char*>(&edge.edge.target.vertex), sizeof(int32_t));
+            o.write(reinterpret_cast<const char*>(&edge.edge.target.weight), sizeof(float));
+            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(int32_t));
         });
 
     REQUIRE(std::remove(file_path.c_str()) == 0);
