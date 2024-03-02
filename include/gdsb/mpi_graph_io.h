@@ -72,28 +72,29 @@ template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_F
     return std::make_tuple(data.vertex_count, data.edge_count);
 }
 
-// template <typename EmplaceF, typename GraphParameters = GraphParameters<FileType::edge_list>, typename Timestamp = uint64_t>
-// read_graph_partition_mpi(MPI_File file, EmplaceF&& emplace, uint32_t const partition_id, uint32_t const partition_count, uint64_t const edge_count)
-// {
-//     // The issue with MPI IO is that it can't really read lines.
-//     // So for now we drop using MPI IO for this purpose.
-//     //
-//     uint64_t partition_edge_count = edge_count / partition_count;
-//     if (partition_id == partition_count - 1)
-//     {
-//         partition_edge_count += edge_count % partition_count;
-//     }
+template <typename ReadF>
+std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_File input, ReadF&& read, uint32_t const partition_id, uint32_t const partition_size)
+{
+    BinaryGraphHeaderMetaDataV1 const data = read_binary_graph_header(input);
 
-//     size_t const edge_offset = (edge_count / partition_count) * partition_id;
+    uint64_t const partition_edge_count = [&]()
+    {
+        uint64_t c = data.edge_count / partition_size;
+        if (partition_id == partition_size - 1)
+        {
+            c += edge_count % partition_count;
+        }
+        return c;
+    }();
 
-//     char line[1024];
+    size_t edge_offset = (data.edge_count / partition_size) * partition_id;
+    for (uint64_t e = 0; e < partition_edge_count; ++e)
+    {
+        edge_offset = read(input, edge_offset);
+    }
 
-//     // edge = new T[e_num];
-//     // fseek(f, f_offset, SEEK_SET);
-//     // auto ret = fread(edge, sizeof(T), e_num, f);
-//     // assert(ret == e_num);
-//     // fclose(f);
-// }
+    return std::make_tuple(data.vertex_count, data.edge_count);
+}
 
 } // namespace mpi
 } // namespace gdsb
