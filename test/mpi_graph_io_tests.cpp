@@ -67,3 +67,27 @@ TEST_CASE("Read Small Weighted Temporal Binary File Header Information")
     CHECK(data.vertex_count == 7);
     CHECK(data.edge_count == 6);
 }
+
+TEST_CASE("Read Small Weighted Temporal Binary File")
+{
+    gdsb::TimestampedEdges32 timestamped_edges;
+    auto read_f = [&](MPI_File input)
+    {
+        timestamped_edges.push_back(std::tuple<gdsb::Edge32, gdsb::Timestamp32>{});
+
+        MPI_Status status;
+        MPI_File_read(input, &std::get<0>(timestamped_edges.back()).source, 1, MPI_INT32_T, &status);
+        MPI_File_read(input, &std::get<0>(timestamped_edges.back()).target.vertex, 1, MPI_INT32_T, &status);
+        MPI_File_read(input, &std::get<0>(timestamped_edges.back()).target.weight, 1, MPI_FLOAT, &status);
+        MPI_File_read(input, &std::get<1>(timestamped_edges.back()), 1, MPI_INT32_T, &status);
+
+        return true;
+    };
+
+    std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+    MPI_File input = gdsb::mpi::open_file(file_path);
+
+    auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(input, std::move(read_f));
+    REQUIRE(vertex_count == 7);
+    REQUIRE(edge_count == 6);
+}
