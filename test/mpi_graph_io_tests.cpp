@@ -73,13 +73,13 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     gdsb::TimestampedEdges32 timestamped_edges;
     auto read_f = [&](MPI_File input)
     {
-        timestamped_edges.push_back(std::tuple<gdsb::Edge32, gdsb::Timestamp32>{});
+        timestamped_edges.push_back({});
 
         MPI_Status status;
-        MPI_File_read(input, &std::get<0>(timestamped_edges.back()).source, 1, MPI_INT32_T, &status);
-        MPI_File_read(input, &std::get<0>(timestamped_edges.back()).target.vertex, 1, MPI_INT32_T, &status);
-        MPI_File_read(input, &std::get<0>(timestamped_edges.back()).target.weight, 1, MPI_FLOAT, &status);
-        MPI_File_read(input, &std::get<1>(timestamped_edges.back()), 1, MPI_INT32_T, &status);
+        MPI_File_read(input, &timestamped_edges.back().edge.source, 1, MPI_INT32_T, &status);
+        MPI_File_read(input, &timestamped_edges.back().edge.target.vertex, 1, MPI_INT32_T, &status);
+        MPI_File_read(input, &timestamped_edges.back().edge.target.weight, 1, MPI_FLOAT, &status);
+        MPI_File_read(input, &timestamped_edges.back().timestamp, 1, MPI_INT32_T, &status);
 
         return true;
     };
@@ -113,40 +113,40 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 
     size_t idx = 0;
     REQUIRE(timestamped_edges.size() == edge_count);
-    CHECK(std::get<0>(timestamped_edges[idx]).source == 0);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 1);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    CHECK(std::get<1>(timestamped_edges[idx]) == 1);
+    CHECK(timestamped_edges[idx].edge.source == 0);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 1);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 1);
 
     ++idx;
-    CHECK(std::get<0>(timestamped_edges[idx]).source == 2);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 3);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    CHECK(std::get<1>(timestamped_edges[idx]) == 3);
+    CHECK(timestamped_edges[idx].edge.source == 2);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 3);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 3);
 
     ++idx;
-    CHECK(std::get<0>(timestamped_edges[idx]).source == 1);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 2);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    CHECK(std::get<1>(timestamped_edges[idx]) == 2);
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 2);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 2);
 
     ++idx;
-    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 4);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    CHECK(std::get<1>(timestamped_edges[idx]) == 4);
+    CHECK(timestamped_edges[idx].edge.source == 3);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 4);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 4);
 
     ++idx;
-    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 5);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    CHECK(std::get<1>(timestamped_edges[idx]) == 6);
+    CHECK(timestamped_edges[idx].edge.source == 3);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 5);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 6);
 
     ++idx;
-    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 6);
-    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    CHECK(std::get<1>(timestamped_edges[idx]) == 7);
+    CHECK(timestamped_edges[idx].edge.source == 3);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 6);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 7);
 
     ++idx;
     REQUIRE(timestamped_edges.size() == idx);
