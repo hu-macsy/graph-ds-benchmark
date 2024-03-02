@@ -30,7 +30,7 @@ public:
 
 CATCH_REGISTER_LISTENER(mpiInitListener)
 
-TEST_CASE("Open MPI File")
+TEST_CASE("MPI, Open File")
 {
     SECTION("Does not throw using valid path opening regular file.")
     {
@@ -52,7 +52,7 @@ TEST_CASE("Open MPI File")
     }
 }
 
-TEST_CASE("Read Small Weighted Temporal Binary File Header Information")
+TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
 {
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
 
@@ -68,7 +68,7 @@ TEST_CASE("Read Small Weighted Temporal Binary File Header Information")
     CHECK(data.edge_count == 6);
 }
 
-TEST_CASE("Read Small Weighted Temporal Binary File")
+TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 {
     gdsb::TimestampedEdges32 timestamped_edges;
     auto read_f = [&](MPI_File input)
