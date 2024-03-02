@@ -51,3 +51,19 @@ TEST_CASE("Open MPI File")
         CHECK_THROWS(gdsb::mpi::open_file(file_path));
     }
 }
+
+TEST_CASE("Read Small Weighted Temporal Binary File Header Information")
+{
+    std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+
+    MPI_File input;
+    CHECK_NOTHROW(input = gdsb::mpi::open_file(file_path));
+
+    gdsb::BinaryGraphHeaderMetaDataV1 data = gdsb::mpi::read_binary_graph_header(input);
+
+    CHECK(data.directed == true);
+    CHECK(data.weighted == true);
+    CHECK(data.dynamic == true);
+    CHECK(data.vertex_count == 7);
+    CHECK(data.edge_count == 6);
+}
