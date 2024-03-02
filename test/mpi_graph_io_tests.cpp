@@ -90,4 +90,64 @@ TEST_CASE("Read Small Weighted Temporal Binary File")
     auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(input, std::move(read_f));
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 6);
+
+    // Note: EOF is an int (for most OS?)
+    // int eof_marker;
+    // MPI_Status status;
+    // MPI_File_read(input, &eof_marker, 1, MPI_INT32_T, &status);
+    // REQUIRE(eof_marker == 10);
+    // Note:
+    // The EOF representation in the file evaluates to 10 interpreted as int. In
+    // many cases it actually is represented as a -1:
+    // https://en.cppreference.com/w/cpp/string/char_traits/eof
+    // The following test fails though:
+    // REQUIRE(eof_marker == std::char_traits<char>::eof());
+
+    // File content:
+    // 0 1 1 1
+    // 2 3 1 3
+    // 1 2 1 2
+    // 3 4 1 4
+    // 3 5 1 6
+    // 3 6 1 7
+
+    size_t idx = 0;
+    REQUIRE(timestamped_edges.size() == edge_count);
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 0);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 1);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 1);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 2);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 3);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 1);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 2);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 2);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 4);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 4);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 5);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 6);
+
+    ++idx;
+    CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 6);
+    CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    CHECK(std::get<1>(timestamped_edges[idx]) == 7);
+
+    ++idx;
+    REQUIRE(timestamped_edges.size() == idx);
 }
