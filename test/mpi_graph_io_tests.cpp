@@ -32,9 +32,15 @@ CATCH_REGISTER_LISTENER(mpiInitListener)
 
 TEST_CASE("Open MPI File")
 {
-    SECTION("Does not throw using valid path.")
+    SECTION("Does not throw using valid path opening regular file.")
     {
         std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes);
+        CHECK_NOTHROW(gdsb::mpi::open_file(file_path));
+    }
+
+    SECTION("Does not throw using valid path opening binary file.")
+    {
+        std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
         CHECK_NOTHROW(gdsb::mpi::open_file(file_path));
     }
 
