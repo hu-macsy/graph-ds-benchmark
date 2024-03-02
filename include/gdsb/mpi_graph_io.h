@@ -66,7 +66,7 @@ template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_F
     bool continue_reading = true;
     uint64_t edge_count = data.edge_count;
 
-    for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
+    for (uint64_t e = 0; e < edge_count && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
