@@ -74,11 +74,13 @@ template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_F
 
 
 template <typename Edges, typename DatatypeT>
-std::tuple<Vertex64, uint64_t>
-read_binary_graph(MPI_File input, Edges* edges_begin, DatatypeT mpi_data_type, uint32_t const partition_id, uint32_t const partition_size)
+std::tuple<Vertex64, uint64_t> read_binary_graph(BinaryGraphHeaderMetaDataV1 const& data,
+                                                 MPI_File input,
+                                                 Edges* edges_begin,
+                                                 DatatypeT mpi_data_type,
+                                                 uint32_t const partition_id,
+                                                 uint32_t const partition_size)
 {
-    BinaryGraphHeaderMetaDataV1 const data = read_binary_graph_header(input);
-
     uint64_t const partition_edge_count = [&]()
     {
         uint64_t c = data.edge_count / partition_size;
