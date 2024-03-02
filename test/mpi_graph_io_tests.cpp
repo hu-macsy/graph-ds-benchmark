@@ -151,3 +151,35 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     ++idx;
     REQUIRE(timestamped_edges.size() == idx);
 }
+
+
+TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
+{
+    gdsb::Edges32 edges;
+    auto read_f = [&](MPI_File input)
+    {
+        edges.push_back(gdsb::Edge32{});
+
+        MPI_Status status;
+        MPI_File_read(input, &edges.back().source, 1, MPI_INT32_T, &status);
+        MPI_File_read(input, &edges.back().target.vertex, 1, MPI_INT32_T, &status);
+
+        return true;
+    };
+
+    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    MPI_File input = gdsb::mpi::open_file(file_path);
+
+    auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(input, std::move(read_f));
+
+    // TODO: check for EOF!
+
+    CHECK(vertex_count == 38);
+    CHECK(edge_count == 168);
+    REQUIRE(edges.size() == edge_count);
+
+    std::any_of(std::begin(edges), std::end(edges),
+                [](gdsb::Edge32 edge)
+                { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
+    std::none_of(std::begin(edges), std::end(edges), [](gdsb::Edge32 edge) { return edge.source == 1; });
+}
