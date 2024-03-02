@@ -61,12 +61,10 @@ inline BinaryGraphHeaderMetaDataV1 read_binary_graph_header(MPI_File input)
 
 template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_File input, ReadF&& read)
 {
-    BinaryGraphHeaderMetaDataV1 data = read_binary_graph_header(input);
+    BinaryGraphHeaderMetaDataV1 const data = read_binary_graph_header(input);
 
     bool continue_reading = true;
-    uint64_t edge_count = data.edge_count;
-
-    for (uint64_t e = 0; e < edge_count && continue_reading; ++e)
+    for (uint64_t e = 0; e < data.edge_count && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
