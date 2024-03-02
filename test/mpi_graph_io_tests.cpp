@@ -40,7 +40,8 @@ TEST_CASE("Open MPI File")
 
     SECTION("Throws using invalid path.")
     {
-        std::filesystem::path file_path(unweighted_directed_graph_enzymes);
+        std::string invalid_path = "this/is/an/invalid/path.bin";
+        std::filesystem::path file_path(invalid_path.c_str());
         CHECK_THROWS(gdsb::mpi::open_file(file_path));
     }
 }
