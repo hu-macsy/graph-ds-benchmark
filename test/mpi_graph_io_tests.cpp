@@ -185,6 +185,88 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     std::none_of(std::begin(edges), std::end(edges), [](gdsb::Edge32 edge) { return edge.source == 1; });
 }
 
+TEST_CASE("MPI, Read Small Weighted Temporal Binary File, 2 partitions, partition id 0")
+{
+    std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+    MPI_File input = gdsb::mpi::open_file(file_path);
+
+    gdsb::BinaryGraphHeaderMetaDataV1 header = gdsb::mpi::read_binary_graph_header(input);
+
+    uint32_t partition_size = 2;
+
+    gdsb::TimestampedEdges32 edges{ header.edge_count };
+
+
+    // MPI_Type_create_struct(4, &array_of_block_length, );
+
+    // auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(header, input, &(edges[0]), );
+    // REQUIRE(vertex_count == 7);
+    // REQUIRE(edge_count == 6);
+
+    // Note: EOF is an int (for most OS?)
+    // int eof_marker;
+    // MPI_Status status;
+    // MPI_File_read(input, &eof_marker, 1, MPI_INT32_T, &status);
+    // REQUIRE(eof_marker == 10);
+    // Note:
+    // The EOF representation in the file evaluates to 10 interpreted as int. In
+    // many cases it actually is represented as a -1:
+    // https://en.cppreference.com/w/cpp/string/char_traits/eof
+    // The following test fails though:
+    // REQUIRE(eof_marker == std::char_traits<char>::eof());
+
+    // File content:
+    // 0 1 1 1
+    // 2 3 1 3
+    // 1 2 1 2
+    // 3 4 1 4
+    // 3 5 1 6
+    // 3 6 1 7
+
+    // size_t idx = 0;
+
+    // // Partition id: 0
+    // REQUIRE(timestamped_edges.size() == edge_count);
+    // CHECK(std::get<0>(timestamped_edges[idx]).source == 0);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 1);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    // CHECK(std::get<1>(timestamped_edges[idx]) == 1);
+
+    // ++idx;
+    // CHECK(std::get<0>(timestamped_edges[idx]).source == 2);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 3);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    // CHECK(std::get<1>(timestamped_edges[idx]) == 3);
+
+    // ++idx;
+    // CHECK(std::get<0>(timestamped_edges[idx]).source == 1);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 2);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    // CHECK(std::get<1>(timestamped_edges[idx]) == 2);
+
+    // // Partition id: 1
+    // ++idx;
+    // CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 4);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    // CHECK(std::get<1>(timestamped_edges[idx]) == 4);
+
+    // ++idx;
+    // CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 5);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    // CHECK(std::get<1>(timestamped_edges[idx]) == 6);
+
+    // ++idx;
+    // CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 6);
+    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
+    // CHECK(std::get<1>(timestamped_edges[idx]) == 7);
+
+    // ++idx;
+    // REQUIRE(timestamped_edges.size() == idx);
+}
+
 TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
 {
     SECTION("Throws not on MPI_SUCCESS") { CHECK_NOTHROW(gdsb::mpi::handle_type_create_struct_error(MPI_SUCCESS)); }
