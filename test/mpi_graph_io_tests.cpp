@@ -5,6 +5,7 @@
 
 #include "test_graph.h"
 
+#include <gdsb/mpi_error_handler.h>
 #include <gdsb/mpi_graph_io.h>
 
 #include <filesystem>
@@ -182,4 +183,17 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
                 [](gdsb::Edge32 edge)
                 { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
     std::none_of(std::begin(edges), std::end(edges), [](gdsb::Edge32 edge) { return edge.source == 1; });
+}
+
+TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
+{
+    SECTION("Throws not on MPI_SUCCESS") { CHECK_NOTHROW(gdsb::mpi::handle_type_create_struct_error(MPI_SUCCESS)); }
+
+    SECTION("Throws on MPI_ERR_ARG, MPI_ERR_COUNT, MPI_ERR_TYPE, MPI_ERR_OTHER")
+    {
+        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_ARG));
+        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_COUNT));
+        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_TYPE));
+        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_OTHER));
+    }
 }
