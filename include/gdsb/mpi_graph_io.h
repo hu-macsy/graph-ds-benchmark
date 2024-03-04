@@ -1,3 +1,5 @@
+#pragma once
+
 #include <gdsb/graph_input.h>
 
 #include <mpi.h>
