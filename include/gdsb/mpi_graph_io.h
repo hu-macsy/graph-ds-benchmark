@@ -1,9 +1,12 @@
 #pragma once
 
 #include <gdsb/graph_input.h>
+#include <gdsb/mpi_error_handler.h>
 
 #include <mpi.h>
 
+#include <array>
+#include <cstddef> // for: offsetof()
 #include <filesystem>
 #include <stdexcept>
 
@@ -100,6 +103,26 @@ std::tuple<Vertex64, uint64_t> read_binary_graph(BinaryGraphHeaderMetaDataV1 con
     MPI_File_read_at_all(input, edge_offset, edges_begin, partition_edge_count, mpi_data_type, status);
 
     return std::make_tuple(data.vertex_count, data.edge_count);
+}
+
+//! This functionality is still work in progress..
+//! GOOD INFO! https://stackoverflow.com/questions/33618937/trouble-understanding-mpi-type-create-struct
+void register_timestamped_edge_32()
+{
+    constexpr int blocks_count = 4;
+    int array_of_block_length[blocks_count] = { 1, 1, 1, 1 };
+
+    // TODO: displacements are probably not correct, specifically between
+    // edge.weight and timestamp (currently 4 bytes) and should be set using
+    // offsetof().
+    MPI_Aint array_of_displacements[blocks_count] = { 0, 4, 8, 12 };
+    MPI_Datatype array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T, MPI_FLOAT, MPI_INT32_T };
+    MPI_Datatype mpi_timestampededges32;
+
+    int const error = MPI_Type_create_struct(blocks_count, array_of_block_length, array_of_displacements,
+                                             array_of_types, &mpi_timestampededges32);
+
+    handle_type_create_struct_error(error);
 }
 
 } // namespace mpi
