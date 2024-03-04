@@ -41,6 +41,12 @@ if (GDSB_MPI)
   set(public_headers
     ${public_headers}
     include/gdsb/mpi_graph_io.h
+    include/gdsb/mpi_error_handler.h
+  )
+
+  target_sources(gdsb
+  PRIVATE
+    src/mpi_error_handler.cpp
   )
 
   find_package(MPI REQUIRED)
