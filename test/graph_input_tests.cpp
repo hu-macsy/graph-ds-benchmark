@@ -442,12 +442,13 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
     };
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
+    BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        read_binary_graph_partition(binary_graph, std::move(read_f), sizeof(TimestampedEdge<Edge32, Timestamp32>),
-                                    partition_id, partition_size);
+        read_binary_graph_partition(binary_graph, header, std::move(read_f),
+                                    sizeof(TimestampedEdge<Edge32, Timestamp32>), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
 
@@ -500,12 +501,13 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
     };
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
+    BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
 
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        read_binary_graph_partition(binary_graph, std::move(read_f), sizeof(TimestampedEdge<Edge32, Timestamp32>),
-                                    partition_id, partition_size);
+        read_binary_graph_partition(binary_graph, header, std::move(read_f),
+                                    sizeof(TimestampedEdge<Edge32, Timestamp32>), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
 
