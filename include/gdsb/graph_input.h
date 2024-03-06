@@ -246,13 +246,12 @@ read_binary_graph_partition(std::ifstream& input, ReadF&& read, size_t edge_size
     }
 
     input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
-    size_t const end_of_edge_range = offset + partition_edge_count;
-    for (uint64_t e = offset; e < end_of_edge_range && input.is_open() && continue_reading; ++e)
+    for (uint64_t e = 0; e < partition_edge_count && input.is_open() && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
 
-    return std::make_tuple(data.vertex_count, data.edge_count);
+    return std::make_tuple(data.vertex_count, partition_edge_count);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)
