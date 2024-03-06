@@ -426,3 +426,61 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
                 [](Edge32 edge) { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
     std::none_of(std::begin(edges), std::end(edges), [](Edge32 edge) { return edge.source == 1; });
 }
+
+TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
+{
+    TimestampedEdges32 timestamped_edges;
+    auto read_f = [&](std::ifstream& input)
+    {
+        timestamped_edges.push_back({});
+
+        input.read((char*)&timestamped_edges.back().edge.source, sizeof(Vertex32));
+        input.read((char*)&timestamped_edges.back().edge.target.vertex, sizeof(Vertex32));
+        input.read((char*)&timestamped_edges.back().edge.target.weight, sizeof(Weight));
+        input.read((char*)&timestamped_edges.back().timestamp, sizeof(Timestamp32));
+        return true;
+    };
+
+    std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
+
+    uint32_t partition_id = 0;
+    uint32_t partition_size = 2;
+    auto const [vertex_count, edge_count] =
+        read_binary_graph_partition(binary_graph, std::move(read_f), sizeof(TimestampedEdge<Edge32, Timestamp32>),
+                                    partition_id, partition_size);
+    REQUIRE(vertex_count == 7);
+    REQUIRE(edge_count == 3);
+
+    // Note: EOF is an int (for most OS?)
+    CHECK(!binary_graph.eof());
+
+    // File content:
+    // 0 1 1 1
+    // 2 3 1 3
+    // 1 2 1 2
+    // 3 4 1 4
+    // 3 5 1 6
+    // 3 6 1 7
+
+    size_t idx = 0;
+    REQUIRE(timestamped_edges.size() == edge_count);
+    CHECK(timestamped_edges[idx].edge.source == 0);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 1);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 1);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 2);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 3);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 3);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 2);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 2);
+
+    ++idx;
+    REQUIRE(timestamped_edges.size() == idx);
+}
