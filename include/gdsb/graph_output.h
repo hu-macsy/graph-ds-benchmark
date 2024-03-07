@@ -17,7 +17,7 @@ std::ofstream open_binary_file(std::filesystem::path const& file_path)
     return output_file;
 }
 
-template <typename GraphParameters = GraphParameters<FileType::binary>>
+template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT>
 void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& header_id, uint64_t const vertex_count, uint64_t const edge_count)
 {
     if constexpr (GraphParameters::filetype() == FileType::binary)
@@ -30,6 +30,10 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
             BinaryGraphHeaderMetaDataV1 header_data;
             header_data.vertex_count = vertex_count;
             header_data.edge_count = edge_count;
+
+            header_data.vertex_id_byte_size = sizeof(VertexT);
+            header_data.weight_byte_size = sizeof(WeightT);
+
             header_data.directed = GraphParameters::is_directed();
             header_data.weighted = GraphParameters::is_weighted();
             header_data.dynamic = GraphParameters::is_dynamic();
@@ -44,10 +48,10 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
     }
 }
 
-template <typename GraphParameters = GraphParameters<FileType::binary>, typename Edges, typename WriteEdgeF>
+template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT, typename Edges, typename WriteEdgeF>
 void write_graph(std::ofstream& output_file, Edges&& edges, uint64_t const vertex_count, uint64_t const edge_count, WriteEdgeF&& write_edge_f)
 {
-    write_header<GraphParameters>(output_file, BinaryGraphHeaderIdentifier{}, vertex_count, edge_count);
+    write_header<GraphParameters, VertexT, WeightT>(output_file, BinaryGraphHeaderIdentifier{}, vertex_count, edge_count);
 
     for (auto const e : edges)
     {
