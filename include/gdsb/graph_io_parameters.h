@@ -102,6 +102,8 @@ struct alignas(8) BinaryGraphHeaderMetaDataV1
 {
     uint64_t vertex_count = 2;
     uint64_t edge_count = 1;
+    uint16_t vertex_id_byte_size = 4;
+    uint16_t weight_byte_size = 4;
     bool directed = false;
     bool weighted = false;
     bool dynamic = false;
