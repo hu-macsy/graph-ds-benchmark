@@ -36,23 +36,25 @@ TEST_CASE("write_graph, enzymes, binary")
 
     CHECK(edges.size() == 168);
 
-    // Open File
-    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+    // In case of developing a new format: use this line to produce the new test graph.
     // std::filesystem::path file_path{ graph_path + "ENZYMES_g1.bin" };
+
+    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
 
     // Write Graph
-    gdsb::write_graph<gdsb::BinaryDirectedUnweightedStatic>(out_file, edges, vertex_count, edge_count,
-                                                            [](std::ofstream& o, auto edge)
-                                                            {
-                                                                o.write(reinterpret_cast<const char*>(&edge.source),
-                                                                        sizeof(edge.source));
-                                                                o.write(reinterpret_cast<const char*>(&edge.target.vertex),
-                                                                        sizeof(edge.target.vertex));
-                                                            });
+    gdsb::write_graph<gdsb::BinaryDirectedUnweightedStatic, gdsb::Vertex32, gdsb::Weight>(
+        out_file, edges, vertex_count, edge_count,
+        [](std::ofstream& o, auto edge)
+        {
+            o.write(reinterpret_cast<const char*>(&edge.source), sizeof(edge.source));
+            o.write(reinterpret_cast<const char*>(&edge.target.vertex), sizeof(edge.target.vertex));
+        });
 
+    // In case of developing a new format: comment this line
     REQUIRE(std::remove(file_path.c_str()) == 0);
 }
 
@@ -71,15 +73,16 @@ TEST_CASE("write_graph, small weighted temporal, binary")
 
     CHECK(timestamped_edges.size() == 6);
 
-    // Open File
-    std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
+    // In case of developing a new format: use this line to produce the new test graph.
     // std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
+
+    std::filesystem::path file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
     std::ofstream out_file = gdsb::open_binary_file(file_path);
 
     REQUIRE(out_file);
 
     // Write Graph
-    gdsb::write_graph<gdsb::BinaryDirectedWeightedDynamic>(
+    gdsb::write_graph<gdsb::BinaryDirectedWeightedDynamic, gdsb::Vertex32, gdsb::Weight>(
         out_file, timestamped_edges, vertex_count, edge_count,
         [](std::ofstream& o, auto edge)
         {
@@ -89,5 +92,6 @@ TEST_CASE("write_graph, small weighted temporal, binary")
             o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(int32_t));
         });
 
+    // In case of developing a new format: comment this line
     REQUIRE(std::remove(file_path.c_str()) == 0);
 }

@@ -214,19 +214,18 @@ inline BinaryGraphHeaderMetaDataV1 read_binary_graph_header(std::ifstream& input
     }
 }
 
-template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, ReadF&& read)
+template <typename Header, typename ReadF>
+std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, Header const& header, ReadF&& read)
 {
-    BinaryGraphHeaderMetaDataV1 data = read_binary_graph_header(input);
-
     bool continue_reading = true;
-    uint64_t edge_count = data.edge_count;
+    uint64_t edge_count = header.edge_count;
 
     for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
 
-    return std::make_tuple(data.vertex_count, data.edge_count);
+    return std::make_tuple(header.vertex_count, header.edge_count);
 }
 
 template <typename ReadF>
