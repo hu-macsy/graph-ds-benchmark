@@ -339,7 +339,11 @@ TEST_CASE("read_binary_graph, small weighted temporal")
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
 
-    auto const [vertex_count, edge_count] = read_binary_graph(binary_graph, std::move(read_f));
+    BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
+
+    auto const [vertex_count, edge_count] = read_binary_graph(binary_graph, header, std::move(read_f));
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 6);
 
@@ -408,14 +412,18 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
         return true;
     };
 
-    std::ifstream binary_Graph(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
 
-    auto [vertex_count, edge_count] = read_binary_graph(binary_Graph, std::move(read_f));
+    BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
+
+    auto [vertex_count, edge_count] = read_binary_graph(binary_graph, header, std::move(read_f));
 
     // Note: EOF is an int (for most OS?)
     int eof_marker;
-    binary_Graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
-    REQUIRE(binary_Graph.eof());
+    binary_graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
+    REQUIRE(binary_graph.eof());
 
     // TODO: Should be 168 but resulting in 169
     CHECK(vertex_count == 38);
@@ -442,7 +450,10 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
     };
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
+
     BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
@@ -501,7 +512,10 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
     };
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
+
     BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
 
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
