@@ -435,6 +435,50 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
     std::none_of(std::begin(edges), std::end(edges), [](Edge32 edge) { return edge.source == 1; });
 }
 
+TEST_CASE("partition_edge_count, on enzymes graph")
+{
+    std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
+    BinaryGraphHeaderMetaDataV1 header = read_binary_graph_header(binary_graph);
+
+    SECTION("partition size 2")
+    {
+        uint32_t partition_size = 2;
+
+        uint32_t partition_id = 0;
+        uint64_t edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 84);
+
+        partition_id = 1;
+        edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 84);
+    }
+
+    SECTION("partition size 5")
+    {
+        uint32_t partition_size = 5;
+
+        uint32_t partition_id = 0;
+        uint64_t edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 1;
+        edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 2;
+        edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 3;
+        edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 4;
+        edge_count = partition_edge_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 36);
+    }
+}
+
 TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
     TimestampedEdges32 timestamped_edges;
