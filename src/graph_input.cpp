@@ -18,4 +18,15 @@ unsigned long read_ulong(char const* source, char** end)
     return value;
 }
 
+uint64_t partition_edge_count(uint64_t const total_edge_count, uint32_t const partition_id, uint32_t const partition_size)
+{
+    uint64_t partition_edge_count = total_edge_count / partition_size;
+    if (partition_id == partition_size - 1)
+    {
+        partition_edge_count += total_edge_count % partition_size;
+    }
+
+    return partition_edge_count;
+}
+
 } // namespace gdsb

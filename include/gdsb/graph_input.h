@@ -228,6 +228,8 @@ std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, Header co
     return std::make_tuple(header.vertex_count, header.edge_count);
 }
 
+uint64_t partition_edge_count(uint64_t total_edge_count, uint32_t partition_id, uint32_t partition_size);
+
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
                                                            BinaryGraphHeaderMetaDataV1 const& data,
@@ -236,23 +238,17 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
                                                            uint32_t partition_id,
                                                            uint32_t partition_size)
 {
-    bool continue_reading = true;
-    uint64_t total_edge_count = data.edge_count;
+    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
 
-    uint64_t partition_edge_count = total_edge_count / partition_size;
-    size_t const offset = partition_edge_count * partition_id;
-    if (partition_id == partition_size - 1)
-    {
-        partition_edge_count += total_edge_count % partition_size;
-    }
-
+    size_t const offset = edge_count * partition_id;
     input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
-    for (uint64_t e = 0; e < partition_edge_count && input.is_open() && continue_reading; ++e)
+    bool continue_reading = true;
+    for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
 
-    return std::make_tuple(data.vertex_count, partition_edge_count);
+    return std::make_tuple(data.vertex_count, edge_count);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)
