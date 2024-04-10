@@ -68,6 +68,22 @@ template <typename It> void out(std::string name, It begin, It end, std::ostream
     stream << "]" << std::endl;
 }
 
+//! Use this function to output ranges in yaml format.
+template <typename It, typename F>
+void out(
+    std::string name, It begin, It end, std::ostream& stream = std::cout, F&& access = [](auto const& e) { return e; })
+{
+    stream << name << ": [";
+
+    if (begin != end)
+    {
+        std::for_each(begin, end - 1, [&](auto const& e) { stream << access(e) << ", "; });
+        stream << access(*(end - 1));
+    }
+
+    stream << "]" << std::endl;
+}
+
 //! Returns the memory usage in KB for the calling process.
 unsigned long long memory_usage_in_kb();
 
