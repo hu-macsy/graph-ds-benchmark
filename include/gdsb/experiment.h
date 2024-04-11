@@ -70,8 +70,7 @@ template <typename It> void out(std::string name, It begin, It end, std::ostream
 
 //! Use this function to output ranges in yaml format.
 template <typename It, typename F>
-void out(
-    std::string name, It begin, It end, std::ostream& stream = std::cout, F&& access = [](auto const& e) { return e; })
+void out(std::string name, It begin, It end, F const&& access, std::ostream& stream = std::cout)
 {
     stream << name << ": [";
 
