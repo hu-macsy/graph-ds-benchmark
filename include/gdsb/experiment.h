@@ -76,7 +76,8 @@ void out(std::string name, It begin, It end, F const&& access, std::ostream& str
 
     if (begin != end)
     {
-        std::for_each(begin, end - 1, [&](auto const& e) { stream << access(e) << ", "; });
+        std::for_each(begin, end - 1,
+                      [access = std::move(access), &stream](auto const& e) { stream << access(e) << ", "; });
         stream << access(*(end - 1));
     }
 
