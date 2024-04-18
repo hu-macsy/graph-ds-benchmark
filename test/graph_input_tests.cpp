@@ -214,8 +214,8 @@ TEST_CASE("read_graph, edge_list")
 
         SECTION("Read In")
         {
-            REQUIRE(edges.size() == 6);
-            REQUIRE(timestamped_edges.timestamps.size() == 6);
+            REQUIRE(edges.size() == 7);
+            REQUIRE(timestamped_edges.timestamps.size() == 7);
         }
 
         SECTION("Sort")
@@ -226,6 +226,7 @@ TEST_CASE("read_graph, edge_list")
             CHECK(edges[3].source == 3);
             CHECK(edges[4].source == 3);
             CHECK(edges[5].source == 3);
+            CHECK(edges[6].source == 1);
         }
     }
 
@@ -285,8 +286,8 @@ TEST_CASE("read_graph, edge_list")
 
         Edges32 resulting_edges = std::move(timestamped_edges.edges);
 
-        CHECK(resulting_edges.size() == 6);
-        CHECK(6 == edge_count);
+        CHECK(resulting_edges.size() == 8);
+        CHECK(edge_count == 8);
         CHECK(vertex_count == 7);
     }
 }
@@ -345,7 +346,7 @@ TEST_CASE("read_binary_graph, small weighted temporal")
 
     auto const [vertex_count, edge_count] = read_binary_graph(binary_graph, header, std::move(read_f));
     REQUIRE(vertex_count == 7);
-    REQUIRE(edge_count == 6);
+    REQUIRE(edge_count == 7);
 
     // Note: EOF is an int (for most OS?)
     int eof_marker;
@@ -356,6 +357,7 @@ TEST_CASE("read_binary_graph, small weighted temporal")
     // 0 1 1 1
     // 2 3 1 3
     // 1 2 1 2
+    // 1 4 1 8
     // 3 4 1 4
     // 3 5 1 6
     // 3 6 1 7
@@ -378,6 +380,12 @@ TEST_CASE("read_binary_graph, small weighted temporal")
     CHECK(timestamped_edges[idx].edge.target.vertex == 2);
     CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
     CHECK(timestamped_edges[idx].timestamp == 2);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 4);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 8);
 
     ++idx;
     CHECK(timestamped_edges[idx].edge.source == 3);
@@ -514,6 +522,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
     // 0 1 1 1
     // 2 3 1 3
     // 1 2 1 2
+    // 1 4 1 8
     // 3 4 1 4
     // 3 5 1 6
     // 3 6 1 7
@@ -567,7 +576,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
         read_binary_graph_partition(binary_graph, header, std::move(read_f),
                                     sizeof(TimestampedEdge<Edge32, Timestamp32>), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
-    REQUIRE(edge_count == 3);
+    REQUIRE(edge_count == 4);
 
     // Note: EOF is an int (for most OS?)
     int eof_marker;
@@ -578,12 +587,19 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
     // 0 1 1 1
     // 2 3 1 3
     // 1 2 1 2
+    // 1 4 1 8
     // 3 4 1 4
     // 3 5 1 6
     // 3 6 1 7
 
     size_t idx = 0;
     REQUIRE(timestamped_edges.size() == edge_count);
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 4);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 8);
+
+    ++idx;
     CHECK(timestamped_edges[idx].edge.source == 3);
     CHECK(timestamped_edges[idx].edge.target.vertex == 4);
     CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
