@@ -71,7 +71,7 @@ TEST_CASE("write_graph, small weighted temporal, binary")
         gdsb::read_graph<gdsb::Vertex32, decltype(emplace), gdsb::EdgeListDirectedWeightedDynamic>(graph_input_small_temporal,
                                                                                                    std::move(emplace));
 
-    CHECK(timestamped_edges.size() == 6);
+    CHECK(timestamped_edges.size() == 7);
 
     // In case of developing a new format: use this line to produce the new test graph.
     // std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
