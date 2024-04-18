@@ -163,7 +163,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
                 emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
                 emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
             }
-            
+
             edge_counter  += 2;
         }
     } while (std::getline(input, line) && edge_counter < edge_count_max);
@@ -240,7 +240,18 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
 {
     uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
 
-    size_t const offset = edge_count * partition_id;
+    size_t const offset = [&]()
+    {
+        if (partition_id != partition_size - 1)
+        {
+            return edge_count * partition_id;
+        }
+        else
+        {
+            uint64_t partition_edge_count = data.edge_count / partition_size;
+            return partition_edge_count * partition_id;
+        }
+    }();
     input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
     bool continue_reading = true;
     for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
