@@ -286,9 +286,9 @@ TEST_CASE("read_graph, edge_list")
 
         Edges32 resulting_edges = std::move(timestamped_edges.edges);
 
-        CHECK(resulting_edges.size() == 8);
-        CHECK(edge_count == 8);
-        CHECK(vertex_count == 7);
+        CHECK(8 == resulting_edges.size());
+        CHECK(8 == edge_count);
+        CHECK(7 == vertex_count);
     }
 }
 
