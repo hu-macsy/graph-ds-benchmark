@@ -244,7 +244,7 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
 
     size_t const offset = [&]()
     {
-        if (partition_id != partition_size - 1)
+        if (partition_id != uint32_t(partition_size - 1))
         {
             return edge_count * partition_id;
         }
