@@ -238,6 +238,8 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
                                                            uint32_t partition_id,
                                                            uint32_t partition_size)
 {
+    assert(partition_size > 0);
+
     uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
 
     size_t const offset = [&]()
