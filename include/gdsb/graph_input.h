@@ -3,6 +3,7 @@
 #include <gdsb/graph.h>
 #include <gdsb/graph_io_parameters.h>
 
+#include <cassert>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -235,8 +236,8 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
                                                            BinaryGraphHeaderMetaDataV1 const& data,
                                                            ReadF&& read,
                                                            size_t edge_size_in_bytes,
-                                                           uint32_t partition_id,
-                                                           uint32_t partition_size)
+                                                           uint32_t const partition_id,
+                                                           uint32_t const partition_size)
 {
     assert(partition_size > 0);
 
