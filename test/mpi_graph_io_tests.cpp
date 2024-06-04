@@ -66,7 +66,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
     CHECK(data.weighted == true);
     CHECK(data.dynamic == true);
     CHECK(data.vertex_count == 7);
-    CHECK(data.edge_count == 6);
+    CHECK(data.edge_count == 7);
 }
 
 TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
@@ -90,7 +90,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 
     auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(input, std::move(read_f));
     REQUIRE(vertex_count == 7);
-    REQUIRE(edge_count == 6);
+    REQUIRE(edge_count == 7);
 
     // Note: EOF is an int (for most OS?)
     // int eof_marker;
@@ -130,6 +130,12 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     CHECK(timestamped_edges[idx].edge.target.vertex == 2);
     CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
     CHECK(timestamped_edges[idx].timestamp == 2);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 4);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 8);
 
     ++idx;
     CHECK(timestamped_edges[idx].edge.source == 3);
