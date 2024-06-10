@@ -200,97 +200,80 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     CHECK(edge_source_0_does_not_exist);
 }
 
-TEST_CASE("MPI, Read Small Weighted Temporal Binary File, 2 partitions, partition id 0")
+TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
+    TimestampedEdges32 timestamped_edges;
+    auto read_f = [&](MPI_File binary_graph)
+    {
+        timestamped_edges.push_back({});
+
+        MPI_Status status;
+        MPI_File_read(binary_graph, &timestamped_edges.back().edge.source, 1, MPI_INT32_T, &status);
+        MPI_File_read(binary_graph, &timestamped_edges.back().edge.target.vertex, 1, MPI_INT32_T, &status);
+        MPI_File_read(binary_graph, &timestamped_edges.back().edge.target.weight, 1, MPI_FLOAT, &status);
+        MPI_File_read(binary_graph, &timestamped_edges.back().timestamp, 1, MPI_INT32_T, &status);
+
+        return true;
+    };
+
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
-    MPI_File input = gdsb::mpi::open_file(file_path);
+    MPI_File binary_graph = mpi::open_file(file_path);
 
-    gdsb::BinaryGraphHeaderMetaDataV1 header = gdsb::mpi::read_binary_graph_header(input);
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
 
+    uint32_t partition_id = 0;
     uint32_t partition_size = 2;
+    auto const [vertex_count, edge_count] =
+        mpi::read_binary_graph_partition(binary_graph, header, std::move(read_f), sizeof(TimestampedEdge32),
+                                         partition_id, partition_size);
+    REQUIRE(vertex_count == 7);
+    REQUIRE(edge_count == 3);
 
-    gdsb::TimestampedEdges32 edges{ header.edge_count };
-
-
-    // MPI_Type_create_struct(4, &array_of_block_length, );
-
-    // auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(header, input, &(edges[0]), );
-    // REQUIRE(vertex_count == 7);
-    // REQUIRE(edge_count == 6);
-
-    // Note: EOF is an int (for most OS?)
-    // int eof_marker;
-    // MPI_Status status;
-    // MPI_File_read(input, &eof_marker, 1, MPI_INT32_T, &status);
-    // REQUIRE(eof_marker == 10);
-    // Note:
-    // The EOF representation in the file evaluates to 10 interpreted as int. In
-    // many cases it actually is represented as a -1:
-    // https://en.cppreference.com/w/cpp/string/char_traits/eof
-    // The following test fails though:
-    // REQUIRE(eof_marker == std::char_traits<char>::eof());
+    // CHECK(!binary_graph.eof());
 
     // File content:
     // 0 1 1 1
     // 2 3 1 3
     // 1 2 1 2
+    // 1 4 1 8
     // 3 4 1 4
     // 3 5 1 6
     // 3 6 1 7
 
-    // size_t idx = 0;
+    size_t idx = 0;
+    REQUIRE(timestamped_edges.size() == edge_count);
+    CHECK(timestamped_edges[idx].edge.source == 0);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 1);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 1);
 
-    // // Partition id: 0
-    // REQUIRE(timestamped_edges.size() == edge_count);
-    // CHECK(std::get<0>(timestamped_edges[idx]).source == 0);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 1);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    // CHECK(std::get<1>(timestamped_edges[idx]) == 1);
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 2);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 3);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 3);
 
-    // ++idx;
-    // CHECK(std::get<0>(timestamped_edges[idx]).source == 2);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 3);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    // CHECK(std::get<1>(timestamped_edges[idx]) == 3);
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 2);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 2);
 
-    // ++idx;
-    // CHECK(std::get<0>(timestamped_edges[idx]).source == 1);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 2);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    // CHECK(std::get<1>(timestamped_edges[idx]) == 2);
-
-    // // Partition id: 1
-    // ++idx;
-    // CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 4);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    // CHECK(std::get<1>(timestamped_edges[idx]) == 4);
-
-    // ++idx;
-    // CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 5);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    // CHECK(std::get<1>(timestamped_edges[idx]) == 6);
-
-    // ++idx;
-    // CHECK(std::get<0>(timestamped_edges[idx]).source == 3);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.vertex == 6);
-    // CHECK(std::get<0>(timestamped_edges[idx]).target.weight == 1.f);
-    // CHECK(std::get<1>(timestamped_edges[idx]) == 7);
-
-    // ++idx;
-    // REQUIRE(timestamped_edges.size() == idx);
+    ++idx;
+    REQUIRE(timestamped_edges.size() == idx);
 }
 
 TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
 {
-    SECTION("Throws not on MPI_SUCCESS") { CHECK_NOTHROW(gdsb::mpi::handle_type_create_struct_error(MPI_SUCCESS)); }
+    SECTION("Throws not on MPI_SUCCESS") { CHECK_NOTHROW(mpi::handle_type_create_struct_error(MPI_SUCCESS)); }
 
     SECTION("Throws on MPI_ERR_ARG, MPI_ERR_COUNT, MPI_ERR_TYPE, MPI_ERR_OTHER")
     {
-        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_ARG));
-        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_COUNT));
-        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_TYPE));
-        CHECK_THROWS(gdsb::mpi::handle_type_create_struct_error(MPI_ERR_OTHER));
+        CHECK_THROWS(mpi::handle_type_create_struct_error(MPI_ERR_ARG));
+        CHECK_THROWS(mpi::handle_type_create_struct_error(MPI_ERR_COUNT));
+        CHECK_THROWS(mpi::handle_type_create_struct_error(MPI_ERR_TYPE));
+        CHECK_THROWS(mpi::handle_type_create_struct_error(MPI_ERR_OTHER));
     }
 }
