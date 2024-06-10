@@ -185,10 +185,14 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     CHECK(edge_count == 168);
     REQUIRE(edges.size() == edge_count);
 
-    std::any_of(std::begin(edges), std::end(edges),
-                [](gdsb::Edge32 edge)
-                { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
-    std::none_of(std::begin(edges), std::end(edges), [](gdsb::Edge32 edge) { return edge.source == 1; });
+    bool edge_25_to_2_exists =
+        std::any_of(std::begin(edges), std::end(edges),
+                    [](gdsb::Edge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+    CHECK(edge_25_to_2_exists);
+
+    bool edge_source_0_does_not_exist =
+        std::none_of(std::begin(edges), std::end(edges), [](gdsb::Edge32 const& edge) { return edge.source == 0; });
+    CHECK(edge_source_0_does_not_exist);
 }
 
 TEST_CASE("MPI, Read Small Weighted Temporal Binary File, 2 partitions, partition id 0")
