@@ -233,10 +233,7 @@ uint64_t partition_edge_count(uint64_t total_edge_count, uint32_t partition_id, 
 
 inline uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size)
 {
-    uint64_t const edge_count = total_edge_count / partition_size;
-    uint32_t const last_partition_id = uint32_t(partition_size - 1);
-
-    return edge_count * partition_id;
+    return total_edge_count / partition_size * partition_id;
 }
 
 template <typename ReadF>
