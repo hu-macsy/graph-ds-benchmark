@@ -78,31 +78,28 @@ template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_F
 }
 
 
-template <typename Edges, typename DatatypeT>
-std::tuple<Vertex64, uint64_t> read_binary_graph(BinaryGraphHeaderMetaDataV1 const& data,
-                                                 MPI_File input,
-                                                 Edges* edges_begin,
-                                                 DatatypeT mpi_data_type,
-                                                 uint32_t const partition_id,
-                                                 uint32_t const partition_size)
+template <typename ReadF>
+std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File input,
+                                                           BinaryGraphHeaderMetaDataV1 const& data,
+                                                           ReadF&& read,
+                                                           size_t edge_size_in_bytes,
+                                                           uint32_t const partition_id,
+                                                           uint32_t const partition_size)
 {
-    uint64_t const partition_edge_count = [&]()
-    {
-        uint64_t c = data.edge_count / partition_size;
-        if (partition_id == partition_size - 1)
-        {
-            c += data.edge_count % partition_size;
-        }
-        return c;
-    }();
+    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
 
     // Header offset should be implicit since input is already read until begin of edges
-    size_t edge_offset = (data.edge_count / partition_size) * partition_id;
+    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
 
-    MPI_Status status;
-    MPI_File_read_at_all(input, edge_offset, edges_begin, partition_edge_count, mpi_data_type, status);
+    MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
 
-    return std::make_tuple(data.vertex_count, data.edge_count);
+    bool continue_reading = true;
+    for (uint64_t e = 0; e < edge_count && continue_reading; ++e)
+    {
+        continue_reading = read(input);
+    }
+
+    return std::make_tuple(data.vertex_count, edge_count);
 }
 
 //! This functionality is still work in progress..
