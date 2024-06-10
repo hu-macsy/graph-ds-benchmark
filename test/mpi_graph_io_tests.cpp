@@ -10,6 +10,7 @@
 
 #include <filesystem>
 
+using namespace gdsb;
 class mpiInitListener : public Catch::EventListenerBase
 {
 public:
@@ -36,20 +37,20 @@ TEST_CASE("MPI, Open File")
     SECTION("Does not throw using valid path opening regular file.")
     {
         std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes);
-        CHECK_NOTHROW(gdsb::mpi::open_file(file_path));
+        CHECK_NOTHROW(mpi::open_file(file_path));
     }
 
     SECTION("Does not throw using valid path opening binary file.")
     {
         std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
-        CHECK_NOTHROW(gdsb::mpi::open_file(file_path));
+        CHECK_NOTHROW(mpi::open_file(file_path));
     }
 
     SECTION("Throws using invalid path.")
     {
         std::string invalid_path = "this/is/an/invalid/path.bin";
         std::filesystem::path file_path(invalid_path.c_str());
-        CHECK_THROWS(gdsb::mpi::open_file(file_path));
+        CHECK_THROWS(mpi::open_file(file_path));
     }
 }
 
@@ -58,9 +59,9 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
 
     MPI_File input;
-    CHECK_NOTHROW(input = gdsb::mpi::open_file(file_path));
+    CHECK_NOTHROW(input = mpi::open_file(file_path));
 
-    gdsb::BinaryGraphHeaderMetaDataV1 data = gdsb::mpi::read_binary_graph_header(input);
+    BinaryGraphHeaderMetaDataV1 data = mpi::read_binary_graph_header(input);
 
     CHECK(data.directed == true);
     CHECK(data.weighted == true);
@@ -71,7 +72,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
 
 TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 {
-    gdsb::TimestampedEdges32 timestamped_edges;
+    TimestampedEdges32 timestamped_edges;
     auto read_f = [&](MPI_File input)
     {
         timestamped_edges.push_back({});
@@ -86,9 +87,9 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     };
 
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
-    MPI_File input = gdsb::mpi::open_file(file_path);
+    MPI_File input = mpi::open_file(file_path);
 
-    auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(input, std::move(read_f));
+    auto const [vertex_count, edge_count] = mpi::read_binary_graph(input, std::move(read_f));
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 7);
 
