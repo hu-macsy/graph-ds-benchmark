@@ -163,24 +163,28 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 
 TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 {
-    gdsb::Edges32 edges;
-    auto read_f = [&](MPI_File input)
+    Edges32 edges;
+    auto read_f = [&](MPI_File binary_graph)
     {
-        edges.push_back(gdsb::Edge32{});
+        edges.push_back(Edge32{});
 
         MPI_Status status;
-        MPI_File_read(input, &edges.back().source, 1, MPI_INT32_T, &status);
-        MPI_File_read(input, &edges.back().target.vertex, 1, MPI_INT32_T, &status);
+        MPI_File_read(binary_graph, &edges.back().source, 1, MPI_INT32_T, &status);
+        MPI_File_read(binary_graph, &edges.back().target.vertex, 1, MPI_INT32_T, &status);
 
         return true;
     };
 
     std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
-    MPI_File input = gdsb::mpi::open_file(file_path);
+    MPI_File binary_graph = mpi::open_file(file_path);
 
-    auto const [vertex_count, edge_count] = gdsb::mpi::read_binary_graph(input, std::move(read_f));
+    auto const [vertex_count, edge_count] = mpi::read_binary_graph(binary_graph, std::move(read_f));
 
-    // TODO: check for EOF!
+    // TODO: Currently there MPI_ERRROR returns 2: invalid count argument. Fix that!
+    // uint32_t eof_marker;
+    // MPI_Status read_eof_status;
+    // MPI_File_read(binary_graph, &eof_marker, 1, MPI_INT32_T, &read_eof_status);
+    // REQUIRE(read_eof_status.MPI_ERROR == MPI_SUCCESS);
 
     CHECK(vertex_count == 38);
     CHECK(edge_count == 168);
@@ -188,11 +192,11 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 
     bool edge_25_to_2_exists =
         std::any_of(std::begin(edges), std::end(edges),
-                    [](gdsb::Edge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+                    [](Edge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
     CHECK(edge_25_to_2_exists);
 
     bool edge_source_0_does_not_exist =
-        std::none_of(std::begin(edges), std::end(edges), [](gdsb::Edge32 const& edge) { return edge.source == 0; });
+        std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
     CHECK(edge_source_0_does_not_exist);
 }
 
