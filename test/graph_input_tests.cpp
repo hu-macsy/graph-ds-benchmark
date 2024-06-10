@@ -519,7 +519,6 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
 
-    // Note: EOF is an int (for most OS?)
     CHECK(!binary_graph.eof());
 
     // File content:
