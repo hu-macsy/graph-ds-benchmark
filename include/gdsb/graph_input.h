@@ -231,6 +231,14 @@ std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, Header co
 
 uint64_t partition_edge_count(uint64_t total_edge_count, uint32_t partition_id, uint32_t partition_size);
 
+inline uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size)
+{
+    uint64_t const edge_count = total_edge_count / partition_size;
+    uint32_t const last_partition_id = uint32_t(partition_size - 1);
+
+    return edge_count * partition_id;
+}
+
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
                                                            BinaryGraphHeaderMetaDataV1 const& data,
@@ -241,20 +249,9 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
 {
     assert(partition_size > 0);
 
-    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
+    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
 
-    size_t const offset = [&]()
-    {
-        if (partition_id != uint32_t(partition_size - 1))
-        {
-            return edge_count * partition_id;
-        }
-        else
-        {
-            uint64_t partition_edge_count = data.edge_count / partition_size;
-            return partition_edge_count * partition_id;
-        }
-    }();
+    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
     input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
     bool continue_reading = true;
     for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
