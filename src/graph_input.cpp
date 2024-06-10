@@ -37,4 +37,9 @@ uint64_t partition_edge_count(uint64_t const total_edge_count, uint32_t const pa
     return partition_edge_count;
 }
 
+uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size)
+{
+    return total_edge_count / partition_size * partition_id;
+}
+
 } // namespace gdsb

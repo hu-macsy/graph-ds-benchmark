@@ -231,10 +231,7 @@ std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, Header co
 
 uint64_t partition_edge_count(uint64_t total_edge_count, uint32_t partition_id, uint32_t partition_size);
 
-inline uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size)
-{
-    return total_edge_count / partition_size * partition_id;
-}
+uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size);
 
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
