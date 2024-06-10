@@ -244,9 +244,9 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
     assert(partition_size > 0);
 
     size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
+    input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
 
     uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
-    input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
     bool continue_reading = true;
     for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
     {
