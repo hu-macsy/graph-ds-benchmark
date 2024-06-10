@@ -68,6 +68,8 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
     CHECK(data.dynamic == true);
     CHECK(data.vertex_count == 7);
     CHECK(data.edge_count == 7);
+
+    CHECK(MPI_File_close(&input) == MPI_SUCCESS);
 }
 
 TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
@@ -158,6 +160,8 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 
     ++idx;
     REQUIRE(timestamped_edges.size() == idx);
+
+    CHECK(MPI_File_close(&input) == MPI_SUCCESS);
 }
 
 
@@ -198,6 +202,8 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     bool edge_source_0_does_not_exist =
         std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
     CHECK(edge_source_0_does_not_exist);
+
+    CHECK(MPI_File_close(&binary_graph) == MPI_SUCCESS);
 }
 
 TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
@@ -263,6 +269,8 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
 
     ++idx;
     REQUIRE(timestamped_edges.size() == idx);
+
+    CHECK(MPI_File_close(&binary_graph) == MPI_SUCCESS);
 }
 
 TEST_CASE("MPI, register structs")
