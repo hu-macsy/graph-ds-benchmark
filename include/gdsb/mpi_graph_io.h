@@ -104,7 +104,7 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File input,
 
 //! This functionality is still work in progress..
 //! GOOD INFO! https://stackoverflow.com/questions/33618937/trouble-understanding-mpi-type-create-struct
-void register_timestamped_edge_32()
+MPI_Datatype register_timestamped_edge_32()
 {
     constexpr int blocks_count = 4;
     int array_of_block_length[blocks_count] = { 1, 1, 1, 1 };
@@ -120,6 +120,8 @@ void register_timestamped_edge_32()
                                              array_of_types, &mpi_timestampededges32);
 
     handle_type_create_struct_error(error);
+
+    return mpi_timestampededges32;
 }
 
 } // namespace mpi
