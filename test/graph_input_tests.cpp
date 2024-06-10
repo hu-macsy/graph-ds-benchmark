@@ -433,14 +433,18 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
     binary_graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
     REQUIRE(binary_graph.eof());
 
-    // TODO: Should be 168 but resulting in 169
     CHECK(vertex_count == 38);
     CHECK(edge_count == 168);
     REQUIRE(edges.size() == edge_count);
 
-    std::any_of(std::begin(edges), std::end(edges),
-                [](Edge32 edge) { return edge.source == 25 && edge.target.vertex == 2 && edge.target.weight == 1.f; });
-    std::none_of(std::begin(edges), std::end(edges), [](Edge32 edge) { return edge.source == 1; });
+    bool edge_25_to_2_exists =
+        std::any_of(std::begin(edges), std::end(edges),
+                    [](Edge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+    CHECK(edge_25_to_2_exists);
+
+    bool edge_source_0_does_not_exist =
+        std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
+    CHECK(edge_source_0_does_not_exist);
 }
 
 TEST_CASE("partition_edge_count, on enzymes graph")
