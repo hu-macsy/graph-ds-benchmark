@@ -138,6 +138,48 @@ namespace register_type
 MPI_Datatype edge_32();
 MPI_Datatype timestamped_edge_32();
 
+enum class CommitType
+{
+    edge32,
+    timestamped_edge32
+};
+
+class Adapter
+{
+public:
+    Adapter() = default;
+    ~Adapter() { MPI_Type_free(&m_type); }
+
+    void commit(CommitType type)
+    {
+        if (m_committed)
+        {
+            return;
+        }
+
+        m_type = [&]()
+        {
+            switch (type)
+            {
+            case CommitType::edge32:
+                return edge_32();
+            case CommitType::timestamped_edge32:
+                return timestamped_edge_32();
+            default:
+                return edge_32();
+            }
+        }();
+
+        m_committed = true;
+    }
+
+    MPI_Datatype get() { return m_type; }
+
+private:
+    MPI_Datatype m_type;
+    bool m_committed{ false };
+};
+
 } // namespace register_type
 
 } // namespace mpi

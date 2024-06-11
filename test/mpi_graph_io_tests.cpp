@@ -266,8 +266,19 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
 
 TEST_CASE("MPI, register structs")
 {
-    SECTION("register_timestamped_edge_32") { CHECK_NOTHROW(mpi::register_type::timestamped_edge_32()); }
-    SECTION("register_edge_32") { CHECK_NOTHROW(mpi::register_type::edge_32()); }
+    SECTION("register_timestamped_edge_32")
+    {
+        MPI_Datatype t;
+        CHECK_NOTHROW(t = mpi::register_type::timestamped_edge_32());
+        MPI_Type_free(&t);
+    }
+
+    SECTION("register_edge_32")
+    {
+        MPI_Datatype t;
+        CHECK_NOTHROW(t = mpi::register_type::edge_32());
+        MPI_Type_free(&t);
+    }
 }
 
 TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
@@ -294,13 +305,14 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    MPI_Datatype mpi_timestamped_edge_t = mpi::register_type::timestamped_edge_32();
+    mpi::register_type::Adapter mpi_timestamped_edge_t;
+    mpi_timestamped_edge_t.commit(mpi::register_type::CommitType::timestamped_edge32);
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        mpi::all_read_binary_graph_partition(binary_graph.file_object(), header, timestamped_edges,
-                                             sizeof(TimestampedEdge32), mpi_timestamped_edge_t, partition_id, partition_size);
+        mpi::all_read_binary_graph_partition(binary_graph.file_object(), header, timestamped_edges, sizeof(TimestampedEdge32),
+                                             mpi_timestamped_edge_t.get(), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
 
@@ -349,13 +361,14 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    MPI_Datatype mpi_timestamped_edge_t = mpi::register_type::timestamped_edge_32();
+    mpi::register_type::Adapter mpi_timestamped_edge_t;
+    mpi_timestamped_edge_t.commit(mpi::register_type::CommitType::timestamped_edge32);
 
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        mpi::all_read_binary_graph_partition(binary_graph.file_object(), header, timestamped_edges,
-                                             sizeof(TimestampedEdge32), mpi_timestamped_edge_t, partition_id, partition_size);
+        mpi::all_read_binary_graph_partition(binary_graph.file_object(), header, timestamped_edges, sizeof(TimestampedEdge32),
+                                             mpi_timestamped_edge_t.get(), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 4);
 
