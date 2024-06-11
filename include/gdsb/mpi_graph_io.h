@@ -14,18 +14,26 @@ namespace gdsb
 namespace mpi
 {
 
-inline MPI_File open_file(std::filesystem::path const& file_path)
+class FileWrapper
 {
-    MPI_File f;
-    int error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), MPI_MODE_RDONLY, MPI_INFO_NULL, &f);
-
-    if (error != MPI_SUCCESS)
+public:
+    FileWrapper(std::filesystem::path const& file_path, int const mode = MPI_MODE_RDONLY)
     {
-        throw std::runtime_error("Could not open file using MPI routines.");
+        int error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode, MPI_INFO_NULL, &m_file);
+
+        if (error != MPI_SUCCESS)
+        {
+            throw std::runtime_error("Could not open file using MPI routines.");
+        }
     }
 
-    return f;
-}
+    ~FileWrapper() { MPI_File_close(&m_file); }
+
+    MPI_File file_object() { return m_file; }
+
+private:
+    MPI_File m_file;
+};
 
 inline BinaryGraphHeaderMetaDataV1 read_binary_graph_header(MPI_File input)
 {
