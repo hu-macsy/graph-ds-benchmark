@@ -126,6 +126,8 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
 
 namespace register_type
 {
+
+MPI_Datatype edge_32();
 MPI_Datatype timestamped_edge_32();
 
 } // namespace register_type

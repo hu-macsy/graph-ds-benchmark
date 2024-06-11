@@ -276,6 +276,7 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
 TEST_CASE("MPI, register structs")
 {
     SECTION("register_timestamped_edge_32") { CHECK_NOTHROW(mpi::register_type::timestamped_edge_32()); }
+    SECTION("register_edge_32") { CHECK_NOTHROW(mpi::register_type::edge_32()); }
 }
 
 TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
