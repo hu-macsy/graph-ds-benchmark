@@ -12,16 +12,14 @@ namespace mpi
 //! More information on registering MPI data types:
 //! - https://stackoverflow.com/questions/33618937/trouble-understanding-mpi-type-create-struct
 //! - https://docs.open-mpi.org/en/v5.0.x/man-openmpi/man3/MPI_Type_create_struct.3.html
-MPI_Datatype register_timestamped_edge_32()
+
+namespace register_type
+{
 {
     constexpr int blocks_count = 4;
     int array_of_block_length[blocks_count] = { 1, 1, 1, 1 };
 
-    // TODO: displacements are probably not correct, specifically between
-    // edge.weight and timestamp (currently 4 bytes) and should be set using
-    // offsetof().
-
-    if constexpr (!std::is_standard_layout<Timestamp32>())
+    if constexpr (!std::is_standard_layout<TimestampedEdge32>())
     {
         throw std::logic_error(
             "Timestamp32 data structure is not of standard layout and can not be commited as an MPI data type.");
@@ -49,6 +47,8 @@ MPI_Datatype register_timestamped_edge_32()
 
     return mpi_timestampededges32;
 }
+
+} // namespace register_type
 
 } // namespace mpi
 } // namespace gdsb

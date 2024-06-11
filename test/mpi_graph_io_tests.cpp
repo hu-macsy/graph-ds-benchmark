@@ -275,7 +275,7 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
 
 TEST_CASE("MPI, register structs")
 {
-    SECTION("register_timestamped_edge_32") { CHECK_NOTHROW(mpi::register_timestamped_edge_32()); }
+    SECTION("register_timestamped_edge_32") { CHECK_NOTHROW(mpi::register_type::timestamped_edge_32()); }
 }
 
 TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
@@ -291,11 +291,6 @@ TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
     }
 }
 
-TEST_CASE("MPI, register_timestamped_edge_32, does not throw logic_error")
-{
-    CHECK_NOTHROW(mpi::register_timestamped_edge_32());
-}
-
 TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
     TimestampedEdges32 timestamped_edges;
@@ -307,7 +302,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    MPI_Datatype mpi_timestamped_edge_t = mpi::register_timestamped_edge_32();
+    MPI_Datatype mpi_timestamped_edge_t = mpi::register_type::timestamped_edge_32();
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
@@ -364,7 +359,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    MPI_Datatype mpi_timestamped_edge_t = mpi::register_timestamped_edge_32();
+    MPI_Datatype mpi_timestamped_edge_t = mpi::register_type::timestamped_edge_32();
 
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
