@@ -13,7 +13,7 @@ namespace mpi
 //! - https://stackoverflow.com/questions/33618937/trouble-understanding-mpi-type-create-struct
 //! - https://docs.open-mpi.org/en/v5.0.x/man-openmpi/man3/MPI_Type_create_struct.3.html
 
-namespace register_type
+namespace create_type
 {
 MPI_Datatype edge_32()
 {
@@ -81,7 +81,7 @@ MPI_Datatype timestamped_edge_32()
     return mpi_timestampededges32;
 }
 
-} // namespace register_type
+} // namespace create_type
 
 } // namespace mpi
 } // namespace gdsb
