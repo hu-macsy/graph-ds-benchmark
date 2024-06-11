@@ -352,3 +352,66 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
 
     CHECK(MPI_File_close(&binary_graph) == MPI_SUCCESS);
 }
+
+TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partition id 1, partition size 2")
+{
+    TimestampedEdges32 timestamped_edges;
+
+    std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+    MPI_File binary_graph = mpi::open_file(file_path);
+
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
+
+    MPI_Datatype mpi_timestamped_edge_t = mpi::register_timestamped_edge_32();
+
+    uint32_t partition_id = 1;
+    uint32_t partition_size = 2;
+    auto const [vertex_count, edge_count] =
+        mpi::all_read_binary_graph_partition(binary_graph, header, timestamped_edges, sizeof(TimestampedEdge32),
+                                             mpi_timestamped_edge_t, partition_id, partition_size);
+    REQUIRE(vertex_count == 7);
+    REQUIRE(edge_count == 4);
+
+    // CHECK(!binary_graph.eof());
+
+    // File content:
+    // 0 1 1 1
+    // 2 3 1 3
+    // 1 2 1 2
+    // 1 4 1 8
+    // 3 4 1 4
+    // 3 5 1 6
+    // 3 6 1 7
+
+    size_t idx = 0;
+    REQUIRE(timestamped_edges.size() == edge_count);
+    CHECK(timestamped_edges[idx].edge.source == 1);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 4);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 8);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 3);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 4);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 4);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 3);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 5);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 6);
+
+    ++idx;
+    CHECK(timestamped_edges[idx].edge.source == 3);
+    CHECK(timestamped_edges[idx].edge.target.vertex == 6);
+    CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
+    CHECK(timestamped_edges[idx].timestamp == 7);
+
+    ++idx;
+    REQUIRE(timestamped_edges.size() == idx);
+
+    CHECK(MPI_File_close(&binary_graph) == MPI_SUCCESS);
+}
