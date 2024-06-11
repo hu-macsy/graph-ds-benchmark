@@ -101,7 +101,28 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File input,
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
-//! This functionality is still work in progress..
+template <typename Edges>
+std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
+                                                               BinaryGraphHeaderMetaDataV1 const& data,
+                                                               Edges& edges,
+                                                               size_t edge_size_in_bytes,
+                                                               MPI_Datatype mpi_datatype,
+                                                               uint32_t const partition_id,
+                                                               uint32_t const partition_size)
+{
+    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
+    edges.resize(edge_count);
+
+    // Header offset should be implicit since input is already read until begin of edges
+    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
+
+    MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
+
+    MPI_Status status;
+    MPI_File_read_all(input, &(edges[0]), edge_count, mpi_datatype, &status);
+
+    return std::make_tuple(data.vertex_count, edge_count);
+}
 
 MPI_Datatype register_timestamped_edge_32();
 
