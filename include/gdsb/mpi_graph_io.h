@@ -132,7 +132,7 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
-namespace register_type
+namespace create_type
 {
 
 MPI_Datatype edge_32();
@@ -180,7 +180,7 @@ private:
     bool m_committed{ false };
 };
 
-} // namespace register_type
+} // namespace create_type
 
 } // namespace mpi
 } // namespace gdsb
