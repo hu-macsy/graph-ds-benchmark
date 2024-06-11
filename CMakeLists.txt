@@ -46,6 +46,7 @@ if (GDSB_MPI)
   target_sources(gdsb
   PRIVATE
     src/mpi_error_handler.cpp
+    src/mpi_graph_io.cpp
   )
 
   find_package(MPI REQUIRED)
