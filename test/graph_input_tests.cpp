@@ -40,7 +40,7 @@ TEST_CASE("read_ulong")
 TEST_CASE("read_graph, edge_list")
 {
     Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
     std::ifstream undirected_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
     std::ifstream graph_input_weighted_temporal(graph_path + small_weighted_temporal_graph);
     std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
@@ -56,7 +56,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 * 2 == edge_count);
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 16)
             {
@@ -79,7 +79,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 == edge_count);
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 16)
             {
@@ -101,7 +101,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 * 2 == edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 16)
             {
@@ -121,7 +121,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 == edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 16)
             {
@@ -143,7 +143,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(max_vertex_count == edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 16)
             {
@@ -161,7 +161,7 @@ TEST_CASE("read_graph, edge_list")
         TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
         {
-            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
             timestamped_edges.timestamps.push_back(t);
         };
 
@@ -176,7 +176,7 @@ TEST_CASE("read_graph, edge_list")
         TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
         {
-            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
             timestamped_edges.timestamps.push_back(t);
         };
 
@@ -185,7 +185,7 @@ TEST_CASE("read_graph, edge_list")
 
         CHECK(timestamped_edges.edges.size() == 104 * 2);
 
-        for (Edge32 e : timestamped_edges.edges)
+        for (WeightedEdge32 e : timestamped_edges.edges)
         {
             if (e.source == 16)
             {
@@ -202,7 +202,7 @@ TEST_CASE("read_graph, edge_list")
         TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
         {
-            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
             timestamped_edges.timestamps.push_back(t);
         };
 
@@ -239,7 +239,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 * 2 == edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 16)
             {
@@ -295,7 +295,7 @@ TEST_CASE("read_graph, edge_list")
 TEST_CASE("read_graph, market_matrix")
 {
     Edges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
     std::ifstream undirected_unweighted_graph(graph_path + undirected_unweighted_soc_dolphins);
 
     SECTION("undirected, unweighted")
@@ -311,7 +311,7 @@ TEST_CASE("read_graph, market_matrix")
         CHECK(62 + 1 == vertex_count);
 
         // CHECK if edge {43, 1} has edge weight 1.f
-        for (Edge32 e : edges)
+        for (WeightedEdge32 e : edges)
         {
             if (e.source == 43)
             {
@@ -414,7 +414,7 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
     Edges32 edges;
     auto read_f = [&](std::ifstream& input)
     {
-        edges.push_back(Edge32{});
+        edges.push_back(WeightedEdge32{});
         input.read((char*)&edges.back().source, sizeof(Vertex32));
         input.read((char*)&edges.back().target.vertex, sizeof(Vertex32));
         return true;
@@ -439,11 +439,11 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
 
     bool edge_25_to_2_exists =
         std::any_of(std::begin(edges), std::end(edges),
-                    [](Edge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+                    [](WeightedEdge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
     CHECK(edge_25_to_2_exists);
 
     bool edge_source_0_does_not_exist =
-        std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
+        std::none_of(std::begin(edges), std::end(edges), [](WeightedEdge32 const& edge) { return edge.source == 0; });
     CHECK(edge_source_0_does_not_exist);
 }
 
@@ -515,7 +515,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
         read_binary_graph_partition(binary_graph, header, std::move(read_f),
-                                    sizeof(TimestampedEdge<Edge32, Timestamp32>), partition_id, partition_size);
+                                    sizeof(TimestampedEdge<WeightedEdge32, Timestamp32>), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
 
@@ -577,7 +577,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
         read_binary_graph_partition(binary_graph, header, std::move(read_f),
-                                    sizeof(TimestampedEdge<Edge32, Timestamp32>), partition_id, partition_size);
+                                    sizeof(TimestampedEdge<WeightedEdge32, Timestamp32>), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 4);
 

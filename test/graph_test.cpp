@@ -12,7 +12,9 @@ TEST_CASE("Vertex Counting")
     SECTION("Using type Edges")
     {
         Edges32 edges;
-        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) {
+            edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+        };
 
         std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
         read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
@@ -37,7 +39,7 @@ TEST_CASE("Graph")
 {
     SECTION("Invalid Edge")
     {
-        Edge32 invalid = invalid_edge<Edge32>();
+        WeightedEdge32 invalid = invalid_edge<WeightedEdge32>();
         CHECK(invalid.source == std::numeric_limits<Vertex32>::max());
         CHECK(invalid.target.vertex == std::numeric_limits<Vertex32>::max());
         CHECK(invalid.target.weight == std::numeric_limits<Weight>::infinity());
@@ -57,7 +59,9 @@ TEST_CASE("Edge Shuffling")
     SECTION("shuffle_edges, sequence not equal")
     {
         Edges32 edges;
-        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) {
+            edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+        };
 
         std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
         auto const [vertex_count, edge_count] =
@@ -104,7 +108,7 @@ TEST_CASE("Edge Shuffling")
         auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v, Weight w)
         {
             timestamped_edges.timestamps.push_back(t);
-            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
         };
 
         std::ifstream graph_input_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);

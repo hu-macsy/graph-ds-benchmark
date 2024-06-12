@@ -27,7 +27,7 @@ TEST_CASE("write_graph, enzymes, binary")
     // First we read in a test graph
     gdsb::Edges32 edges;
     auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v, gdsb::Weight w) {
-        edges.push_back(gdsb::Edge32{ u, gdsb::Target32{ v, w } });
+        edges.push_back(gdsb::WeightedEdge32{ u, gdsb::Target32{ v, w } });
     };
     std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
     auto const [vertex_count, edge_count] =
