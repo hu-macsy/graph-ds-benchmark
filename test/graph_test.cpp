@@ -25,7 +25,7 @@ TEST_CASE("Vertex Counting")
 
     SECTION("Using 64bit typed Edges")
     {
-        Edges64 edges;
+        WeightedEdges64 edges;
         auto emplace = [&](Vertex64 u, Vertex64 v, Weight w) {
             edges.push_back(WeightedEdge64{ u, Target64{ v, w } });
         };
