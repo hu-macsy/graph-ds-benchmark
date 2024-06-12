@@ -273,6 +273,13 @@ TEST_CASE("MPI, register structs")
         MPI_Type_free(&t);
     }
 
+    SECTION("register_weighted_edge_32")
+    {
+        MPI_Datatype t;
+        CHECK_NOTHROW(t = mpi::create_type::weighted_edge_32());
+        MPI_Type_free(&t);
+    }
+
     SECTION("register_edge_32")
     {
         MPI_Datatype t;

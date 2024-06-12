@@ -136,11 +136,13 @@ namespace create_type
 {
 
 MPI_Datatype edge_32();
+MPI_Datatype weighted_edge_32();
 MPI_Datatype timestamped_edge_32();
 
 enum class CommitType
 {
-    edge32,
+    edge_32,
+    weighted_edge32,
     timestamped_edge32
 };
 
@@ -161,12 +163,12 @@ public:
         {
             switch (type)
             {
-            case CommitType::edge32:
-                return edge_32();
+            case CommitType::weighted_edge32:
+                return weighted_edge_32();
             case CommitType::timestamped_edge32:
                 return timestamped_edge_32();
             default:
-                return edge_32();
+                return weighted_edge_32();
             }
         }();
 
