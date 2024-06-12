@@ -16,3 +16,5 @@ static std::string small_weighted_temporal_graph_bin{ "small_graph_temporal.bin"
 static std::string unweighted_directed_graph_enzymes{ "ENZYMES_g1.edges" };
 static std::string unweighted_directed_graph_enzymes_bin{ "ENZYMES_g1.bin" };
 static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
+
+constexpr uint32_t enzymes_g1_vertex_count = 38;
