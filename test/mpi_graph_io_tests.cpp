@@ -165,7 +165,7 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     Edges32 edges;
     auto read_f = [&](MPI_File binary_graph)
     {
-        edges.push_back(Edge32{});
+        edges.push_back(WeightedEdge32{});
 
         MPI_Status status;
         MPI_File_read(binary_graph, &edges.back().source, 1, MPI_INT32_T, &status);
@@ -191,11 +191,11 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 
     bool edge_25_to_2_exists =
         std::any_of(std::begin(edges), std::end(edges),
-                    [](Edge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+                    [](WeightedEdge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
     CHECK(edge_25_to_2_exists);
 
     bool edge_source_0_does_not_exist =
-        std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
+        std::none_of(std::begin(edges), std::end(edges), [](WeightedEdge32 const& edge) { return edge.source == 0; });
     CHECK(edge_source_0_does_not_exist);
 }
 

@@ -45,8 +45,8 @@ template <typename TargetT> TargetT invalid_target()
 }
 
 using Target32 = Target<Vertex32, Weight>;
-using Edge32 = Edge<Vertex32, Target32>;
-using Edges32 = std::vector<Edge32>;
+using WeightedEdge32 = Edge<Vertex32, Target32>;
+using Edges32 = std::vector<WeightedEdge32>;
 
 using Target64 = Target<Vertex64, Weight>;
 using Edge64 = Edge<Vertex64, Target64>;
@@ -67,7 +67,7 @@ template <typename Edge, typename Timestamp> struct TimestampedEdge
     Timestamp timestamp;
 };
 
-using TimestampedEdge32 = TimestampedEdge<Edge32, Timestamp32>;
+using TimestampedEdge32 = TimestampedEdge<WeightedEdge32, Timestamp32>;
 using TimestampedEdges32 = std::vector<TimestampedEdge32>;
 using TimestampedEdge64 = TimestampedEdge<Edge64, Timestamp64>;
 using TimestampedEdges64 = std::vector<TimestampedEdge<Edge64, Timestamp64>>;
