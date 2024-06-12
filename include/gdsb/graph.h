@@ -49,8 +49,8 @@ using WeightedEdge32 = Edge<Vertex32, Target32>;
 using WeightedEdges32 = std::vector<WeightedEdge32>;
 
 using Target64 = Target<Vertex64, Weight>;
-using Edge64 = Edge<Vertex64, Target64>;
-using Edges64 = std::vector<Edge64>;
+using WeightedEdge64 = Edge<Vertex64, Target64>;
+using Edges64 = std::vector<WeightedEdge64>;
 
 using Targets32 = std::vector<Target32>;
 using Targets64 = std::vector<Target64>;
@@ -69,8 +69,8 @@ template <typename Edge, typename Timestamp> struct TimestampedEdge
 
 using TimestampedEdge32 = TimestampedEdge<WeightedEdge32, Timestamp32>;
 using TimestampedEdges32 = std::vector<TimestampedEdge32>;
-using TimestampedEdge64 = TimestampedEdge<Edge64, Timestamp64>;
-using TimestampedEdges64 = std::vector<TimestampedEdge<Edge64, Timestamp64>>;
+using TimestampedEdge64 = TimestampedEdge<WeightedEdge64, Timestamp64>;
+using TimestampedEdges64 = std::vector<TimestampedEdge<WeightedEdge64, Timestamp64>>;
 
 template <typename EdgesT> auto max_nnz(EdgesT const& edges)
 {
