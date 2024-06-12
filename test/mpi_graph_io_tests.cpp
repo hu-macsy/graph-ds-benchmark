@@ -489,3 +489,29 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
 
     CHECK(idx == edges.size());
 }
+
+TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static, partition id 0, partition size 1")
+{
+    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    mpi::FileWrapper binary_graph{ file_path };
+
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
+
+    mpi::create_type::Adapter mpi_edge_t;
+    mpi_edge_t.commit(mpi::create_type::CommitType::edge_32);
+
+    Edges32 edges;
+    uint32_t partition_id = 0;
+    uint32_t partition_size = 1;
+    auto const [vertex_count, edge_count] =
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, edges, sizeof(Edge32), mpi_edge_t.get(),
+                                             partition_id, partition_size);
+
+    REQUIRE(vertex_count == enzymes_g1_vertex_count);
+    REQUIRE(edge_count == enzymes_g1_edge_count);
+    REQUIRE(edges.size() == edge_count);
+}
