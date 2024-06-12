@@ -25,10 +25,8 @@ TEST_CASE("open_binary_file")
 TEST_CASE("write_graph, enzymes, binary")
 {
     // First we read in a test graph
-    gdsb::WeightedEdges32 edges;
-    auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v, gdsb::Weight w) {
-        edges.push_back(gdsb::WeightedEdge32{ u, gdsb::Target32{ v, w } });
-    };
+    gdsb::Edges32 edges;
+    auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v) { edges.push_back(gdsb::Edge32{ u, v }); };
     std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
     auto const [vertex_count, edge_count] =
         gdsb::read_graph<gdsb::Vertex32, decltype(emplace), gdsb::EdgeListDirectedUnweightedStatic>(graph_input_unweighted_directed,
@@ -51,7 +49,7 @@ TEST_CASE("write_graph, enzymes, binary")
         [](std::ofstream& o, auto edge)
         {
             o.write(reinterpret_cast<const char*>(&edge.source), sizeof(edge.source));
-            o.write(reinterpret_cast<const char*>(&edge.target.vertex), sizeof(edge.target.vertex));
+            o.write(reinterpret_cast<const char*>(&edge.target), sizeof(edge.target));
         });
 
     // In case of developing a new format: comment this line

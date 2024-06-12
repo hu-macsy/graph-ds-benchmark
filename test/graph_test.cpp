@@ -60,17 +60,15 @@ TEST_CASE("Edge Shuffling")
 {
     SECTION("shuffle_edges, sequence not equal")
     {
-        WeightedEdges32 edges;
-        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) {
-            edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
-        };
+        Edges32 edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, v }); };
 
         std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
         auto const [vertex_count, edge_count] =
             read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(graph_input_unweighted_directed,
                                                                                         std::move(emplace));
 
-        WeightedEdges32 edges_copy = edges;
+        Edges32 edges_copy = edges;
 
         shuffle_edges(std::begin(edges), std::end(edges));
 
@@ -83,9 +81,9 @@ TEST_CASE("Edge Shuffling")
         for (; it_e != std::end(edges) && it_e_copy != std::end(edges_copy); ++it_e, ++it_e_copy)
         {
             Vertex32 u = it_e->source;
-            Vertex32 v = it_e->target.vertex;
+            Vertex32 v = it_e->target;
             Vertex32 u_c = it_e_copy->source;
-            Vertex32 v_c = it_e_copy->target.vertex;
+            Vertex32 v_c = it_e_copy->target;
 
             equality_sequence += uint32_t((u == u_c) && (v == v_c));
             std::get<0>(sum_edges) += u;
@@ -106,11 +104,11 @@ TEST_CASE("Edge Shuffling")
 
     SECTION("shuffle_timestamped_edges, sequence not equal")
     {
-        TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
-        auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v, Weight w)
+        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v)
         {
             timestamped_edges.timestamps.push_back(t);
-            timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(Edge32{ u, v });
         };
 
         std::ifstream graph_input_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
@@ -118,11 +116,11 @@ TEST_CASE("Edge Shuffling")
             read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedDynamic>(graph_input_unweighted_temporal,
                                                                                          std::move(emplace));
 
-        WeightedEdges32 edges_copy = timestamped_edges.edges;
+        Edges32 edges_copy = timestamped_edges.edges;
 
         shuffle_timestamped_edges(timestamped_edges);
 
-        WeightedEdges32 const& edges = timestamped_edges.edges;
+        Edges32 const& edges = timestamped_edges.edges;
 
         uint32_t equality_sequence = 0;
         auto sum_edges = std::make_tuple<uint32_t, uint32_t>(0, 0);
@@ -133,9 +131,9 @@ TEST_CASE("Edge Shuffling")
         for (; it_e != std::end(edges) && it_e_copy != std::end(edges) && equality_sequence <= 1; ++it_e, ++it_e_copy)
         {
             Vertex32 u = it_e->source;
-            Vertex32 v = it_e->target.vertex;
+            Vertex32 v = it_e->target;
             Vertex32 u_c = it_e_copy->source;
-            Vertex32 v_c = it_e_copy->target.vertex;
+            Vertex32 v_c = it_e_copy->target;
 
             equality_sequence += uint32_t((u == u_c) && (v == v_c));
             std::get<0>(sum_edges) += u;

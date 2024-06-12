@@ -141,28 +141,58 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
 
         if constexpr (GraphParameters::is_directed())
         {
-            if constexpr (GraphParameters::is_dynamic())
+            if constexpr (GraphParameters::is_weighted())
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                }
             }
-            else 
+            else
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
+                }
             }
 
             ++edge_counter;
         }
         else 
         {
-            if constexpr (GraphParameters::is_dynamic())
+            if constexpr (GraphParameters::is_weighted())
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
-                emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+                }
             }
-            else 
+            else
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
-                emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u));
+                }
             }
 
             edge_counter  += 2;

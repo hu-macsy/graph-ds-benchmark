@@ -162,14 +162,14 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 
 TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 {
-    WeightedEdges32 edges;
+    Edges32 edges;
     auto read_f = [&](MPI_File binary_graph)
     {
-        edges.push_back(WeightedEdge32{});
+        edges.push_back(Edge32{});
 
         MPI_Status status;
         MPI_File_read(binary_graph, &edges.back().source, 1, MPI_INT32_T, &status);
-        MPI_File_read(binary_graph, &edges.back().target.vertex, 1, MPI_INT32_T, &status);
+        MPI_File_read(binary_graph, &edges.back().target, 1, MPI_INT32_T, &status);
 
         return true;
     };
@@ -189,13 +189,12 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     CHECK(edge_count == 168);
     REQUIRE(edges.size() == edge_count);
 
-    bool edge_25_to_2_exists =
-        std::any_of(std::begin(edges), std::end(edges),
-                    [](WeightedEdge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+    bool edge_25_to_2_exists = std::any_of(std::begin(edges), std::end(edges),
+                                           [](Edge32 const& edge) { return edge.source == 25 && edge.target == 2; });
     CHECK(edge_25_to_2_exists);
 
     bool edge_source_0_does_not_exist =
-        std::none_of(std::begin(edges), std::end(edges), [](WeightedEdge32 const& edge) { return edge.source == 0; });
+        std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
     CHECK(edge_source_0_does_not_exist);
 }
 
