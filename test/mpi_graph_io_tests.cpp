@@ -60,7 +60,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
 
     mpi::FileWrapper input{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 data = mpi::read_binary_graph_header(input.file_object());
+    BinaryGraphHeaderMetaDataV1 data = mpi::read_binary_graph_header(input.get());
 
     CHECK(data.directed == true);
     CHECK(data.weighted == true);
@@ -88,7 +88,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper input{ file_path };
 
-    auto const [vertex_count, edge_count] = mpi::read_binary_graph(input.file_object(), std::move(read_f));
+    auto const [vertex_count, edge_count] = mpi::read_binary_graph(input.get(), std::move(read_f));
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 7);
 
@@ -177,7 +177,7 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    auto const [vertex_count, edge_count] = mpi::read_binary_graph(binary_graph.file_object(), std::move(read_f));
+    auto const [vertex_count, edge_count] = mpi::read_binary_graph(binary_graph.get(), std::move(read_f));
 
     // TODO: Currently there MPI_ERRROR returns 2: invalid count argument. Fix that!
     // uint32_t eof_marker;
@@ -217,14 +217,14 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.file_object());
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        mpi::read_binary_graph_partition(binary_graph.file_object(), header, std::move(read_f),
+        mpi::read_binary_graph_partition(binary_graph.get(), header, std::move(read_f),
                                          sizeof(TimestampedEdge32), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
@@ -307,7 +307,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.file_object());
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -317,7 +317,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        mpi::all_read_binary_graph_partition(binary_graph.file_object(), header, timestamped_edges, sizeof(TimestampedEdge32),
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, timestamped_edges, sizeof(TimestampedEdge32),
                                              mpi_timestamped_edge_t.get(), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
@@ -363,7 +363,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.file_object());
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -373,7 +373,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
     auto const [vertex_count, edge_count] =
-        mpi::all_read_binary_graph_partition(binary_graph.file_object(), header, timestamped_edges, sizeof(TimestampedEdge32),
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, timestamped_edges, sizeof(TimestampedEdge32),
                                              mpi_timestamped_edge_t.get(), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 4);

@@ -29,7 +29,7 @@ public:
 
     ~FileWrapper() { MPI_File_close(&m_file); }
 
-    MPI_File file_object() { return m_file; }
+    MPI_File get() { return m_file; }
 
 private:
     MPI_File m_file;
