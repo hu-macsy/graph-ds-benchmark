@@ -50,7 +50,7 @@ using WeightedEdges32 = std::vector<WeightedEdge32>;
 
 using Target64 = Target<Vertex64, Weight>;
 using WeightedEdge64 = Edge<Vertex64, Target64>;
-using Edges64 = std::vector<WeightedEdge64>;
+using WeightedEdges64 = std::vector<WeightedEdge64>;
 
 using Targets32 = std::vector<Target32>;
 using Targets64 = std::vector<Target64>;
