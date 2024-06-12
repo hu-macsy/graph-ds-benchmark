@@ -46,7 +46,7 @@ template <typename TargetT> TargetT invalid_target()
 
 using Target32 = Target<Vertex32, Weight>;
 using WeightedEdge32 = Edge<Vertex32, Target32>;
-using Edges32 = std::vector<WeightedEdge32>;
+using WeightedEdges32 = std::vector<WeightedEdge32>;
 
 using Target64 = Target<Vertex64, Weight>;
 using Edge64 = Edge<Vertex64, Target64>;

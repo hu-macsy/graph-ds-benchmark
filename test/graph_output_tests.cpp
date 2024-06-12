@@ -25,7 +25,7 @@ TEST_CASE("open_binary_file")
 TEST_CASE("write_graph, enzymes, binary")
 {
     // First we read in a test graph
-    gdsb::Edges32 edges;
+    gdsb::WeightedEdges32 edges;
     auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v, gdsb::Weight w) {
         edges.push_back(gdsb::WeightedEdge32{ u, gdsb::Target32{ v, w } });
     };

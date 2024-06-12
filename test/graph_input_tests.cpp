@@ -39,7 +39,7 @@ TEST_CASE("read_ulong")
 
 TEST_CASE("read_graph, edge_list")
 {
-    Edges32 edges;
+    WeightedEdges32 edges;
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
     std::ifstream undirected_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
     std::ifstream graph_input_weighted_temporal(graph_path + small_weighted_temporal_graph);
@@ -158,7 +158,7 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("undirected, unweighted, dynamic")
     {
-        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
         {
             timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
@@ -173,7 +173,7 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("undirected, weighted, dynamic")
     {
-        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
         {
             timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
@@ -199,7 +199,7 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("directed, weighted, dynamic")
     {
-        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
         {
             timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
@@ -209,8 +209,8 @@ TEST_CASE("read_graph, edge_list")
         read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedDynamic, Timestamp32>(graph_input_weighted_temporal,
                                                                                               std::move(emplace));
 
-        timestamped_edges = sort<Edges32, Timestamps32, Timestamp32>(timestamped_edges);
-        Edges32 edges = std::move(timestamped_edges.edges);
+        timestamped_edges = sort<WeightedEdges32, Timestamps32, Timestamp32>(timestamped_edges);
+        WeightedEdges32 edges = std::move(timestamped_edges.edges);
 
         SECTION("Read In")
         {
@@ -269,7 +269,7 @@ TEST_CASE("read_graph, edge_list")
     {
         Subgraph<Vertex32> subgraph{ 0, 3, 0, 7 };
 
-        gdsb::TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        gdsb::TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
 
         auto emplace_timestamped = [&](Vertex32 u, Vertex32 v, Weight w, gdsb::Timestamp32 t)
         {
@@ -282,9 +282,9 @@ TEST_CASE("read_graph, edge_list")
                 graph_input_weighted_temporal, std::move(emplace_timestamped), std::numeric_limits<uint64_t>::max(),
                 std::move(subgraph));
 
-        timestamped_edges = gdsb::sort<Edges32, Timestamps32, Timestamp32>(timestamped_edges);
+        timestamped_edges = gdsb::sort<WeightedEdges32, Timestamps32, Timestamp32>(timestamped_edges);
 
-        Edges32 resulting_edges = std::move(timestamped_edges.edges);
+        WeightedEdges32 resulting_edges = std::move(timestamped_edges.edges);
 
         CHECK(8 == resulting_edges.size());
         CHECK(8 == edge_count);
@@ -294,7 +294,7 @@ TEST_CASE("read_graph, edge_list")
 
 TEST_CASE("read_graph, market_matrix")
 {
-    Edges32 edges;
+    WeightedEdges32 edges;
     auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
     std::ifstream undirected_unweighted_graph(graph_path + undirected_unweighted_soc_dolphins);
 
@@ -411,7 +411,7 @@ TEST_CASE("read_binary_graph, small weighted temporal")
 
 TEST_CASE("read_binary_graph, undirected, unweighted, static")
 {
-    Edges32 edges;
+    WeightedEdges32 edges;
     auto read_f = [&](std::ifstream& input)
     {
         edges.push_back(WeightedEdge32{});
