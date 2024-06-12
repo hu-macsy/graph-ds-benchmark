@@ -144,6 +144,9 @@ if (GDSB_TEST)
     test/graph_output_tests.cpp
   )
 
+  # Debugging Libraries
+  # target_link_libraries(gdsb_test PRIVATE asan)
+
   target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)
   
   install(
@@ -156,6 +159,9 @@ if (GDSB_TEST)
     add_executable(gdsb_mpi_test
       test/mpi_graph_io_tests.cpp
     )
+
+    # Debugging Libraries
+    # target_link_libraries(gdsb_mpi_test PRIVATE asan)
 
     target_link_libraries(gdsb_mpi_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs MPI::MPI_CXX)
 
