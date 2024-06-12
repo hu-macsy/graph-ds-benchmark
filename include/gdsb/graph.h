@@ -22,7 +22,6 @@ template <typename VertexT, typename WeightT> struct Target
     WeightT weight;
 };
 
-
 template <typename VertexT, typename TargetT> struct Edge
 {
     VertexT source;
