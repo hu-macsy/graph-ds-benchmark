@@ -26,8 +26,8 @@ MPI_Datatype edge_32()
             "Timestamp32 data structure is not of standard layout and can not be commited as an MPI data type.");
     }
 
-    constexpr std::size_t offset_source = offsetof(typename gdsb::WeightedEdge32, source);
-    constexpr std::size_t offset_target = offsetof(typename gdsb::WeightedEdge32, target.vertex);
+    constexpr std::size_t offset_source = offsetof(typename gdsb::Edge32, source);
+    constexpr std::size_t offset_target = offsetof(typename gdsb::Edge32, target);
 
     MPI_Aint array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source), static_cast<MPI_Aint>(offset_target) };
 

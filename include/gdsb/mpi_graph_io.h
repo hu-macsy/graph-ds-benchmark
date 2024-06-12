@@ -166,8 +166,10 @@ public:
                 return weighted_edge_32();
             case CommitType::timestamped_edge32:
                 return timestamped_edge_32();
+            case CommitType::edge_32:
+                // Intentional fallthrough
             default:
-                return weighted_edge_32();
+                return edge_32();
             }
         }();
 

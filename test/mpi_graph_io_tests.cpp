@@ -417,3 +417,75 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     ++idx;
     REQUIRE(timestamped_edges.size() == idx);
 }
+
+TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static, partition id 0, partition size 4")
+{
+    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    mpi::FileWrapper binary_graph{ file_path };
+
+    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
+
+    mpi::create_type::Adapter mpi_edge_t;
+    mpi_edge_t.commit(mpi::create_type::CommitType::edge_32);
+
+    Edges32 edges;
+    uint32_t partition_id = 0;
+    uint32_t partition_size = 4;
+    auto const [vertex_count, edge_count] =
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, edges, sizeof(Edge32), mpi_edge_t.get(),
+                                             partition_id, partition_size);
+
+    REQUIRE(vertex_count == enzymes_g1_vertex_count);
+    REQUIRE(edge_count == 42);
+    REQUIRE(edges.size() == edge_count);
+
+    size_t idx = 0;
+    CHECK((edges[idx].source == 2 && edges[idx++].target == 1));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 1));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 1));
+    CHECK((edges[idx].source == 1 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 25 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 28 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 1 && edges[idx++].target == 3));
+    CHECK((edges[idx].source == 2 && edges[idx++].target == 3));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 3));
+    CHECK((edges[idx].source == 28 && edges[idx++].target == 3));
+    CHECK((edges[idx].source == 29 && edges[idx++].target == 3));
+    CHECK((edges[idx].source == 1 && edges[idx++].target == 4));
+    CHECK((edges[idx].source == 2 && edges[idx++].target == 4));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 4));
+    CHECK((edges[idx].source == 5 && edges[idx++].target == 4));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 4));
+    CHECK((edges[idx].source == 29 && edges[idx++].target == 4));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 5 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 5 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 9 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 9 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 11 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 9));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 9));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 9));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 10));
+    CHECK((edges[idx].source == 9 && edges[idx++].target == 10));
+
+    CHECK(idx == edges.size());
+}
