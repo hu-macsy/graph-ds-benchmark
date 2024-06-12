@@ -123,7 +123,6 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
 
     // Header offset should be implicit since input is already read until begin of edges
     size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
-
     MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
 
     MPI_Status status;
