@@ -10,7 +10,6 @@ namespace gdsb
 {
 
 using Weight = float;
-
 using Vertex32 = unsigned int;
 using Vertex64 = uint64_t;
 using Degree32 = unsigned int;
@@ -44,6 +43,8 @@ template <typename TargetT> TargetT invalid_target()
     return { invalid_vertex<Vertex_type>(), invalid_weight() };
 }
 
+using Edge32 = Edge<Vertex32, Vertex32>;
+using Edges32 = std::vector<Edge32>;
 using Target32 = Target<Vertex32, Weight>;
 using WeightedEdge32 = Edge<Vertex32, Target32>;
 using WeightedEdges32 = std::vector<WeightedEdge32>;

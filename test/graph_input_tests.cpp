@@ -39,8 +39,14 @@ TEST_CASE("read_ulong")
 
 TEST_CASE("read_graph, edge_list")
 {
-    WeightedEdges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
+    Edges32 edges;
+    auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, v }); };
+
+    WeightedEdges32 weighted_edges;
+    auto emplace_weighted = [&](Vertex32 u, Vertex32 v, Weight w) {
+        weighted_edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+    };
+
     std::ifstream undirected_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
     std::ifstream graph_input_weighted_temporal(graph_path + small_weighted_temporal_graph);
     std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
@@ -55,17 +61,23 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 * 2 == edges.size());
         CHECK(104 * 2 == edge_count);
 
-        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (WeightedEdge32 e : edges)
+        bool edge_16_to_17_exists = [&]()
         {
-            if (e.source == 16)
+            for (Edge32 const& e : edges)
             {
-                if (e.target.vertex == 17)
+                if (e.source == 16)
                 {
-                    CHECK(e.target.weight == 1.f);
+                    if (e.target == 17)
+                    {
+                        return true;
+                    }
                 }
             }
-        }
+
+            return false;
+        }();
+
+        CHECK(edge_16_to_17_exists);
     }
 
     SECTION("directed, unweighted")
@@ -78,30 +90,35 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 == edges.size());
         CHECK(104 == edge_count);
 
-        // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (WeightedEdge32 e : edges)
+        bool edge_16_to_17_exists = [&]()
         {
-            if (e.source == 16)
+            for (Edge32 const& e : edges)
             {
-                if (e.target.vertex == 17)
+                if (e.source == 16)
                 {
-                    CHECK(e.target.weight == 1.f);
+                    if (e.target == 17)
+                    {
+                        return true;
+                    }
                 }
             }
-        }
-    }
 
+            return false;
+        }();
+
+        CHECK(edge_16_to_17_exists);
+    }
 
     SECTION("undirected, weighted")
     {
-        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedStatic>(undirected_unweighted_temporal,
-                                                                                  std::move(emplace));
+        read_graph<Vertex32, decltype(emplace_weighted), EdgeListUndirectedWeightedStatic>(undirected_unweighted_temporal,
+                                                                                           std::move(emplace_weighted));
 
         // directed: thus original edge count 103
-        CHECK(104 * 2 == edges.size());
+        CHECK(104 * 2 == weighted_edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (WeightedEdge32 e : edges)
+        for (WeightedEdge32 e : weighted_edges)
         {
             if (e.source == 16)
             {
@@ -115,13 +132,14 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("directed, weighted")
     {
-        read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal, std::move(emplace));
+        read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal,
+                                                                                         std::move(emplace_weighted));
 
         // directed: thus original edge count 103
-        CHECK(104 == edges.size());
+        CHECK(104 == weighted_edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (WeightedEdge32 e : edges)
+        for (WeightedEdge32 e : weighted_edges)
         {
             if (e.source == 16)
             {
@@ -136,14 +154,15 @@ TEST_CASE("read_graph, edge_list")
     SECTION("directed, weighted, max_vertex set")
     {
         uint64_t const max_vertex_count = 53;
-        read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal,
-                                                                                std::move(emplace), max_vertex_count);
+        read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal,
+                                                                                         std::move(emplace_weighted),
+                                                                                         max_vertex_count);
 
         // directed: thus original edge count 103
-        CHECK(max_vertex_count == edges.size());
+        CHECK(max_vertex_count == weighted_edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (WeightedEdge32 e : edges)
+        for (WeightedEdge32 e : weighted_edges)
         {
             if (e.source == 16)
             {
@@ -158,15 +177,15 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("undirected, unweighted, dynamic")
     {
-        TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
-        auto emplace = [&](Vertex32 u, Vertex32 v, float w, Timestamp32 t)
+        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        auto emplace_unweighted_dynamic = [&](Vertex32 u, Vertex32 v, Timestamp32 t)
         {
-            timestamped_edges.edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(Edge32{ u, v });
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedDynamic, Timestamp32>(undirected_unweighted_temporal,
-                                                                                                  std::move(emplace));
+        read_graph<Vertex32, decltype(emplace_unweighted_dynamic), EdgeListUndirectedUnweightedDynamic, Timestamp32>(
+            undirected_unweighted_temporal, std::move(emplace_unweighted_dynamic));
 
         CHECK(timestamped_edges.edges.size() == 104 * 2);
     }
@@ -239,7 +258,7 @@ TEST_CASE("read_graph, edge_list")
         CHECK(104 * 2 == edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
-        for (WeightedEdge32 e : edges)
+        for (WeightedEdge32 e : weighted_edges)
         {
             if (e.source == 16)
             {
@@ -294,8 +313,8 @@ TEST_CASE("read_graph, edge_list")
 
 TEST_CASE("read_graph, market_matrix")
 {
-    WeightedEdges32 edges;
-    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
+    Edges32 edges;
+    auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, v }); };
     std::ifstream undirected_unweighted_graph(graph_path + undirected_unweighted_soc_dolphins);
 
     SECTION("undirected, unweighted")
@@ -310,17 +329,23 @@ TEST_CASE("read_graph, market_matrix")
         // + 1 since we are counting 0 as the first vertex ID
         CHECK(62 + 1 == vertex_count);
 
-        // CHECK if edge {43, 1} has edge weight 1.f
-        for (WeightedEdge32 e : edges)
+        bool edge_43_to_1_exists = [&]()
         {
-            if (e.source == 43)
+            for (Edge32 const& e : edges)
             {
-                if (e.target.vertex == 1)
+                if (e.source == 43)
                 {
-                    CHECK(e.target.weight == 1.f);
+                    if (e.target == 1)
+                    {
+                        return true;
+                    }
                 }
             }
-        }
+
+            return false;
+        }();
+
+        CHECK(edge_43_to_1_exists);
     }
 }
 
@@ -411,12 +436,12 @@ TEST_CASE("read_binary_graph, small weighted temporal")
 
 TEST_CASE("read_binary_graph, undirected, unweighted, static")
 {
-    WeightedEdges32 edges;
+    Edges32 edges;
     auto read_f = [&](std::ifstream& input)
     {
-        edges.push_back(WeightedEdge32{});
+        edges.push_back(Edge32{});
         input.read((char*)&edges.back().source, sizeof(Vertex32));
-        input.read((char*)&edges.back().target.vertex, sizeof(Vertex32));
+        input.read((char*)&edges.back().target, sizeof(Vertex32));
         return true;
     };
 
@@ -437,13 +462,12 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
     CHECK(edge_count == 168);
     REQUIRE(edges.size() == edge_count);
 
-    bool edge_25_to_2_exists =
-        std::any_of(std::begin(edges), std::end(edges),
-                    [](WeightedEdge32 const& edge) { return edge.source == 25 && edge.target.vertex == 2; });
+    bool edge_25_to_2_exists = std::any_of(std::begin(edges), std::end(edges),
+                                           [](Edge32 const& edge) { return edge.source == 25 && edge.target == 2; });
     CHECK(edge_25_to_2_exists);
 
     bool edge_source_0_does_not_exist =
-        std::none_of(std::begin(edges), std::end(edges), [](WeightedEdge32 const& edge) { return edge.source == 0; });
+        std::none_of(std::begin(edges), std::end(edges), [](Edge32 const& edge) { return edge.source == 0; });
     CHECK(edge_source_0_does_not_exist);
 }
 
