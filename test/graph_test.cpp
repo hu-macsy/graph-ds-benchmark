@@ -26,7 +26,9 @@ TEST_CASE("Vertex Counting")
     SECTION("Using 64bit typed Edges")
     {
         Edges64 edges;
-        auto emplace = [&](Vertex64 u, Vertex64 v, Weight w) { edges.push_back(Edge64{ u, Target64{ v, w } }); };
+        auto emplace = [&](Vertex64 u, Vertex64 v, Weight w) {
+            edges.push_back(WeightedEdge64{ u, Target64{ v, w } });
+        };
 
         std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
         read_graph<Vertex64, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
