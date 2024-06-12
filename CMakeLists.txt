@@ -143,8 +143,10 @@ if (GDSB_TEST)
     test/graph_output_tests.cpp
   )
 
-  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
+  # Debugging Libraries
+  # target_link_libraries(gdsb_test PRIVATE asan)
 
+  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
   install(
     TARGETS gdsb_test
     RUNTIME DESTINATION bin
@@ -155,6 +157,9 @@ if (GDSB_TEST)
     add_executable(gdsb_mpi_test
       test/mpi_graph_io_tests.cpp
     )
+
+    # Debugging Libraries
+    # target_link_libraries(gdsb_mpi_test PRIVATE asan)
 
     target_link_libraries(gdsb_mpi_test PRIVATE gdsb Catch2::Catch2WithMain MPI::MPI_CXX)
 
