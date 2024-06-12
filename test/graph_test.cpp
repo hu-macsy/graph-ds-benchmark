@@ -11,7 +11,7 @@ TEST_CASE("Vertex Counting")
 {
     SECTION("Using type Edges")
     {
-        Edges32 edges;
+        WeightedEdges32 edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) {
             edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
         };
@@ -49,7 +49,7 @@ TEST_CASE("Graph")
     {
         std::mt19937 engine{ 42 };
 
-        Edges32 edges = gilbert_edges<Vertex32, Edges32>(0.01, 100, engine);
+        WeightedEdges32 edges = gilbert_edges<Vertex32, WeightedEdges32>(0.01, 100, engine);
         CHECK(edges.size() >= 100);
     }
 }
@@ -58,7 +58,7 @@ TEST_CASE("Edge Shuffling")
 {
     SECTION("shuffle_edges, sequence not equal")
     {
-        Edges32 edges;
+        WeightedEdges32 edges;
         auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) {
             edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
         };
@@ -68,7 +68,7 @@ TEST_CASE("Edge Shuffling")
             read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(graph_input_unweighted_directed,
                                                                                         std::move(emplace));
 
-        Edges32 edges_copy = edges;
+        WeightedEdges32 edges_copy = edges;
 
         shuffle_edges(std::begin(edges), std::end(edges));
 
@@ -104,7 +104,7 @@ TEST_CASE("Edge Shuffling")
 
     SECTION("shuffle_timestamped_edges, sequence not equal")
     {
-        TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
+        TimestampedEdges<WeightedEdges32, Timestamps32> timestamped_edges;
         auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v, Weight w)
         {
             timestamped_edges.timestamps.push_back(t);
@@ -116,11 +116,11 @@ TEST_CASE("Edge Shuffling")
             read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedDynamic>(graph_input_unweighted_temporal,
                                                                                          std::move(emplace));
 
-        Edges32 edges_copy = timestamped_edges.edges;
+        WeightedEdges32 edges_copy = timestamped_edges.edges;
 
         shuffle_timestamped_edges(timestamped_edges);
 
-        Edges32 const& edges = timestamped_edges.edges;
+        WeightedEdges32 const& edges = timestamped_edges.edges;
 
         uint32_t equality_sequence = 0;
         auto sum_edges = std::make_tuple<uint32_t, uint32_t>(0, 0);

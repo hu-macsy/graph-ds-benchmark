@@ -162,7 +162,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 
 TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 {
-    Edges32 edges;
+    WeightedEdges32 edges;
     auto read_f = [&](MPI_File binary_graph)
     {
         edges.push_back(WeightedEdge32{});
