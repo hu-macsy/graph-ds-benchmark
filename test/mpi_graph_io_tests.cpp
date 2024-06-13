@@ -282,7 +282,7 @@ TEST_CASE("MPI, register structs")
     SECTION("register_edge_32")
     {
         MPI_Datatype t;
-        CHECK_NOTHROW(t = mpi::create_type::edge_32());
+        CHECK_NOTHROW(t = mpi::create_type::edge32());
         MPI_Type_free(&t);
     }
 }
@@ -428,7 +428,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
     REQUIRE(!header.dynamic);
 
     mpi::create_type::Adapter mpi_edge_t;
-    mpi_edge_t.commit(mpi::create_type::CommitType::edge_32);
+    mpi_edge_t.commit(mpi::create_type::CommitType::edge32);
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 4;
@@ -500,7 +500,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
     REQUIRE(!header.dynamic);
 
     mpi::create_type::Adapter mpi_edge_t;
-    mpi_edge_t.commit(mpi::create_type::CommitType::edge_32);
+    mpi_edge_t.commit(mpi::create_type::CommitType::edge32);
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 1;
