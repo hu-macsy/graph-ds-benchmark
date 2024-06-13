@@ -134,13 +134,13 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
 namespace create_type
 {
 
-MPI_Datatype edge_32();
+MPI_Datatype edge32();
 MPI_Datatype weighted_edge_32();
 MPI_Datatype timestamped_edge_32();
 
 enum class CommitType
 {
-    edge_32,
+    edge32,
     weighted_edge32,
     timestamped_edge32
 };
@@ -166,10 +166,10 @@ public:
                 return weighted_edge_32();
             case CommitType::timestamped_edge32:
                 return timestamped_edge_32();
-            case CommitType::edge_32:
+            case CommitType::edge32:
                 // Intentional fallthrough
             default:
-                return edge_32();
+                return edge32();
             }
         }();
 

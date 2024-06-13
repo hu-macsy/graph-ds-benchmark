@@ -15,7 +15,7 @@ namespace mpi
 
 namespace create_type
 {
-MPI_Datatype edge_32()
+MPI_Datatype edge32()
 {
     constexpr int blocks_count = 2;
     constexpr int array_of_block_length[blocks_count] = { 1, 1 };
