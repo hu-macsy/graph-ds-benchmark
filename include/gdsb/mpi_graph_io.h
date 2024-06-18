@@ -131,59 +131,39 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
-namespace create_type
-{
-
-MPI_Datatype edge32();
-MPI_Datatype weighted_edge_32();
-MPI_Datatype timestamped_edge_32();
-
-enum class CommitType
-{
-    edge32,
-    weighted_edge32,
-    timestamped_edge32
-};
-
-class Adapter
+class MPIDataTypeAdapter
 {
 public:
-    Adapter() = default;
-    ~Adapter() { MPI_Type_free(&m_type); }
+    virtual ~MPIDataTypeAdapter() = default;
+    virtual MPI_Datatype get() const = 0;
 
-    void commit(CommitType type)
-    {
-        if (m_committed)
-        {
-            return;
-        }
-
-        m_type = [&]()
-        {
-            switch (type)
-            {
-            case CommitType::weighted_edge32:
-                return weighted_edge_32();
-            case CommitType::timestamped_edge32:
-                return timestamped_edge_32();
-            case CommitType::edge32:
-                // Intentional fallthrough
-            default:
-                return edge32();
-            }
-        }();
-
-        m_committed = true;
-    }
-
-    MPI_Datatype get() { return m_type; }
-
-private:
+protected:
     MPI_Datatype m_type;
-    bool m_committed{ false };
 };
 
-} // namespace create_type
+class MPIWeightedEdge32 : public MPIDataTypeAdapter
+{
+public:
+    MPIWeightedEdge32();
+    ~MPIWeightedEdge32() { MPI_Type_free(&m_type); }
+    MPI_Datatype get() const override;
+};
+
+class MPIEdge32 : public MPIDataTypeAdapter
+{
+public:
+    MPIEdge32();
+    ~MPIEdge32() { MPI_Type_free(&m_type); }
+    MPI_Datatype get() const override;
+};
+
+class MPITimestampedEdge32 : public MPIDataTypeAdapter
+{
+public:
+    MPITimestampedEdge32();
+    ~MPITimestampedEdge32() { MPI_Type_free(&m_type); }
+    MPI_Datatype get() const override;
+};
 
 } // namespace mpi
 } // namespace gdsb
