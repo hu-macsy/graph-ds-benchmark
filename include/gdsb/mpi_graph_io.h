@@ -98,7 +98,11 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File input,
     // Header offset should be implicit since input is already read until begin of edges
     size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
 
-    MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
+    int const error = MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
+    if (error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not seek to specified offset within MPI file.");
+    }
 
     bool continue_reading = true;
     for (uint64_t e = 0; e < edge_count && continue_reading; ++e)
@@ -122,11 +126,19 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File input,
 {
     // Header offset should be implicit since input is already read until begin of edges
     size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
-    MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
+    int const seek_error = MPI_File_seek(input, offset * edge_size_in_bytes, MPI_SEEK_CUR);
+    if (seek_error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not seek to specified offset within MPI file.");
+    }
 
     uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
     MPI_Status status;
-    MPI_File_read_all(input, edges, edge_count, mpi_datatype, &status);
+    int const read_all_error = MPI_File_read_all(input, edges, edge_count, mpi_datatype, &status);
+    if (read_all_error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not successfully read all edges from MPI file.");
+    }
 
     return std::make_tuple(data.vertex_count, edge_count);
 }
