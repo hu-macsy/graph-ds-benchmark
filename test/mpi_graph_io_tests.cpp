@@ -52,6 +52,12 @@ TEST_CASE("MPI, Open File")
         std::filesystem::path file_path(invalid_path.c_str());
         CHECK_THROWS(mpi::FileWrapper(file_path));
     }
+
+    SECTION("Open for writing with overwriting will not fail.")
+    {
+        std::filesystem::path file_path(test_file_path + test_txt);
+        CHECK_NOTHROW(mpi::FileWrapper(file_path, true, 0, MPI_MODE_CREATE | MPI_MODE_WRONLY));
+    }
 }
 
 TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")

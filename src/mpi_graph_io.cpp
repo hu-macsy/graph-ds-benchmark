@@ -9,6 +9,41 @@ namespace gdsb
 namespace mpi
 {
 
+FileWrapper::FileWrapper(std::filesystem::path const& file_path, int const mode)
+{
+    int error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode, MPI_INFO_NULL, &m_file);
+
+    if (error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not open file using MPI routines.");
+    }
+}
+
+FileWrapper::FileWrapper(std::filesystem::path const& file_path, bool overwrite, int mpi_root_process, int const mode)
+{
+    int const test_open_error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode | MPI_MODE_EXCL, MPI_INFO_NULL, &m_file);
+    if (test_open_error != MPI_SUCCESS)
+    {
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        if (rank == mpi_root_process)
+        {
+            MPI_File_delete(file_path.c_str(), MPI_INFO_NULL);
+        }
+
+        int const error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode | MPI_MODE_EXCL, MPI_INFO_NULL, &m_file);
+        if (error != MPI_SUCCESS)
+        {
+            throw std::runtime_error("Could not open file using MPI routines.");
+        }
+    }
+}
+
+FileWrapper::~FileWrapper() { MPI_File_close(&m_file); }
+
+MPI_File FileWrapper::get() { return m_file; }
+
+
 //! More information on registering MPI data types:
 //! - https://stackoverflow.com/questions/33618937/trouble-understanding-mpi-type-create-struct
 //! - https://docs.open-mpi.org/en/v5.0.x/man-openmpi/man3/MPI_Type_create_struct.3.html

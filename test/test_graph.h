@@ -2,7 +2,6 @@
 
 #include <string>
 
-// https://networkrepository.com/bio-celegans.php
 static std::string const graph_path =
 #ifdef GDSB_TEST_GRAPH_DIR
     std::string(GDSB_TEST_GRAPH_DIR) + "/";
@@ -19,3 +18,12 @@ static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
 
 constexpr uint32_t enzymes_g1_vertex_count = 38;
 constexpr uint32_t enzymes_g1_edge_count = 168;
+
+static std::string const test_file_path =
+#ifdef GDSB_TEST_FILES_DIR
+    std::string(GDSB_TEST_FILES_DIR) + "/";
+#else
+    "test/files/";
+#endif
+
+static std::string test_txt{ "test.txt" };
