@@ -17,19 +17,10 @@ namespace mpi
 class FileWrapper
 {
 public:
-    FileWrapper(std::filesystem::path const& file_path, int const mode = MPI_MODE_RDONLY)
-    {
-        int error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode, MPI_INFO_NULL, &m_file);
-
-        if (error != MPI_SUCCESS)
-        {
-            throw std::runtime_error("Could not open file using MPI routines.");
-        }
-    }
-
-    ~FileWrapper() { MPI_File_close(&m_file); }
-
-    MPI_File get() { return m_file; }
+    FileWrapper(std::filesystem::path const&, int const mode = MPI_MODE_RDONLY);
+    FileWrapper(std::filesystem::path const&, bool overwrite, int mpi_root_process, int const mode = MPI_MODE_CREATE | MPI_MODE_WRONLY);
+    ~FileWrapper();
+    MPI_File get();
 
 private:
     MPI_File m_file;
