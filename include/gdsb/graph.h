@@ -70,10 +70,15 @@ template <typename Edge, typename Timestamp> struct TimestampedEdge
     Timestamp timestamp;
 };
 
-using TimestampedEdge32 = TimestampedEdge<WeightedEdge32, Timestamp32>;
+using TimestampedEdge32 = TimestampedEdge<Edge32, Timestamp32>;
 using TimestampedEdges32 = std::vector<TimestampedEdge32>;
-using TimestampedEdge64 = TimestampedEdge<WeightedEdge64, Timestamp64>;
-using TimestampedEdges64 = std::vector<TimestampedEdge<WeightedEdge64, Timestamp64>>;
+using WeightedTimestampedEdge32 = TimestampedEdge<WeightedEdge32, Timestamp32>;
+using WeightedTimestampedEdges32 = std::vector<WeightedTimestampedEdge32>;
+
+using TimestampedEdge64 = TimestampedEdge<Edge64, Timestamp64>;
+using TimestampedEdges64 = std::vector<TimestampedEdge64>;
+using WeightedTimestampedEdge64 = TimestampedEdge<WeightedEdge64, Timestamp64>;
+using WeightedTimestampedEdges64 = std::vector<WeightedTimestampedEdge64>;
 
 template <typename EdgesT> auto max_nnz(EdgesT const& edges)
 {
