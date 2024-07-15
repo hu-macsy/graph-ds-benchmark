@@ -162,11 +162,11 @@ public:
     MPI_Datatype get() const override;
 };
 
-class MPITimestampedEdge32 : public MPIDataTypeAdapter
+class MPIWeightedTimestampedEdge32 : public MPIDataTypeAdapter
 {
 public:
-    MPITimestampedEdge32();
-    ~MPITimestampedEdge32() { MPI_Type_free(&m_type); }
+    MPIWeightedTimestampedEdge32();
+    ~MPIWeightedTimestampedEdge32() { MPI_Type_free(&m_type); }
     MPI_Datatype get() const override;
 };
 
