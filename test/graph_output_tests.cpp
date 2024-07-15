@@ -59,7 +59,7 @@ TEST_CASE("write_graph, enzymes, binary")
 TEST_CASE("write_graph, small weighted temporal, binary")
 {
     // First we read in a test graph
-    gdsb::TimestampedEdges32 timestamped_edges;
+    gdsb::WeightedTimestampedEdges32 timestamped_edges;
     auto emplace = [&](gdsb::Vertex32 u, gdsb::Vertex32 v, gdsb::Weight w, gdsb::Timestamp32 t) {
         timestamped_edges.push_back({ { u, { v, w } }, t });
     };

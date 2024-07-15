@@ -351,7 +351,7 @@ TEST_CASE("read_graph, market_matrix")
 
 TEST_CASE("read_binary_graph, small weighted temporal")
 {
-    TimestampedEdges32 timestamped_edges;
+    WeightedTimestampedEdges32 timestamped_edges;
     auto read_f = [&](std::ifstream& input)
     {
         timestamped_edges.push_back({});
@@ -517,7 +517,7 @@ TEST_CASE("partition_edge_count, on enzymes graph")
 
 TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
-    TimestampedEdges32 timestamped_edges;
+    WeightedTimestampedEdges32 timestamped_edges;
     auto read_f = [&](std::ifstream& input)
     {
         timestamped_edges.push_back({});
@@ -579,7 +579,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
 
 TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1, partition size 2")
 {
-    TimestampedEdges32 timestamped_edges;
+    WeightedTimestampedEdges32 timestamped_edges;
     auto read_f = [&](std::ifstream& input)
     {
         timestamped_edges.push_back({});
