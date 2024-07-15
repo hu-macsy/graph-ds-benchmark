@@ -77,7 +77,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
 
 TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
 {
-    TimestampedEdges32 timestamped_edges;
+    WeightedTimestampedEdges32 timestamped_edges;
     auto read_f = [&](MPI_File input)
     {
         timestamped_edges.push_back({});
@@ -206,7 +206,7 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 
 TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
-    TimestampedEdges32 timestamped_edges;
+    WeightedTimestampedEdges32 timestamped_edges;
     auto read_f = [&](MPI_File binary_graph)
     {
         timestamped_edges.push_back({});
@@ -271,7 +271,7 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
 
 TEST_CASE("MPI, register structs")
 {
-    SECTION("register_timestamped_edge_32") { CHECK_NOTHROW(mpi::MPITimestampedEdge32()); }
+    SECTION("register_weighted_timestamped_edge_32") { CHECK_NOTHROW(mpi::MPIWeightedTimestampedEdge32()); }
 
     SECTION("register_weighted_edge_32") { CHECK_NOTHROW(mpi::MPIWeightedEdge32()); }
 
@@ -300,13 +300,13 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    mpi::MPITimestampedEdge32 mpi_timestamped_edge_t;
+    mpi::MPIWeightedTimestampedEdge32 mpi_timestamped_edge_t;
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
-    TimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    WeightedTimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
     auto const [vertex_count, edge_count] =
-        mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]), sizeof(TimestampedEdge32),
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]), sizeof(WeightedTimestampedEdge32),
                                              mpi_timestamped_edge_t.get(), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 3);
@@ -354,13 +354,13 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    mpi::MPITimestampedEdge32 mpi_timestamped_edge_t;
+    mpi::MPIWeightedTimestampedEdge32 mpi_timestamped_edge_t;
 
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
-    TimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    WeightedTimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
     auto const [vertex_count, edge_count] =
-        mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]), sizeof(TimestampedEdge32),
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]), sizeof(WeightedTimestampedEdge32),
                                              mpi_timestamped_edge_t.get(), partition_id, partition_size);
     REQUIRE(vertex_count == 7);
     REQUIRE(edge_count == 4);
