@@ -49,6 +49,8 @@ using Target32 = Target<Vertex32, Weight>;
 using WeightedEdge32 = Edge<Vertex32, Target32>;
 using WeightedEdges32 = std::vector<WeightedEdge32>;
 
+using Edge64 = Edge<Vertex64, Vertex64>;
+using Edges64 = std::vector<Edge64>;
 using Target64 = Target<Vertex64, Weight>;
 using WeightedEdge64 = Edge<Vertex64, Target64>;
 using WeightedEdges64 = std::vector<WeightedEdge64>;
