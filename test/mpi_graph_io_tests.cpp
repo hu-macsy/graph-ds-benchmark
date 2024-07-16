@@ -300,6 +300,32 @@ TEST_CASE("MPI, FileWrapper, throws exception when path does not exist")
     SECTION("overwrite") { CHECK_THROWS(mpi::FileWrapper(filepath, true)); }
 }
 
+TEST_CASE("MPI, all_read_binary_graph_partition, throws exception if file seek not successful")
+{
+    // This will actually copy the mpi::FileWrapper object and therefore call
+    // the destructor on the old (copied) object. Thus the file is closed. This
+    // then will lead to an issue when trying to
+    auto [binary_graph, header] = []()
+    {
+        std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+
+        return std::make_tuple(binary_graph, header);
+    }();
+
+    mpi::MPIWeightedTimestampedEdge32 mpi_timestamped_edge_t;
+
+    uint32_t partition_id = 0;
+    uint32_t partition_size = 2;
+    WeightedTimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    CHECK_THROWS_AS(mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]),
+                                                         sizeof(WeightedTimestampedEdge32),
+                                                         mpi_timestamped_edge_t.get(), partition_id, partition_size),
+                    std::runtime_error);
+}
+
 TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
