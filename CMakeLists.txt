@@ -32,7 +32,6 @@ target_sources(gdsb
 
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-
 # Set this option if you want to use the MPI facilities of GDSB 
 option(GDSB_MPI "Build GDSB MPI library.")
 
@@ -50,7 +49,7 @@ if (GDSB_MPI)
   )
 
   find_package(MPI REQUIRED)
-  target_link_libraries(gdsb PRIVATE MPI::MPI_CXX)
+  target_link_libraries(gdsb PUBLIC MPI::MPI_CXX)
 endif()
 
 target_include_directories(gdsb
@@ -154,6 +153,7 @@ if (GDSB_TEST)
   # target_link_libraries(gdsb_test PRIVATE asan)
 
   target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
+  
   install(
     TARGETS gdsb_test
     RUNTIME DESTINATION bin
