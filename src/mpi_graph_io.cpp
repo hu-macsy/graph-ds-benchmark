@@ -19,7 +19,7 @@ FileWrapper::FileWrapper(std::filesystem::path const& file_path, int const mode)
     }
 }
 
-FileWrapper::FileWrapper(std::filesystem::path const& file_path, bool overwrite, int mpi_root_process, int const mode)
+FileWrapper::FileWrapper(std::filesystem::path const& file_path, bool const overwrite, int const mpi_root_process, int const mode)
 {
     int const test_open_error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode | MPI_MODE_EXCL, MPI_INFO_NULL, &m_file);
     if (test_open_error != MPI_SUCCESS)
@@ -64,11 +64,11 @@ MPIWeightedEdge32::MPIWeightedEdge32()
     constexpr std::size_t offset_target_vertex = offsetof(typename gdsb::WeightedEdge32, target.vertex);
     constexpr std::size_t offset_target_weight = offsetof(typename gdsb::WeightedEdge32, target.weight);
 
-    MPI_Aint array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source),
-                                                      static_cast<MPI_Aint>(offset_target_vertex),
-                                                      static_cast<MPI_Aint>(offset_target_weight) };
+    MPI_Aint const array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source),
+                                                            static_cast<MPI_Aint>(offset_target_vertex),
+                                                            static_cast<MPI_Aint>(offset_target_weight) };
 
-    MPI_Datatype array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T, MPI_FLOAT };
+    MPI_Datatype const array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T, MPI_FLOAT };
 
     int const error = MPI_Type_create_struct(blocks_count, array_of_block_length, array_of_displacements, array_of_types, &m_type);
 
@@ -93,9 +93,10 @@ MPIEdge32::MPIEdge32()
     constexpr std::size_t offset_source = offsetof(typename gdsb::Edge32, source);
     constexpr std::size_t offset_target = offsetof(typename gdsb::Edge32, target);
 
-    MPI_Aint array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source), static_cast<MPI_Aint>(offset_target) };
+    MPI_Aint const array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source),
+                                                            static_cast<MPI_Aint>(offset_target) };
 
-    MPI_Datatype array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T };
+    MPI_Datatype const array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T };
 
     int const error = MPI_Type_create_struct(blocks_count, array_of_block_length, array_of_displacements, array_of_types, &m_type);
 
@@ -109,7 +110,7 @@ MPI_Datatype MPIEdge32::get() const { return m_type; }
 MPIWeightedTimestampedEdge32::MPIWeightedTimestampedEdge32()
 {
     constexpr int blocks_count = 4;
-    int array_of_block_length[blocks_count] = { 1, 1, 1, 1 };
+    int const array_of_block_length[blocks_count] = { 1, 1, 1, 1 };
 
     if constexpr (!std::is_standard_layout<TimestampedEdge32>())
     {
@@ -122,12 +123,12 @@ MPIWeightedTimestampedEdge32::MPIWeightedTimestampedEdge32()
     constexpr std::size_t offset_target_weight = offsetof(typename gdsb::WeightedTimestampedEdge32, edge.target.weight);
     constexpr std::size_t offset_timestamp = offsetof(typename gdsb::WeightedTimestampedEdge32, timestamp);
 
-    MPI_Aint array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source),
-                                                      static_cast<MPI_Aint>(offset_target_vertex),
-                                                      static_cast<MPI_Aint>(offset_target_weight),
-                                                      static_cast<MPI_Aint>(offset_timestamp) };
+    MPI_Aint const array_of_displacements[blocks_count] = { static_cast<MPI_Aint>(offset_source),
+                                                            static_cast<MPI_Aint>(offset_target_vertex),
+                                                            static_cast<MPI_Aint>(offset_target_weight),
+                                                            static_cast<MPI_Aint>(offset_timestamp) };
 
-    MPI_Datatype array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T, MPI_FLOAT, MPI_INT32_T };
+    MPI_Datatype const array_of_types[blocks_count] = { MPI_INT32_T, MPI_INT32_T, MPI_FLOAT, MPI_INT32_T };
 
     int const error = MPI_Type_create_struct(blocks_count, array_of_block_length, array_of_displacements, array_of_types, &m_type);
 
