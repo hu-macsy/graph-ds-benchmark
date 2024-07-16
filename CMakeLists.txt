@@ -32,7 +32,7 @@ target_sources(gdsb
 
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(gdsb PRIVATE stdc++fs)
+target_link_libraries(gdsb PUBLIC stdc++fs)
 
 # Set this option if you want to use the MPI facilities of GDSB 
 option(GDSB_MPI "Build GDSB MPI library.")
@@ -51,7 +51,7 @@ if (GDSB_MPI)
   )
 
   find_package(MPI REQUIRED)
-  target_link_libraries(gdsb PRIVATE MPI::MPI_CXX)
+  target_link_libraries(gdsb PUBLIC MPI::MPI_CXX)
 endif()
 
 target_include_directories(gdsb
@@ -154,7 +154,7 @@ if (GDSB_TEST)
   # Debugging Libraries
   # target_link_libraries(gdsb_test PRIVATE asan)
 
-  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)
+  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
   
   install(
     TARGETS gdsb_test
@@ -170,7 +170,7 @@ if (GDSB_TEST)
     # Debugging Libraries
     # target_link_libraries(gdsb_mpi_test PRIVATE asan)
 
-    target_link_libraries(gdsb_mpi_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs MPI::MPI_CXX)
+    target_link_libraries(gdsb_mpi_test PRIVATE gdsb Catch2::Catch2WithMain)
 
     install(
       TARGETS gdsb_mpi_test
