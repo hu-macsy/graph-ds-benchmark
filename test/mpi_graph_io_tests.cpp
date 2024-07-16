@@ -291,6 +291,15 @@ TEST_CASE("MPI, handle_type_create_struct_error, throws when expected")
     }
 }
 
+TEST_CASE("MPI, FileWrapper, throws exception when path does not exist")
+{
+    std::filesystem::path filepath(graph_path + "this_path_does_not_exist.bin");
+
+    SECTION("regular") { CHECK_THROWS(mpi::FileWrapper(filepath)); }
+
+    SECTION("overwrite") { CHECK_THROWS(mpi::FileWrapper(filepath, true)); }
+}
+
 TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partition id 0, partition size 2")
 {
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
