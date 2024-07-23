@@ -3,7 +3,7 @@
 #include "test_graph.h"
 
 #include <gdsb/graph.h>
-#include <gdsb/graph_io.h>
+#include <gdsb/graph_input.h>
 
 using namespace gdsb;
 
@@ -11,8 +11,10 @@ TEST_CASE("Vertex Counting")
 {
     SECTION("Using type Edges")
     {
-        Edges32 edges;
-        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+        WeightedEdges32 edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) {
+            edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+        };
 
         std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
         read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
@@ -23,8 +25,10 @@ TEST_CASE("Vertex Counting")
 
     SECTION("Using 64bit typed Edges")
     {
-        Edges64 edges;
-        auto emplace = [&](Vertex64 u, Vertex64 v, Weight w) { edges.push_back(Edge64{ u, Target64{ v, w } }); };
+        WeightedEdges64 edges;
+        auto emplace = [&](Vertex64 u, Vertex64 v, Weight w) {
+            edges.push_back(WeightedEdge64{ u, Target64{ v, w } });
+        };
 
         std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
         read_graph<Vertex64, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
@@ -37,7 +41,7 @@ TEST_CASE("Graph")
 {
     SECTION("Invalid Edge")
     {
-        Edge32 invalid = invalid_edge<Edge32>();
+        WeightedEdge32 invalid = invalid_edge<WeightedEdge32>();
         CHECK(invalid.source == std::numeric_limits<Vertex32>::max());
         CHECK(invalid.target.vertex == std::numeric_limits<Vertex32>::max());
         CHECK(invalid.target.weight == std::numeric_limits<Weight>::infinity());
@@ -47,7 +51,7 @@ TEST_CASE("Graph")
     {
         std::mt19937 engine{ 42 };
 
-        Edges32 edges = gilbert_edges<Vertex32, Edges32>(0.01, 100, engine);
+        WeightedEdges32 edges = gilbert_edges<Vertex32, WeightedEdges32>(0.01, 100, engine);
         CHECK(edges.size() >= 100);
     }
 }
@@ -57,7 +61,7 @@ TEST_CASE("Edge Shuffling")
     SECTION("shuffle_edges, sequence not equal")
     {
         Edges32 edges;
-        auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(Edge32{ u, Target32{ v, w } }); };
+        auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, v }); };
 
         std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
         auto const [vertex_count, edge_count] =
@@ -77,9 +81,9 @@ TEST_CASE("Edge Shuffling")
         for (; it_e != std::end(edges) && it_e_copy != std::end(edges_copy); ++it_e, ++it_e_copy)
         {
             Vertex32 u = it_e->source;
-            Vertex32 v = it_e->target.vertex;
+            Vertex32 v = it_e->target;
             Vertex32 u_c = it_e_copy->source;
-            Vertex32 v_c = it_e_copy->target.vertex;
+            Vertex32 v_c = it_e_copy->target;
 
             equality_sequence += uint32_t((u == u_c) && (v == v_c));
             std::get<0>(sum_edges) += u;
@@ -101,10 +105,10 @@ TEST_CASE("Edge Shuffling")
     SECTION("shuffle_timestamped_edges, sequence not equal")
     {
         TimestampedEdges<Edges32, Timestamps32> timestamped_edges;
-        auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v, Weight w)
+        auto emplace = [&](Timestamp32 t, Vertex32 u, Vertex32 v)
         {
             timestamped_edges.timestamps.push_back(t);
-            timestamped_edges.edges.push_back(Edge32{ u, Target32{ v, w } });
+            timestamped_edges.edges.push_back(Edge32{ u, v });
         };
 
         std::ifstream graph_input_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
@@ -127,9 +131,9 @@ TEST_CASE("Edge Shuffling")
         for (; it_e != std::end(edges) && it_e_copy != std::end(edges) && equality_sequence <= 1; ++it_e, ++it_e_copy)
         {
             Vertex32 u = it_e->source;
-            Vertex32 v = it_e->target.vertex;
+            Vertex32 v = it_e->target;
             Vertex32 u_c = it_e_copy->source;
-            Vertex32 v_c = it_e_copy->target.vertex;
+            Vertex32 v_c = it_e_copy->target;
 
             equality_sequence += uint32_t((u == u_c) && (v == v_c));
             std::get<0>(sum_edges) += u;
