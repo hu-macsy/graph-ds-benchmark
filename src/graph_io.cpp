@@ -1,3 +1,5 @@
+#include <gdsb/graph_io.h>
+
 #include <cstdlib>
 #include <limits>
 #include <stdexcept>
