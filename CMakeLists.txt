@@ -30,8 +30,6 @@ target_sources(gdsb
 
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-target_link_libraries(gdsb PRIVATE stdc++fs)
-
 target_include_directories(gdsb
   PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
@@ -120,7 +118,7 @@ if (GDSB_TEST)
     test/graph_test.cpp
   )
 
-  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain stdc++fs)
+  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
 
   install(
     TARGETS gdsb_test
