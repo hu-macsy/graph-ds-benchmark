@@ -2,7 +2,7 @@
 
 #include <gdsb/graph.h>
 
-#include <experimental/filesystem>
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -251,7 +251,7 @@ template <typename Vertex, typename EmplaceF, typename GraphParameters = GraphPa
 std::tuple<Vertex, uint64_t>
 read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_count_max = std::numeric_limits<uint64_t>::max())
 {
-    namespace fs = std::experimental::filesystem;
+    namespace fs = std::filesystem;
 
     fs::path graph_path(path);
 

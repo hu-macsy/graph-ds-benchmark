@@ -1,23 +1,48 @@
-name: build-and-test
+name: Run Builds and Tests
 
-on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+on: [push, pull_request]
 
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
+  linux-build-latest-with-gcc:
+    name: "Linux gcc-11"
+    runs-on: ubuntu-24.04
     steps:
-    - uses: actions/checkout@v4
-    - name: configure
-      run: ./configure
-    - name: make
-      run: make
-    - name: make check
-      run: make check
-    - name: make distcheck
-      run: make distcheck
+      - name: Install prerequisites
+        run:  |
+          sudo apt-get update
+          sudo apt-get install ninja-build gcc-11 g++-11
+          g++ --version
+
+      - name: Checkout gdsb
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: build library and run tests
+        run:  | 
+          mkdir build && cd build
+          cmake -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=g++-11 -GNinja ..
+          ninja
+          ./gdsb_test
+
+  macos-build-latest-with-clang:
+    name: "macOS clang-18"
+    runs-on: macos-14
+    steps:
+      - name: Install prerequisites
+        run: |
+          brew install ninja
+          brew install libomp
+          brew install llvm@18
+  
+      - name: Checkout gdsb
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: build library and run tests
+        run:  | 
+          mkdir build && cd build
+          cmake -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER='/opt/homebrew/opt/llvm/bin/clang' -GNinja ..
+          ninja
+          ./gdsb_test
