@@ -1,5 +1,9 @@
 # Graph Data Structure Benchmark GDSB
 
+<p align="center">
+  <a href="https://github.com/hu-macsy/graph-ds-benchmark/actions/workflows/ci.yml"><img src="https://github.com/hu-macsy/graph-ds-benchmark/actions/workflows/ci.yml/badge.svg"></a>
+</p>
+
 This library offers various tools for graph data structure experiments including:
 - graph file I/O, see [graph_io.h](/include/gdsb/graph_io.h)
 - graph and edge data structures, see [graph.h](/include/gdsb/graph.h)
