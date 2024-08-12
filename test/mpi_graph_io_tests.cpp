@@ -302,8 +302,17 @@ TEST_CASE("MPI, FileWrapper, throws exception when path does not exist")
     std::filesystem::path filepath(graph_path + "this_path_does_not_exist.bin");
 
     SECTION("regular") { CHECK_THROWS(mpi::FileWrapper(filepath)); }
+}
 
-    SECTION("overwrite") { CHECK_THROWS(mpi::FileWrapper(filepath, true)); }
+TEST_CASE("MPI, FileWrapper, throws no exception when file does already exist")
+{
+    std::filesystem::path filepath(graph_path + "this_path_does_not_exist_yet.bin");
+    std::ofstream file(filepath, std::ios::out | std::ios::binary);
+
+    char one_byte = 1;
+    file.write(&one_byte, 1);
+
+    CHECK_NOTHROW(mpi::FileWrapper(filepath, true));
 }
 
 TEST_CASE("MPI, all_read_binary_graph_partition, throws exception if file seek not successful")

@@ -25,12 +25,16 @@ FileWrapper::FileWrapper(std::filesystem::path const& file_path, bool const over
     int const test_open_error = MPI_File_open(MPI_COMM_WORLD, file_path.c_str(), mode | MPI_MODE_EXCL, MPI_INFO_NULL, &m_file);
     if (test_open_error != MPI_SUCCESS && overwrite)
     {
-        // If the file does already exist we must delete the file.
+        // If the file does already exist, we must delete the file.
         int rank;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         if (rank == mpi_root_process)
         {
-            MPI_File_delete(file_path.c_str(), MPI_INFO_NULL);
+            int const error = MPI_File_delete(file_path.c_str(), MPI_INFO_NULL);
+            if (error != MPI_SUCCESS)
+            {
+                throw std::runtime_error("Could not delete file.");
+            }
         }
 
         // Now we open the file and we expect that it does not exist already. If

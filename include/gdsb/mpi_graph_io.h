@@ -18,7 +18,7 @@ class FileWrapper
 {
 public:
     FileWrapper(std::filesystem::path const&, int mode = MPI_MODE_RDONLY);
-    FileWrapper(std::filesystem::path const&, bool overwrite, int mpi_root_process, int const mode = MPI_MODE_CREATE | MPI_MODE_WRONLY);
+    FileWrapper(std::filesystem::path const&, bool overwrite, int mpi_root_process = 0, int mode = MPI_MODE_CREATE | MPI_MODE_WRONLY);
     ~FileWrapper();
     MPI_File get();
 
