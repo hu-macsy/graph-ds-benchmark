@@ -185,15 +185,21 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
 
     auto const [vertex_count, edge_count] = mpi::read_binary_graph(binary_graph.get(), std::move(read_f));
 
-    // TODO: Currently there MPI_ERRROR returns 2: invalid count argument. Fix that!
+    CHECK(vertex_count == 38);
+    CHECK(edge_count == 168);
+    REQUIRE(edges.size() == edge_count);
+
+    // TODO: The counterpart of reading this graph file using regular C++ file
+    // I/O routines is capable to read the EOF symbol at the end of the file.
+    // With MPI I/O however, the last read of the EOF symbol gives MPI_ERR_COUNT
+    // (value: 2) as the error value of the MPI_Status.MPI_ERROR. It seems like
+    // with MPI I/O we can't explicitly read the EOF symbol, or is there a way?
+    //
+    // The following code shows what is not working:
     // uint32_t eof_marker;
     // MPI_Status read_eof_status;
     // MPI_File_read(binary_graph, &eof_marker, 1, MPI_INT32_T, &read_eof_status);
     // REQUIRE(read_eof_status.MPI_ERROR == MPI_SUCCESS);
-
-    CHECK(vertex_count == 38);
-    CHECK(edge_count == 168);
-    REQUIRE(edges.size() == edge_count);
 
     bool edge_25_to_2_exists = std::any_of(std::begin(edges), std::end(edges),
                                            [](Edge32 const& edge) { return edge.source == 25 && edge.target == 2; });
