@@ -1,4 +1,4 @@
-#include <gdsb/graph_io.h>
+#include <gdsb/graph_input.h>
 
 #include <cstdlib>
 #include <limits>
