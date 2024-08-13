@@ -317,9 +317,10 @@ TEST_CASE("MPI, FileWrapper, throws no exception when file does already exist")
 
 TEST_CASE("MPI, all_read_binary_graph_partition, throws exception if file seek not successful")
 {
-    // This will actually copy the mpi::FileWrapper object and therefore call
-    // the destructor on the old (copied) object. Thus the file is closed. This
-    // then will lead to an issue when trying to
+    // The following copies the mpi::FileWrapper object when returning it by
+    // value. Therefore, the destructor will be called on the old (copied)
+    // object. Thus the file is closed. This then will lead to an issue when
+    // trying to read from it later on throwing a runtime error.
     auto [binary_graph, header] = []()
     {
         std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
