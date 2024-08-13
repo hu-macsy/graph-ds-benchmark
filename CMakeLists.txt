@@ -33,7 +33,7 @@ target_sources(gdsb
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # Set this option if you want to use the MPI facilities of GDSB 
-option(GDSB_MPI "Build GDSB MPI library.")
+option(GDSB_MPI "Build GDSB with MPI functionality." OFF)
 
 if (GDSB_MPI)
   set(public_headers
