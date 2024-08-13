@@ -18,12 +18,19 @@ jobs:
         with:
           submodules: true
 
-      - name: build library and run tests
+      - name: build library and run tests (no MPI functionality)
         run:  | 
           mkdir build && cd build
-          cmake -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=g++-11 -GNinja ..
+          cmake -DGDSB_MPI=OFF -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=g++-11 -GNinja ..
           ninja
           ./gdsb_test
+
+      - name: build library with MPI functionality and run MPI tests
+        run:  | 
+          mkdir build && cd build
+          cmake -DGDSB_MPI=ON -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=g++-11 -GNinja ..
+          ninja
+          ./gdsb_mpi_test
 
   macos-build-latest-with-clang:
     name: "macOS clang-18"
@@ -40,9 +47,9 @@ jobs:
         with:
           submodules: true
       
-      - name: build library and run tests
+      - name: build library and run tests (no MPI functionality)
         run:  | 
           mkdir build && cd build
-          cmake -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER='/opt/homebrew/opt/llvm/bin/clang' -GNinja ..
+          cmake -DGDSB_MPI=OFF -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER='/opt/homebrew/opt/llvm/bin/clang' -GNinja ..
           ninja
           ./gdsb_test
