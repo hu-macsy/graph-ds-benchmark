@@ -130,7 +130,7 @@ if (GDSB_TEST)
     add_definitions(-DGDSB_TEST_GRAPH_DIR="${PROJECT_SOURCE_DIR}/test/graphs")
   else()
     message(FATAL_ERROR
-      "Could not find test graps directory.")
+      "Could not find test graphs directory.")
   endif()
 
   if(EXISTS "${PROJECT_SOURCE_DIR}/test/files")
