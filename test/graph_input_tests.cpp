@@ -57,7 +57,6 @@ TEST_CASE("read_graph, edge_list")
             read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(undirected_unweighted_temporal,
                                                                                         std::move(emplace));
 
-        // directed: thus original edge count 103
         CHECK(104 * 2 == edges.size());
         CHECK(104 * 2 == edge_count);
 
