@@ -6,6 +6,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <stdexcept>
 
 namespace gdsb
 {
@@ -44,7 +45,7 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
     }
     else
     {
-        throw std::exception("File header not defined for desired filetype.");
+        throw std::logic_error("File is not of binary type.");
     }
 }
 
