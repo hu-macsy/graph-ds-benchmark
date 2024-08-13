@@ -23,12 +23,12 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
 {
     if constexpr (GraphParameters::filetype() == FileType::binary)
     {
-        if (header_id.version == 1)
+        if (header_id.version == 2)
         {
             char* const header_id_byte_array = reinterpret_cast<char*>(&header_id);
             output_file.write(header_id_byte_array, sizeof(decltype(header_id)));
 
-            BinaryGraphHeaderMetaDataV1 header_data;
+            BinaryGraphHeaderMetaDataV2 header_data;
             header_data.vertex_count = vertex_count;
             header_data.edge_count = edge_count;
 

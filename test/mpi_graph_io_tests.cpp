@@ -66,7 +66,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File Header Information")
 
     mpi::FileWrapper input{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 data = mpi::read_binary_graph_header(input.get());
+    BinaryGraphHeaderMetaDataV2 data = mpi::read_binary_graph_header(input.get());
 
     CHECK(data.directed == true);
     CHECK(data.weighted == true);
@@ -229,7 +229,7 @@ TEST_CASE("MPI, read_binary_graph_partition, small weighted temporal, partition 
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    BinaryGraphHeaderMetaDataV2 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -326,7 +326,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, throws exception if file seek n
         std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
         mpi::FileWrapper binary_graph{ file_path };
 
-        BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+        BinaryGraphHeaderMetaDataV2 header = mpi::read_binary_graph_header(binary_graph.get());
 
         return std::make_tuple(binary_graph, header);
     }();
@@ -347,7 +347,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    BinaryGraphHeaderMetaDataV2 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -401,7 +401,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    BinaryGraphHeaderMetaDataV2 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -461,7 +461,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
     std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    BinaryGraphHeaderMetaDataV2 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.directed);
     REQUIRE(!header.weighted);
@@ -532,7 +532,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
     std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV1 header = mpi::read_binary_graph_header(binary_graph.get());
+    BinaryGraphHeaderMetaDataV2 header = mpi::read_binary_graph_header(binary_graph.get());
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.directed);
     REQUIRE(!header.weighted);

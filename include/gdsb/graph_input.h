@@ -219,7 +219,7 @@ read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_coun
     return read_graph<Vertex, EmplaceF, GraphParameters, Timestamp>(graph_input, std::move(emplace), edge_count_max);
 }
 
-inline BinaryGraphHeaderMetaDataV1 read_binary_graph_header(std::ifstream& input)
+inline BinaryGraphHeaderMetaDataV2 read_binary_graph_header(std::ifstream& input)
 {
     BinaryGraphHeaderIdentifier id;
     input.read(reinterpret_cast<char*>(&id), sizeof(BinaryGraphHeaderIdentifier));
@@ -228,15 +228,15 @@ inline BinaryGraphHeaderMetaDataV1 read_binary_graph_header(std::ifstream& input
 
     switch (id.version)
     {
-    case 1:
+    case 2:
     {
         if (!std::strcmp(id.identifier, "GDSB"))
         {
             throw std::logic_error(std::string("Binary graph file has wrong identifier: ") + std::string(id.identifier));
         }
 
-        BinaryGraphHeaderMetaDataV1 meta_data;
-        input.read(reinterpret_cast<char*>(&meta_data), sizeof(BinaryGraphHeaderMetaDataV1));
+        BinaryGraphHeaderMetaDataV2 meta_data;
+        input.read(reinterpret_cast<char*>(&meta_data), sizeof(BinaryGraphHeaderMetaDataV2));
 
         return meta_data;
     }
@@ -265,7 +265,7 @@ uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uin
 
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
-                                                           BinaryGraphHeaderMetaDataV1 const& data,
+                                                           BinaryGraphHeaderMetaDataV2 const& data,
                                                            ReadF&& read,
                                                            size_t edge_size_in_bytes,
                                                            uint32_t const partition_id,

@@ -95,15 +95,15 @@ using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undi
 struct alignas(8) BinaryGraphHeaderIdentifier
 {
     char identifier[4] = { 'G', 'D', 'S', 'B' };
-    uint32_t version = 1;
+    uint8_t version = 2;
 };
 
-struct alignas(8) BinaryGraphHeaderMetaDataV1
+struct alignas(8) BinaryGraphHeaderMetaDataV2
 {
     uint64_t vertex_count = 2;
     uint64_t edge_count = 1;
-    uint16_t vertex_id_byte_size = 4;
-    uint16_t weight_byte_size = 4;
+    uint8_t vertex_id_byte_size = 4;
+    uint8_t weight_byte_size = 4;
     bool directed = false;
     bool weighted = false;
     bool dynamic = false;
