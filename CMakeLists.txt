@@ -12,23 +12,45 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_library(gdsb STATIC)
 
 set(public_headers
-  include/gdsb/graph_io.h
-  include/gdsb/timer.h
-  include/gdsb/experiment.h
   include/gdsb/batcher.h
-  include/gdsb/sort_permutation.h
+  include/gdsb/experiment.h
+  include/gdsb/graph_input.h
+  include/gdsb/graph_io_parameters.h
+  include/gdsb/graph_output.h
   include/gdsb/graph.h
+  include/gdsb/sort_permutation.h
+  include/gdsb/timer.h
 )
 
 target_sources(gdsb
   PRIVATE
     src/timer.cpp
-    src/graph_io.cpp
+    src/graph_input.cpp
     src/graph.cpp
     src/experiment.cpp
 )
 
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
+
+# Set this option if you want to use the MPI facilities of GDSB 
+option(GDSB_MPI "Build GDSB with MPI functionality." OFF)
+
+if (GDSB_MPI)
+  set(public_headers
+    ${public_headers}
+    include/gdsb/mpi_graph_io.h
+    include/gdsb/mpi_error_handler.h
+  )
+
+  target_sources(gdsb
+    PRIVATE
+      src/mpi_error_handler.cpp
+      src/mpi_graph_io.cpp
+  )
+
+  find_package(MPI REQUIRED)
+  target_link_libraries(gdsb PUBLIC MPI::MPI_CXX)
+endif()
 
 target_include_directories(gdsb
   PRIVATE
@@ -108,25 +130,56 @@ if (GDSB_TEST)
     add_definitions(-DGDSB_TEST_GRAPH_DIR="${PROJECT_SOURCE_DIR}/test/graphs")
   else()
     message(FATAL_ERROR
-      "Could not find test graph directory.")
+      "Could not find test graphs directory.")
   endif()
 
+  if(EXISTS "${PROJECT_SOURCE_DIR}/test/files")
+    add_definitions(-DGDSB_TEST_FILES_DIR="${PROJECT_SOURCE_DIR}/test/files")
+  else()
+    message(FATAL_ERROR
+      "Could not find test files directory.")
+  endif()
+
+  # GDSB test target
   add_executable(gdsb_test
     test/batcher.cpp
     test/experiment_tests.cpp
-    test/graph_io_tests.cpp
+    test/graph_input_tests.cpp
     test/graph_test.cpp
+    test/graph_output_tests.cpp
   )
 
-  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
+  # Debugging Libraries
+  # target_link_libraries(gdsb_test PRIVATE asan)
 
+  target_link_libraries(gdsb_test PRIVATE gdsb Catch2::Catch2WithMain)
+  
   install(
     TARGETS gdsb_test
     RUNTIME DESTINATION bin
   )
+
+  # GDSB MPI test target
+  if (GDSB_MPI)
+    add_executable(gdsb_mpi_test
+      test/mpi_graph_io_tests.cpp
+    )
+
+    # Debugging Libraries
+    # target_link_libraries(gdsb_mpi_test PRIVATE asan)
+
+    target_link_libraries(gdsb_mpi_test PRIVATE gdsb Catch2::Catch2WithMain MPI::MPI_CXX)
+
+    install(
+      TARGETS gdsb_mpi_test
+      RUNTIME DESTINATION bin
+    )
+  endif()
 
   # Test setup. Use CTest + Catch2's CTest integration.
   include(CTest)
   include(${PROJECT_SOURCE_DIR}/test/lib/Catch2/extras/Catch.cmake)
   catch_discover_tests(gdsb_test)
 endif()
+
+

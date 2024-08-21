@@ -1,10 +1,14 @@
 #pragma once
 
 #include <gdsb/graph.h>
+#include <gdsb/graph_io_parameters.h>
 
+#include <cassert>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace gdsb
@@ -25,85 +29,6 @@ template <typename V> struct Subgraph
     V target_begin = 0;
     V target_end = std::numeric_limits<V>::max();
 };
-
-template <bool value> class GraphParameter
-{
-public:
-    static constexpr bool is() { return value; }
-};
-
-class Directed : private GraphParameter<true>
-{
-public:
-    static constexpr bool is_directed() { return GraphParameter::is(); }
-};
-
-class Undirected : private GraphParameter<false>
-{
-public:
-    static constexpr bool is_directed() { return GraphParameter::is(); }
-};
-
-class Weighted : private GraphParameter<true>
-{
-public:
-    static constexpr bool is_weighted() { return GraphParameter::is(); }
-};
-
-class Unweighted : private GraphParameter<false>
-{
-public:
-    static constexpr bool is_weighted() { return GraphParameter::is(); }
-};
-
-class Dynamic : private GraphParameter<true>
-{
-public:
-    static constexpr bool is_dynamic() { return GraphParameter::is(); }
-};
-
-class Static : private GraphParameter<false>
-{
-public:
-    static constexpr bool is_dynamic() { return GraphParameter::is(); }
-};
-
-enum class FileType
-{
-    edge_list,
-    matrix_market
-};
-
-//! @param  file_type       Choose the FileType to read in.
-template <FileType file_type, typename DirectedT = Undirected, typename WeightedT = Unweighted, typename DynamicT = Static>
-class GraphParameters
-{
-public:
-    static constexpr bool is_directed() { return DirectedT::is_directed(); }
-    static constexpr bool is_weighted() { return WeightedT::is_weighted(); }
-    static constexpr bool is_dynamic() { return DynamicT::is_dynamic(); }
-    static constexpr FileType filetype() { return file_type; }
-};
-
-//! Some useful using directives for edge list input file types
-using EdgeListDirectedWeightedStatic = GraphParameters<FileType::edge_list, Directed, Weighted, Static>;
-using EdgeListDirectedWeightedDynamic = GraphParameters<FileType::edge_list, Directed, Weighted, Dynamic>;
-using EdgeListDirectedUnweightedStatic = GraphParameters<FileType::edge_list, Directed, Unweighted, Static>;
-using EdgeListDirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Directed, Unweighted, Dynamic>;
-using EdgeListUndirectedWeightedStatic = GraphParameters<FileType::edge_list, Undirected, Weighted, Static>;
-using EdgeListUndirectedWeightedDynamic = GraphParameters<FileType::edge_list, Undirected, Weighted, Dynamic>;
-using EdgeListUndirectedUnweightedStatic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Static>;
-using EdgeListUndirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Dynamic>;
-
-//! Some useful using directives for matrix market input file types
-using MatrixMarketDirectedWeightedStatic = GraphParameters<FileType::matrix_market, Directed, Weighted, Static>;
-using MatrixMarketDirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Directed, Weighted, Dynamic>;
-using MatrixMarketDirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Static>;
-using MatrixMarketDirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Dynamic>;
-using MatrixMarketUndirectedWeightedStatic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Static>;
-using MatrixMarketUndirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Dynamic>;
-using MatrixMarketUndirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Static>;
-using MatrixMarketUndirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Dynamic>;
 
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #.
@@ -216,30 +141,60 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
 
         if constexpr (GraphParameters::is_directed())
         {
-            if constexpr (GraphParameters::is_dynamic())
+            if constexpr (GraphParameters::is_weighted())
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                }
             }
-            else 
+            else
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
+                }
             }
 
             ++edge_counter;
         }
         else 
         {
-            if constexpr (GraphParameters::is_dynamic())
+            if constexpr (GraphParameters::is_weighted())
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
-                emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+                }
             }
-            else 
+            else
             {
-                emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
-                emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+                if constexpr (GraphParameters::is_dynamic())
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), static_cast<Timestamp>(t));
+                }
+                else
+                {
+                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
+                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u));
+                }
             }
-            
+
             edge_counter  += 2;
         }
     } while (std::getline(input, line) && edge_counter < edge_count_max);
@@ -262,6 +217,73 @@ read_graph(std::string const& path, EmplaceF&& emplace, uint64_t const edge_coun
 
     std::ifstream graph_input(graph_path);
     return read_graph<Vertex, EmplaceF, GraphParameters, Timestamp>(graph_input, std::move(emplace), edge_count_max);
+}
+
+inline BinaryGraphHeaderMetaDataV2 read_binary_graph_header(std::ifstream& input)
+{
+    BinaryGraphHeaderIdentifier id;
+    input.read(reinterpret_cast<char*>(&id), sizeof(BinaryGraphHeaderIdentifier));
+
+    GraphParameters<FileType::binary> graph_parameters;
+
+    switch (id.version)
+    {
+    case 2:
+    {
+        if (!std::strcmp(id.identifier, "GDSB"))
+        {
+            throw std::logic_error(std::string("Binary graph file has wrong identifier: ") + std::string(id.identifier));
+        }
+
+        BinaryGraphHeaderMetaDataV2 meta_data;
+        input.read(reinterpret_cast<char*>(&meta_data), sizeof(BinaryGraphHeaderMetaDataV2));
+
+        return meta_data;
+    }
+    default:
+        throw std::logic_error("Binary graph version not supported: " + std::to_string(id.version));
+    }
+}
+
+template <typename Header, typename ReadF>
+std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, Header const& header, ReadF&& read)
+{
+    bool continue_reading = true;
+    uint64_t edge_count = header.edge_count;
+
+    for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
+    {
+        continue_reading = read(input);
+    }
+
+    return std::make_tuple(header.vertex_count, header.edge_count);
+}
+
+uint64_t partition_edge_count(uint64_t total_edge_count, uint32_t partition_id, uint32_t partition_size);
+
+uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size);
+
+template <typename ReadF>
+std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
+                                                           BinaryGraphHeaderMetaDataV2 const& data,
+                                                           ReadF&& read,
+                                                           size_t edge_size_in_bytes,
+                                                           uint32_t const partition_id,
+                                                           uint32_t const partition_size)
+{
+    assert(partition_size > 0);
+
+    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
+    input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
+
+    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
+    bool continue_reading = true;
+    for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
+    {
+        continue_reading = read(input);
+    }
+
+    return std::make_tuple(data.vertex_count, edge_count);
 }
 
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)

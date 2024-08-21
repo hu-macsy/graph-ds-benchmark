@@ -3,13 +3,13 @@
 #include <algorithm>
 #include <gdsb/sort_permutation.h>
 #include <random>
+#include <tuple>
 #include <vector>
 
 namespace gdsb
 {
 
 using Weight = float;
-
 using Vertex32 = unsigned int;
 using Vertex64 = uint64_t;
 using Degree32 = unsigned int;
@@ -20,7 +20,6 @@ template <typename VertexT, typename WeightT> struct Target
     VertexT vertex;
     WeightT weight;
 };
-
 
 template <typename VertexT, typename TargetT> struct Edge
 {
@@ -44,13 +43,17 @@ template <typename TargetT> TargetT invalid_target()
     return { invalid_vertex<Vertex_type>(), invalid_weight() };
 }
 
-using Target32 = Target<Vertex32, Weight>;
-using Edge32 = Edge<Vertex32, Target32>;
+using Edge32 = Edge<Vertex32, Vertex32>;
 using Edges32 = std::vector<Edge32>;
+using Target32 = Target<Vertex32, Weight>;
+using WeightedEdge32 = Edge<Vertex32, Target32>;
+using WeightedEdges32 = std::vector<WeightedEdge32>;
 
-using Target64 = Target<Vertex64, Weight>;
-using Edge64 = Edge<Vertex64, Target64>;
+using Edge64 = Edge<Vertex64, Vertex64>;
 using Edges64 = std::vector<Edge64>;
+using Target64 = Target<Vertex64, Weight>;
+using WeightedEdge64 = Edge<Vertex64, Target64>;
+using WeightedEdges64 = std::vector<WeightedEdge64>;
 
 using Targets32 = std::vector<Target32>;
 using Targets64 = std::vector<Target64>;
@@ -60,6 +63,22 @@ using Timestamp64 = uint64_t;
 
 using Timestamps32 = std::vector<Timestamp32>;
 using Timestamps64 = std::vector<Timestamp64>;
+
+template <typename Edge, typename Timestamp> struct TimestampedEdge
+{
+    Edge edge;
+    Timestamp timestamp;
+};
+
+using TimestampedEdge32 = TimestampedEdge<Edge32, Timestamp32>;
+using TimestampedEdges32 = std::vector<TimestampedEdge32>;
+using WeightedTimestampedEdge32 = TimestampedEdge<WeightedEdge32, Timestamp32>;
+using WeightedTimestampedEdges32 = std::vector<WeightedTimestampedEdge32>;
+
+using TimestampedEdge64 = TimestampedEdge<Edge64, Timestamp64>;
+using TimestampedEdges64 = std::vector<TimestampedEdge64>;
+using WeightedTimestampedEdge64 = TimestampedEdge<WeightedEdge64, Timestamp64>;
+using WeightedTimestampedEdges64 = std::vector<WeightedTimestampedEdge64>;
 
 template <typename EdgesT> auto max_nnz(EdgesT const& edges)
 {
