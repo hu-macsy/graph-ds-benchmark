@@ -85,7 +85,6 @@ TEST_CASE("read_graph, edge_list")
             read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedStatic>(undirected_unweighted_temporal,
                                                                                       std::move(emplace));
 
-        // directed: thus original edge count 103
         CHECK(104 == edges.size());
         CHECK(104 == edge_count);
 
@@ -134,7 +133,6 @@ TEST_CASE("read_graph, edge_list")
         read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal,
                                                                                          std::move(emplace_weighted));
 
-        // directed: thus original edge count 103
         CHECK(104 == weighted_edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
@@ -253,7 +251,6 @@ TEST_CASE("read_graph, edge_list")
         std::string const input_graph_str{ graph_path + undirected_unweighted_temporal_reptilia_tortoise };
         read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(input_graph_str, std::move(emplace));
 
-        // directed: thus original edge count 103
         CHECK(104 * 2 == edges.size());
 
         // CHECK if edge {16, 17} has weight 2008 weighted, 1 unweighted
