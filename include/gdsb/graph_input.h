@@ -22,6 +22,15 @@ namespace gdsb
 //! to read next from for subsequent reads of integers within one string (stream).
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
+//! Reads in space separated floating point values. Returns infinity if value at
+//! position source can not be interpreted as a number.
+//! @param source   Points to the beginning of the character (sub string) to be
+//! interpreted.
+//! @param end      Points to nullptr on first call, will (point) out position
+//! to read next from for subsequent reads of integers within one string
+//! (stream).
+float read_float(char const* source, char** end);
+
 template <typename V> struct Subgraph
 {
     V source_begin = 0;
@@ -130,7 +139,7 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
         if constexpr (GraphParameters::is_weighted())
         {
             string_source = string_position;
-            w = read_ulong(string_source, &string_position);
+            w = read_float(string_source, &string_position);
         }
 
         if constexpr (GraphParameters::is_dynamic())

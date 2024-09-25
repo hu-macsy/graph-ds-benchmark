@@ -26,6 +26,20 @@ unsigned long read_ulong(char const* source, char** end)
     return value;
 }
 
+float read_float(char const* source, char** end)
+{
+    float const value = std::strtof(source, end);
+
+#if !defined(__clang__)
+    if (errno == ERANGE)
+    {
+        return std::numeric_limits<float>::infinity();
+    }
+#endif
+
+    return value;
+}
+
 uint64_t partition_edge_count(uint64_t const total_edge_count, uint32_t const partition_id, uint32_t const partition_size)
 {
     uint64_t partition_edge_count = total_edge_count / partition_size;

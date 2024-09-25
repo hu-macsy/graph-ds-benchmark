@@ -1,3 +1,4 @@
+#include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
 #include "test_graph.h"
@@ -304,6 +305,47 @@ TEST_CASE("read_graph, edge_list")
         CHECK(8 == resulting_edges.size());
         CHECK(8 == edge_count);
         CHECK(7 == vertex_count);
+    }
+}
+
+TEST_CASE("read_graph, floating point weights")
+{
+    WeightedEdges32 edges;
+    auto emplace = [&](Vertex32 const u, Vertex32 const v, Weight const w) {
+        edges.push_back(WeightedEdge32{ u, Target32{ v, w } });
+    };
+
+    std::ifstream aves_songbird_social_input(graph_path + undirected_weighted_aves_songbird_social);
+    auto const [vertex_count, edge_count] =
+        gdsb::read_graph<Vertex32, decltype(emplace), gdsb::EdgeListUndirectedWeightedStatic>(aves_songbird_social_input,
+                                                                                              std::move(emplace));
+
+    // we start at 0 so we must have 117 + 1 vertices, the vertex count differs
+    // here since all vertices must be stored starting from 0 to highest vertex
+    // ID which in this case is 117
+    unsigned int constexpr aves_songbird_social_vertex_count = 117 + 1;
+    unsigned int constexpr aves_songbird_social_edge_count = 1027 * 2;
+    Degree32 constexpr aves_songbird_social_max_degree = 56;
+
+    SECTION("read data")
+    {
+        CHECK(edges.size() == aves_songbird_social_edge_count);
+        CHECK(gdsb::vertex_count(edges) == aves_songbird_social_vertex_count);
+    }
+
+
+    SECTION("sample of edge weight is correct")
+    {
+        Vertex32 v_97 = 97;
+        Vertex32 v_98 = 98;
+        constexpr float weight_97_to_98 = 0.0028388928318f;
+
+        auto edge = std::find_if(std::begin(edges), std::end(edges),
+                                 [&](WeightedEdge32 const& e) { return e.source == v_97 && e.target.vertex == v_98; });
+
+        REQUIRE(edge != std::end(edges));
+
+        CHECK(weight_97_to_98 == Catch::Approx(edge->target.weight));
     }
 }
 
