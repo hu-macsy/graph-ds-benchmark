@@ -30,6 +30,9 @@ target_sources(gdsb
     src/experiment.cpp
 )
 
+find_package(OpenMP)
+target_link_libraries(gdsb INTERFACE OpenMP::OpenMP_CXX)
+
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 # Set this option if you want to use the MPI facilities of GDSB 
