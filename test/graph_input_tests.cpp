@@ -4,6 +4,7 @@
 
 #include <gdsb/graph_input.h>
 
+#include <algorithm>
 #include <sstream>
 #include <string>
 
@@ -642,4 +643,46 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
 
     ++idx;
     REQUIRE(timestamped_edges.size() == idx);
+}
+
+TEST_CASE("insert_return_edges")
+{
+    SECTION("unweighted edges")
+    {
+        Edges32 edges;
+        auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, v }); };
+
+        std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
+
+        auto const [vertex_count, edge_count] =
+            read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedStatic>(graph_input_unweighted_directed,
+                                                                                      std::move(emplace));
+
+        size_t const original_edge_size = edges.size();
+
+        auto copy_f = [](Edge32& original, Edge32& copy)
+        {
+            copy.source = original.target;
+            copy.target = original.source;
+        };
+
+        insert_return_edges(std::move(copy_f), edges);
+
+        REQUIRE((original_edge_size * 2) == edges.size());
+
+        bool all_return_edges_found = true;
+        auto original_begin = std::begin(edges);
+        auto original_end = std::begin(edges);
+        std::advance(original_end, original_edge_size);
+
+        for (auto it = original_begin; it != original_end && all_return_edges_found; ++it)
+        {
+            auto found_it =
+                std::find_if(original_end, std::end(edges),
+                             [&](Edge32 const& e) { return e.source == it->target && e.target == it->source; });
+            all_return_edges_found = found_it != std::end(edges);
+        }
+
+        CHECK(all_return_edges_found);
+    }
 }
