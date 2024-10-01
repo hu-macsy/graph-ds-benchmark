@@ -387,16 +387,17 @@ template <typename CopyF, typename Edges> void insert_return_edges(CopyF&& copy_
     // Each thread will copy a dedicated range of the read in edges.
 #pragma omp parallel
     {
-        size_t const edge_begin = edge_offset(original_size, omp_get_thread_num(), omp_get_num_threads());
-        size_t const edge_end = edge_begin + partition_edge_count(original_size, omp_get_thread_num(), omp_get_num_threads());
+        size_t const edge_begin_offset = edge_offset(original_size, omp_get_thread_num(), omp_get_num_threads());
+        size_t const edge_end_offset =
+            edge_begin_offset + partition_edge_count(original_size, omp_get_thread_num(), omp_get_num_threads());
 
         auto original_it = std::begin(edges);
-        std::advance(original_it, edge_begin);
+        std::advance(original_it, edge_begin_offset);
         auto original_end_it = std::begin(edges);
-        std::advance(original_end_it, edge_end);
+        std::advance(original_end_it, edge_end_offset);
 
-        size_t const copy_begin = original_size + edge_begin;
-        size_t const copy_end = original_size + edge_end;
+        size_t const copy_begin = original_size + edge_begin_offset;
+        size_t const copy_end = original_size + edge_end_offset;
 
         auto copy_it = std::begin(edges);
         std::advance(copy_it, copy_begin);
