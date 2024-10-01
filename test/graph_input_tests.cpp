@@ -712,11 +712,6 @@ TEST_CASE("insert_return_edges")
                                  [&](Edge32 const& d) { return e->source == d.source && e->target == d.target; });
 
                 no_duplicates = duplicate == std::end(edges);
-
-                if (!no_duplicates)
-                {
-                    std::cout << "{" << e->source << ", " << e->target << "}" << std::endl;
-                }
             }
             return no_duplicates;
         };
