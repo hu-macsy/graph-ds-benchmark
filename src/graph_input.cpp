@@ -24,6 +24,7 @@ unsigned long read_ulong(char const* source, char** end)
 #if !defined(__clang__)
     if (errno == ERANGE)
     {
+        errno = 0;
         return std::numeric_limits<unsigned long>::max();
     }
 #endif
@@ -38,6 +39,7 @@ float read_float(char const* source, char** end)
 #if !defined(__clang__)
     if (errno == ERANGE)
     {
+        errno = 0;
         return std::numeric_limits<float>::infinity();
     }
 #endif
