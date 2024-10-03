@@ -25,3 +25,8 @@ Behavioral Ecology and Sociobiology, 54, 2003
 
 # small_graph_temporal.edges
 A synthetic graph made for testing purposes by the author.
+
+# aves-songbird-social.edges
+Source: https://networkrepository.com/aves-songbird-social.php
+Adelman, James S., et al.
+"Real-world animal interaction network data sets. Animal interaction data from published studies of wild, captive, and domesticated animals."
