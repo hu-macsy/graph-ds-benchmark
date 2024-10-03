@@ -16,19 +16,16 @@ namespace gdsb
 
 //! Reads in space separated integers of type unsigned long. Returns max if
 //! integer at position source can not be interpreted as a number.
-//! @param source   Points to the beginning of the character (sub string) to be
-//! interpreted.
-//! @param end      Points to nullptr on first call, will (point) out position
-//! to read next from for subsequent reads of integers within one string (stream).
+//! @param source   Points to the beginning of the string to be interpreted.
+//! @param end      May point to nullptr or end of string to read from, will
+//! point to end position of successfully read literal.
 unsigned long read_ulong(char const* source, char** end = nullptr);
 
 //! Reads in space separated floating point values. Returns infinity if value at
 //! position source can not be interpreted as a number.
-//! @param source   Points to the beginning of the character (sub string) to be
-//! interpreted.
-//! @param end      Points to nullptr on first call, will (point) out position
-//! to read next from for subsequent reads of integers within one string
-//! (stream).
+//! @param source   Points to the beginning of the string to be interpreted.
+//! @param end      May point to nullptr or end of string to read from, will
+//! point to end position of successfully read literal.
 float read_float(char const* source, char** end);
 
 template <typename V> struct Subgraph
