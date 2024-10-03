@@ -40,6 +40,8 @@ float read_float(char const* source, char** end)
     if (errno == ERANGE)
     {
         errno = 0;
+        // TODO: Print warning message if an error was detected during string
+        // literal parsing.
         return std::numeric_limits<float>::infinity();
     }
 #endif
