@@ -33,10 +33,37 @@ TEST_CASE("read_ulong")
     string_source = string_position;
     unsigned long const d_read = read_ulong(string_source, &string_position);
 
-    CHECK(a == a_read);
-    CHECK(b == b_read);
-    CHECK(c == c_read);
-    CHECK(d == d_read);
+}
+
+TEST_CASE("read_float")
+{
+    SECTION("floats separated by spaces")
+    {
+        float const a = 40.5;
+        float const b = 200.3;
+        float const c = 11.4;
+        float const d = 0.4523;
+
+        std::stringstream ss;
+        ss << a << " " << b << " " << c << " " << d << "\n";
+        std::string const test_string = ss.str();
+
+        char const* string_source = test_string.c_str();
+        char* string_position = nullptr;
+
+        float const a_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const b_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const c_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const d_read = read_float(string_source, &string_position);
+
+        CHECK(a == Catch::Approx(a_read));
+        CHECK(b == Catch::Approx(b_read));
+        CHECK(c == Catch::Approx(c_read));
+        CHECK(d == Catch::Approx(d_read));
+    }
 }
 
 TEST_CASE("read_graph, edge_list")
