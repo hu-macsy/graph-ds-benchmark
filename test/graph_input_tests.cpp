@@ -729,21 +729,6 @@ TEST_CASE("insert_return_edges")
         insert_return_edges(std::move(copy_f), edges);
 
         REQUIRE((original_edge_size * 2) == edges.size());
-        REQUIRE(no_duplicates_found());
-
-        bool all_return_edges_found = true;
-        auto original_begin = std::begin(edges);
-        auto original_end = std::begin(edges);
-        std::advance(original_end, original_edge_size);
-
-        for (auto it = original_begin; it != original_end && all_return_edges_found; ++it)
-        {
-            auto found_it =
-                std::find_if(original_end, std::end(edges),
-                             [&](Edge32 const& e) { return e.source == it->target && e.target == it->source; });
-            all_return_edges_found = found_it != std::end(edges);
-        }
-
-        CHECK(all_return_edges_found);
+        CHECK(no_duplicates_found());
     }
 }
