@@ -3,6 +3,8 @@
 #include <gdsb/graph.h>
 #include <gdsb/graph_io_parameters.h>
 
+#include <omp.h>
+
 #include <cassert>
 #include <cstring>
 #include <filesystem>
@@ -380,6 +382,38 @@ template <typename Vertex, typename F> void read_graph_idx(std::istream& ins, F&
         emplace(i, idx);
 
         ++i;
+    }
+}
+
+template <typename CopyF, typename Edges> void insert_return_edges(CopyF&& copy_f, Edges& edges)
+{
+    size_t const original_size = edges.size();
+    edges.resize(original_size * 2);
+
+    // Each thread will copy a dedicated range of the read in edges.
+#pragma omp parallel
+    {
+        size_t const edge_begin_offset = edge_offset(original_size, omp_get_thread_num(), omp_get_num_threads());
+        size_t const edge_end_offset =
+            edge_begin_offset + partition_edge_count(original_size, omp_get_thread_num(), omp_get_num_threads());
+
+        auto original_it = std::begin(edges);
+        std::advance(original_it, edge_begin_offset);
+        auto original_end_it = std::begin(edges);
+        std::advance(original_end_it, edge_end_offset);
+
+        size_t const copy_begin = original_size + edge_begin_offset;
+        size_t const copy_end = original_size + edge_end_offset;
+
+        auto copy_it = std::begin(edges);
+        std::advance(copy_it, copy_begin);
+        auto copy_end_it = std::begin(edges);
+        std::advance(copy_end_it, copy_end);
+
+        for (; original_it < original_end_it && copy_it < copy_end_it; ++original_it, ++copy_it)
+        {
+            copy_f(*original_it, *copy_it);
+        }
     }
 }
 
