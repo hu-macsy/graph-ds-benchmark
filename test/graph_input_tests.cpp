@@ -13,30 +13,115 @@ using namespace gdsb;
 
 TEST_CASE("read_ulong")
 {
-    unsigned long const a = 40;
-    unsigned long const b = 200;
-    unsigned long const c = 11;
-    unsigned long const d = 29848572984;
+    SECTION("integers separated by spaces")
+    {
+        unsigned long const a = 40;
+        unsigned long const b = 200;
+        unsigned long const c = 11;
+        unsigned long const d = 29848572984;
 
-    std::stringstream ss;
-    ss << a << " " << b << " " << c << " " << d << "\n";
-    std::string const test_string = ss.str();
+        std::stringstream ss;
+        ss << a << " " << b << " " << c << " " << d << "\n";
+        std::string const test_string = ss.str();
 
-    char const* string_source = test_string.c_str();
-    char* string_position = nullptr;
+        char const* string_source = test_string.c_str();
+        char* string_position = nullptr;
 
-    unsigned long const a_read = read_ulong(string_source, &string_position);
-    string_source = string_position;
-    unsigned long const b_read = read_ulong(string_source, &string_position);
-    string_source = string_position;
-    unsigned long const c_read = read_ulong(string_source, &string_position);
-    string_source = string_position;
-    unsigned long const d_read = read_ulong(string_source, &string_position);
+        unsigned long const a_read = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        unsigned long const b_read = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        unsigned long const c_read = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        unsigned long const d_read = read_ulong(string_source, &string_position);
 
-    CHECK(a == a_read);
-    CHECK(b == b_read);
-    CHECK(c == c_read);
-    CHECK(d == d_read);
+        CHECK(a == a_read);
+        CHECK(b == b_read);
+        CHECK(c == c_read);
+        CHECK(d == d_read);
+    }
+
+    SECTION("string with non integer value returns 0")
+    {
+        unsigned long const a = 40;
+        unsigned long const b = 200;
+        std::string const c = "NAS";
+
+        std::stringstream ss;
+        ss << a << " " << b << " " << c << " "
+           << "\n";
+        std::string const test_string = ss.str();
+
+        char const* string_source = test_string.c_str();
+        char* string_position = nullptr;
+
+        unsigned long const a_read = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        unsigned long const b_read = read_ulong(string_source, &string_position);
+        string_source = string_position;
+        unsigned long const c_read = read_ulong(string_source, &string_position);
+
+        CHECK(a == a_read);
+        CHECK(b == b_read);
+        CHECK(0u == c_read);
+    }
+}
+
+TEST_CASE("read_float")
+{
+    SECTION("floats separated by spaces")
+    {
+        float const a = 40.5;
+        float const b = 200.3;
+        float const c = 11.4;
+        float const d = 0.4523;
+
+        std::stringstream ss;
+        ss << a << " " << b << " " << c << " " << d << "\n";
+        std::string const test_string = ss.str();
+
+        char const* string_source = test_string.c_str();
+        char* string_position = nullptr;
+
+        float const a_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const b_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const c_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const d_read = read_float(string_source, &string_position);
+
+        CHECK(a == Catch::Approx(a_read));
+        CHECK(b == Catch::Approx(b_read));
+        CHECK(c == Catch::Approx(c_read));
+        CHECK(d == Catch::Approx(d_read));
+    }
+
+    SECTION("string with non float value returns 0")
+    {
+        float const a = 40.5;
+        float const b = 200.3;
+        std::string const c = "NAS";
+
+        std::stringstream ss;
+        ss << a << " " << b << " " << c << " "
+           << "\n";
+        std::string const test_string = ss.str();
+
+        char const* string_source = test_string.c_str();
+        char* string_position = nullptr;
+
+        float const a_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const b_read = read_float(string_source, &string_position);
+        string_source = string_position;
+        float const c_read = read_float(string_source, &string_position);
+
+        CHECK(a == Catch::Approx(a_read));
+        CHECK(b == Catch::Approx(b_read));
+
+        CHECK(Catch::Approx(0.f) == c_read);
+    }
 }
 
 TEST_CASE("read_graph, edge_list")
