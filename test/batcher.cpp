@@ -1,7 +1,10 @@
 #include <catch2/catch_test_macros.hpp>
 
+#include "test_graph.h"
+
 #include <gdsb/batcher.h>
 #include <gdsb/graph.h>
+#include <gdsb/graph_input.h>
 
 using namespace gdsb;
 
@@ -19,5 +22,49 @@ TEST_CASE("Batcher")
 
         CHECK(batch.begin->source == edges[0].source);
         CHECK(batch.begin->target.vertex == edges[0].target.vertex);
+    }
+}
+
+TEST_CASE("partition_batch_count, on enzymes graph")
+{
+    std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
+    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+
+    SECTION("partition size 2")
+    {
+        uint32_t partition_size = 2;
+
+        uint32_t partition_id = 0;
+        uint64_t edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 84);
+
+        partition_id = 1;
+        edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 84);
+    }
+
+    SECTION("partition size 5")
+    {
+        uint32_t partition_size = 5;
+
+        uint32_t partition_id = 0;
+        uint64_t edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 1;
+        edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 2;
+        edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 3;
+        edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 33);
+
+        partition_id = 4;
+        edge_count = partition_batch_count(header.edge_count, partition_id, partition_size);
+        CHECK(edge_count == 36);
     }
 }

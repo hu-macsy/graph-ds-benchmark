@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gdsb/batcher.h>
 #include <gdsb/graph.h>
 #include <gdsb/graph_io_parameters.h>
 
@@ -267,10 +268,6 @@ std::tuple<Vertex64, uint64_t> read_binary_graph(std::ifstream& input, Header co
     return std::make_tuple(header.vertex_count, header.edge_count);
 }
 
-uint64_t partition_edge_count(uint64_t total_edge_count, uint32_t partition_id, uint32_t partition_size);
-
-uint64_t edge_offset(uint64_t total_edge_count, uint32_t const partition_id, uint32_t const partition_size);
-
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
                                                            BinaryGraphHeaderMetaDataV2 const& data,
@@ -281,10 +278,10 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
 {
     assert(partition_size > 0);
 
-    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
+    size_t const offset = batch_offset(data.edge_count, partition_id, partition_size);
     input.seekg(offset * edge_size_in_bytes, std::ios_base::cur);
 
-    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
+    uint64_t const edge_count = partition_batch_count(data.edge_count, partition_id, partition_size);
     bool continue_reading = true;
     for (uint64_t e = 0; e < edge_count && input.is_open() && continue_reading; ++e)
     {
@@ -393,9 +390,9 @@ template <typename CopyF, typename Edges> void insert_return_edges(CopyF&& copy_
     // Each thread will copy a dedicated range of the read in edges.
 #pragma omp parallel
     {
-        size_t const edge_begin_offset = edge_offset(original_size, omp_get_thread_num(), omp_get_num_threads());
+        size_t const edge_begin_offset = batch_offset(original_size, omp_get_thread_num(), omp_get_num_threads());
         size_t const edge_end_offset =
-            edge_begin_offset + partition_edge_count(original_size, omp_get_thread_num(), omp_get_num_threads());
+            edge_begin_offset + partition_batch_count(original_size, omp_get_thread_num(), omp_get_num_threads());
 
         auto original_it = std::begin(edges);
         std::advance(original_it, edge_begin_offset);

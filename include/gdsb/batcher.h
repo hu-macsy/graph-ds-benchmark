@@ -83,6 +83,23 @@ private:
     EIt m_end;
 };
 
+
+inline uint64_t partition_batch_count(uint64_t const batch_count, uint32_t const partition_id, uint32_t const partition_size)
+{
+    uint64_t partition_batch_count = batch_count / partition_size;
+    if (partition_id == partition_size - 1)
+    {
+        partition_batch_count += batch_count % partition_size;
+    }
+
+    return partition_batch_count;
+}
+
+inline uint64_t batch_offset(uint64_t const batch_count, uint32_t const partition_id, uint32_t const partition_size)
+{
+    return batch_count / partition_size * partition_id;
+}
+
 template <typename EdgeIt, typename EdgeContainer, typename V>
 Batch<EdgeContainer>
 thread_batch(EdgeIt batch_begin, EdgeIt batch_end, unsigned int thread_count, unsigned int thread_id, V invalid_vertex)

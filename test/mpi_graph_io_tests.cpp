@@ -5,6 +5,7 @@
 
 #include "test_graph.h"
 
+#include <gdsb/batcher.h>
 #include <gdsb/mpi_error_handler.h>
 #include <gdsb/mpi_graph_io.h>
 
@@ -335,7 +336,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, throws exception if file seek n
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
-    WeightedTimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    WeightedTimestampedEdges32 timestamped_edges(partition_batch_count(header.edge_count, partition_id, partition_size));
     CHECK_THROWS_AS(mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]),
                                                          sizeof(WeightedTimestampedEdge32),
                                                          mpi_timestamped_edge_t.get(), partition_id, partition_size),
@@ -355,7 +356,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
-    WeightedTimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    WeightedTimestampedEdges32 timestamped_edges(partition_batch_count(header.edge_count, partition_id, partition_size));
     auto const [vertex_count, edge_count] =
         mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]), sizeof(WeightedTimestampedEdge32),
                                              mpi_timestamped_edge_t.get(), partition_id, partition_size);
@@ -409,7 +410,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
 
     uint32_t partition_id = 1;
     uint32_t partition_size = 2;
-    WeightedTimestampedEdges32 timestamped_edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    WeightedTimestampedEdges32 timestamped_edges(partition_batch_count(header.edge_count, partition_id, partition_size));
     auto const [vertex_count, edge_count] =
         mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(timestamped_edges[0]), sizeof(WeightedTimestampedEdge32),
                                              mpi_timestamped_edge_t.get(), partition_id, partition_size);
@@ -471,7 +472,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 4;
-    Edges32 edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    Edges32 edges(partition_batch_count(header.edge_count, partition_id, partition_size));
     auto const [vertex_count, edge_count] =
         mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), mpi_edge_t.get(),
                                              partition_id, partition_size);
@@ -542,7 +543,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 1;
-    Edges32 edges(partition_edge_count(header.edge_count, partition_id, partition_size));
+    Edges32 edges(partition_batch_count(header.edge_count, partition_id, partition_size));
     auto const [vertex_count, edge_count] =
         mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), mpi_edge_t.get(),
                                              partition_id, partition_size);
