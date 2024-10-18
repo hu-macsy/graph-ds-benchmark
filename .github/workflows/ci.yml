@@ -35,14 +35,14 @@ jobs:
           ./gdsb_mpi_test
 
   macos-build-latest-with-clang:
-    name: "macOS clang-18"
+    name: "macOS clang"
     runs-on: macos-14
     steps:
       - name: Install prerequisites
         run: |
           brew install ninja
           brew install libomp
-          brew install llvm@18
+          brew install llvm
   
       - name: Checkout gdsb
         uses: actions/checkout@v4
@@ -53,6 +53,6 @@ jobs:
         run:  | 
           [ ! -d build ] && mkdir build
           cd build
-          cmake -DGDSB_MPI=OFF -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER='/opt/homebrew/opt/llvm/bin/clang' -GNinja ..
+          cmake -DGDSB_MPI=OFF -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang -GNinja ..
           ninja
           ./gdsb_test
