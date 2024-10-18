@@ -1,5 +1,6 @@
 #pragma once
 
+#include <gdsb/batcher.h>
 #include <gdsb/graph_input.h>
 #include <gdsb/mpi_error_handler.h>
 
@@ -82,10 +83,10 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File const input,
                                                            uint32_t const partition_id,
                                                            uint32_t const partition_size)
 {
-    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
+    uint64_t const edge_count = partition_batch_count(data.edge_count, partition_id, partition_size);
 
     // Header offset should be implicit since input is already read until begin of edges
-    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
+    size_t const offset = batch_offset(data.edge_count, partition_id, partition_size);
     size_t const offset_in_bytes = offset * edge_size_in_bytes;
 
     int const error = MPI_File_seek(input, offset_in_bytes, MPI_SEEK_CUR);
@@ -115,7 +116,7 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
                                                                uint32_t const partition_size)
 {
     // Header offset should be implicit since input is already read until begin of edges
-    size_t const offset = edge_offset(data.edge_count, partition_id, partition_size);
+    size_t const offset = batch_offset(data.edge_count, partition_id, partition_size);
     size_t const offset_in_bytes = offset * edge_size_in_bytes;
     int const seek_error = MPI_File_seek(input, offset_in_bytes, MPI_SEEK_CUR);
     if (seek_error != MPI_SUCCESS)
@@ -123,7 +124,7 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
         throw std::runtime_error("Could not seek to specified offset [" + std::to_string(offset) + "] within MPI file.");
     }
 
-    uint64_t const edge_count = partition_edge_count(data.edge_count, partition_id, partition_size);
+    uint64_t const edge_count = partition_batch_count(data.edge_count, partition_id, partition_size);
     MPI_Status status;
     int const read_all_error = MPI_File_read_all(input, edges, edge_count, mpi_datatype, &status);
     if (read_all_error != MPI_SUCCESS)
