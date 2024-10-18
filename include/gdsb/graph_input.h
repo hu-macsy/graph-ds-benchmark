@@ -119,6 +119,14 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
         string_source = string_position;
         v = read_ulong(string_source, &string_position);
 
+        if constexpr (!GraphParameters::loop())
+        {
+            if (u == v)
+            {
+                continue;
+            }
+        }
+
         if (u > n)
         {
             n = u;
