@@ -141,8 +141,8 @@ TEST_CASE("read_graph, edge_list")
     SECTION("undirected, unweighted")
     {
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(undirected_unweighted_temporal,
-                                                                                        std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedNoLoopStatic>(undirected_unweighted_temporal,
+                                                                                              std::move(emplace));
 
         CHECK(104 * 2 == edges.size());
         CHECK(104 * 2 == edge_count);
@@ -169,8 +169,8 @@ TEST_CASE("read_graph, edge_list")
     SECTION("directed, unweighted")
     {
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedStatic>(undirected_unweighted_temporal,
-                                                                                      std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedNoLoopStatic>(undirected_unweighted_temporal,
+                                                                                            std::move(emplace));
 
         CHECK(104 == edges.size());
         CHECK(104 == edge_count);
@@ -196,8 +196,8 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("undirected, weighted")
     {
-        read_graph<Vertex32, decltype(emplace_weighted), EdgeListUndirectedWeightedStatic>(undirected_unweighted_temporal,
-                                                                                           std::move(emplace_weighted));
+        read_graph<Vertex32, decltype(emplace_weighted), EdgeListUndirectedWeightedNoLoopStatic>(undirected_unweighted_temporal,
+                                                                                                 std::move(emplace_weighted));
 
         // directed: thus original edge count 103
         CHECK(104 * 2 == weighted_edges.size());
@@ -217,8 +217,8 @@ TEST_CASE("read_graph, edge_list")
 
     SECTION("directed, weighted")
     {
-        read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal,
-                                                                                         std::move(emplace_weighted));
+        read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedNoLoopStatic>(undirected_unweighted_temporal,
+                                                                                               std::move(emplace_weighted));
 
         CHECK(104 == weighted_edges.size());
 
@@ -238,9 +238,9 @@ TEST_CASE("read_graph, edge_list")
     SECTION("directed, weighted, max_vertex set")
     {
         uint64_t const max_vertex_count = 53;
-        read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedStatic>(undirected_unweighted_temporal,
-                                                                                         std::move(emplace_weighted),
-                                                                                         max_vertex_count);
+        read_graph<Vertex32, decltype(emplace_weighted), EdgeListDirectedWeightedNoLoopStatic>(undirected_unweighted_temporal,
+                                                                                               std::move(emplace_weighted),
+                                                                                               max_vertex_count);
 
         // directed: thus original edge count 103
         CHECK(max_vertex_count == weighted_edges.size());
@@ -268,7 +268,7 @@ TEST_CASE("read_graph, edge_list")
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace_unweighted_dynamic), EdgeListUndirectedUnweightedDynamic, Timestamp32>(
+        read_graph<Vertex32, decltype(emplace_unweighted_dynamic), EdgeListUndirectedUnweightedNoLoopDynamic, Timestamp32>(
             undirected_unweighted_temporal, std::move(emplace_unweighted_dynamic));
 
         CHECK(timestamped_edges.edges.size() == 104 * 2);
@@ -283,8 +283,8 @@ TEST_CASE("read_graph, edge_list")
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedDynamic>(undirected_unweighted_temporal,
-                                                                                   std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedNoLoopDynamic>(undirected_unweighted_temporal,
+                                                                                         std::move(emplace));
 
         CHECK(timestamped_edges.edges.size() == 104 * 2);
 
@@ -309,8 +309,8 @@ TEST_CASE("read_graph, edge_list")
             timestamped_edges.timestamps.push_back(t);
         };
 
-        read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedDynamic, Timestamp32>(graph_input_weighted_temporal,
-                                                                                              std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedNoLoopDynamic, Timestamp32>(graph_input_weighted_temporal,
+                                                                                                    std::move(emplace));
 
         timestamped_edges = sort<WeightedEdges32, Timestamps32, Timestamp32>(timestamped_edges);
         WeightedEdges32 edges = std::move(timestamped_edges.edges);
@@ -336,7 +336,7 @@ TEST_CASE("read_graph, edge_list")
     SECTION("read graph from string path")
     {
         std::string const input_graph_str{ graph_path + undirected_unweighted_temporal_reptilia_tortoise };
-        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(input_graph_str, std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedNoLoopStatic>(input_graph_str, std::move(emplace));
 
         CHECK(104 * 2 == edges.size());
 
@@ -359,7 +359,7 @@ TEST_CASE("read_graph, edge_list")
         // edges
         Subgraph<Vertex32> subgraph{ 2, 5, 0, 38 };
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedStatic, uint64_t, true>(
+            read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedNoLoopStatic, uint64_t, true>(
                 graph_input_unweighted_directed, std::move(emplace), std::numeric_limits<uint64_t>::max(), std::move(subgraph));
 
         CHECK(edges.size() == 16);
@@ -380,7 +380,7 @@ TEST_CASE("read_graph, edge_list")
         };
 
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace_timestamped), EdgeListUndirectedWeightedDynamic, Timestamp32, true>(
+            read_graph<Vertex32, decltype(emplace_timestamped), EdgeListUndirectedWeightedNoLoopDynamic, Timestamp32, true>(
                 graph_input_weighted_temporal, std::move(emplace_timestamped), std::numeric_limits<uint64_t>::max(),
                 std::move(subgraph));
 
@@ -403,8 +403,8 @@ TEST_CASE("read_graph, floating point weights")
 
     std::ifstream aves_songbird_social_input(graph_path + undirected_weighted_aves_songbird_social);
     auto const [vertex_count, edge_count] =
-        gdsb::read_graph<Vertex32, decltype(emplace), gdsb::EdgeListUndirectedWeightedStatic>(aves_songbird_social_input,
-                                                                                              std::move(emplace));
+        gdsb::read_graph<Vertex32, decltype(emplace), gdsb::EdgeListUndirectedWeightedNoLoopStatic>(aves_songbird_social_input,
+                                                                                                    std::move(emplace));
 
     // we start at 0 so we must have 117 + 1 vertices, the vertex count differs
     // here since all vertices must be stored starting from 0 to highest vertex
@@ -444,8 +444,8 @@ TEST_CASE("read_graph, market_matrix")
     SECTION("undirected, unweighted")
     {
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), MatrixMarketUndirectedUnweightedStatic>(undirected_unweighted_graph,
-                                                                                            std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), MatrixMarketUndirectedUnweightedNoLoopStatic>(undirected_unweighted_graph,
+                                                                                                  std::move(emplace));
 
         // undirected
         CHECK(159 * 2 == edge_count);
@@ -739,8 +739,8 @@ TEST_CASE("insert_return_edges")
 
         // intentionally reading graph as directed
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), MatrixMarketDirectedUnweightedStatic>(graph_input_unweighted_directed,
-                                                                                          std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), MatrixMarketDirectedUnweightedNoLoopStatic>(graph_input_unweighted_directed,
+                                                                                                std::move(emplace));
 
         size_t const original_edge_size = edges.size();
 
@@ -779,8 +779,8 @@ TEST_CASE("insert_return_edges")
 
         // intentionally reading graph as directed
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), MatrixMarketDirectedUnweightedStatic>(graph_input_unweighted_directed,
-                                                                                          std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), MatrixMarketDirectedUnweightedNoLoopStatic>(graph_input_unweighted_directed,
+                                                                                                std::move(emplace));
 
         REQUIRE(edges.size() == 159u);
 
