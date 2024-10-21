@@ -39,6 +39,64 @@ template <typename V> struct Subgraph
     V target_end = std::numeric_limits<V>::max();
 };
 
+template <typename GraphParameters, typename EmplaceF>
+void emplace_directed(EmplaceF&& emplace, unsigned long u, unsigned long v, float w, unsigned long t)
+{
+    if constexpr (GraphParameters::is_weighted())
+    {
+        if constexpr (GraphParameters::is_dynamic())
+        {
+            emplace(u, v, w, t);
+        }
+        else
+        {
+            emplace(u, v, w);
+        }
+    }
+    else
+    {
+        if constexpr (GraphParameters::is_dynamic())
+        {
+            emplace(u, v, t);
+        }
+        else
+        {
+            emplace(u, v);
+        }
+    }
+}
+
+template <typename GraphParameters, typename EmplaceF>
+void emplace_undirected(EmplaceF&& emplace, unsigned long u, unsigned long v, float w, unsigned long t)
+{
+    if constexpr (GraphParameters::is_weighted())
+    {
+        if constexpr (GraphParameters::is_dynamic())
+        {
+            emplace(u, v, w, t);
+            emplace(v, u, w, t);
+        }
+        else
+        {
+            emplace(u, v, w);
+            emplace(v, u, w);
+        }
+    }
+    else
+    {
+        if constexpr (GraphParameters::is_dynamic())
+        {
+            emplace(u, v, t);
+            emplace(v, u, t);
+        }
+        else
+        {
+            emplace(u, v);
+            emplace(v, u);
+        }
+    }
+}
+
 //! Reads in the input expecting a graph file to be streamed which can contain
 //! comments using characters % or #.
 //!
@@ -158,61 +216,29 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
 
         if constexpr (GraphParameters::is_directed())
         {
-            if constexpr (GraphParameters::is_weighted())
-            {
-                if constexpr (GraphParameters::is_dynamic())
-                {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
-                }
-                else
-                {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
-                }
-            }
-            else
-            {
-                if constexpr (GraphParameters::is_dynamic())
-                {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
-                }
-                else
-                {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
-                }
-            }
-
+            emplace_directed<GraphParameters>(std::move(emplace), u, v, w, t);
             ++edge_counter;
         }
-        else 
+        else
         {
-            if constexpr (GraphParameters::is_weighted())
+            if constexpr (GraphParameters::loop())
             {
-                if constexpr (GraphParameters::is_dynamic())
+                if (u == v)
                 {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w, static_cast<Timestamp>(t));
-                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w, static_cast<Timestamp>(t));
+                    emplace_directed<GraphParameters>(std::move(emplace), u, v, w, t);
+                    ++edge_counter;
                 }
                 else
                 {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), w);
-                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), w);
+                    emplace_undirected<GraphParameters>(std::move(emplace), u, v, w, t);
+                    edge_counter += 2;
                 }
             }
             else
             {
-                if constexpr (GraphParameters::is_dynamic())
-                {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v), static_cast<Timestamp>(t));
-                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u), static_cast<Timestamp>(t));
-                }
-                else
-                {
-                    emplace(static_cast<Vertex>(u), static_cast<Vertex>(v));
-                    emplace(static_cast<Vertex>(v), static_cast<Vertex>(u));
-                }
+                emplace_undirected<GraphParameters>(std::move(emplace), u, v, w, t);
+                edge_counter += 2;
             }
-
-            edge_counter  += 2;
         }
     } while (std::getline(input, line) && edge_counter < edge_count_max);
 
