@@ -40,7 +40,7 @@ template <typename V> struct Subgraph
 };
 
 template <typename GraphParameters, typename EmplaceF>
-void emplace_directed(EmplaceF&& emplace, unsigned long u, unsigned long v, float w, unsigned long t)
+void emplace_directed(EmplaceF&& emplace, unsigned long const u, unsigned long const v, float const w, unsigned long const t)
 {
     if constexpr (GraphParameters::is_weighted())
     {
@@ -67,7 +67,7 @@ void emplace_directed(EmplaceF&& emplace, unsigned long u, unsigned long v, floa
 }
 
 template <typename GraphParameters, typename EmplaceF>
-void emplace_undirected(EmplaceF&& emplace, unsigned long u, unsigned long v, float w, unsigned long t)
+void emplace_undirected(EmplaceF&& emplace, unsigned long const u, unsigned long const v, float const w, unsigned long const t)
 {
     if constexpr (GraphParameters::is_weighted())
     {
