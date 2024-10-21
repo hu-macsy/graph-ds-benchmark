@@ -435,6 +435,40 @@ TEST_CASE("read_graph, floating point weights")
     }
 }
 
+TEST_CASE("read_graph, loops")
+{
+    Edges32 edges;
+    auto emplace = [&](Vertex32 const u, Vertex32 const v) { edges.push_back({ u, v }); };
+
+    std::ifstream ia_southernwomen_input(graph_path + undirected_unweighted_loops_ia_southernwomen);
+
+    // we start at 0 so we must have 18 + 1 vertices, the vertex count differs
+    // here since all vertices must be stored starting from 0 to highest vertex
+    // ID which in this case is 18
+    unsigned int constexpr ia_southernwoman_vertex_count = 18 + 1;
+    unsigned int constexpr ia_southernwoman_loop_count = 14;
+    unsigned int constexpr ia_southernwoman_edge_count_loops = (89 - ia_southernwoman_loop_count) * 2 + ia_southernwoman_loop_count;
+    unsigned int constexpr ia_southernwoman_edge_count_no_loops = ia_southernwoman_edge_count_loops - 14;
+
+    SECTION("reading with loops")
+    {
+        auto const [vertex_count, edge_count] =
+            gdsb::read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedLoopStatic>(ia_southernwomen_input,
+                                                                                                  std::move(emplace));
+        CHECK(vertex_count == ia_southernwoman_vertex_count);
+        CHECK(edge_count == ia_southernwoman_edge_count_loops);
+    }
+
+    SECTION("reading no loops")
+    {
+        auto const [vertex_count, edge_count] =
+            gdsb::read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedNoLoopStatic>(ia_southernwomen_input,
+                                                                                                    std::move(emplace));
+        CHECK(vertex_count == ia_southernwoman_vertex_count);
+        CHECK(edge_count == ia_southernwoman_edge_count_no_loops);
+    }
+}
+
 TEST_CASE("read_graph, market_matrix")
 {
     Edges32 edges;

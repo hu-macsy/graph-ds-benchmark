@@ -16,6 +16,7 @@ static std::string unweighted_directed_graph_enzymes{ "ENZYMES_g1.edges" };
 static std::string unweighted_directed_graph_enzymes_bin{ "ENZYMES_g1.bin" };
 static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
 static std::string undirected_weighted_aves_songbird_social{ "aves-songbird-social.edges" };
+static std::string undirected_unweighted_loops_ia_southernwomen{ "ia-southernwomen.edges" };
 
 constexpr uint32_t enzymes_g1_vertex_count = 38;
 constexpr uint32_t enzymes_g1_edge_count = 168;
