@@ -30,3 +30,8 @@ A synthetic graph made for testing purposes by the author.
 Source: https://networkrepository.com/aves-songbird-social.php
 Adelman, James S., et al.
 "Real-world animal interaction network data sets. Animal interaction data from published studies of wild, captive, and domesticated animals."
+
+# ia-southernwomen.edges
+Source: https://networkrepository.com/ia-southernwomen.php
+Davis and colleague in the 1930s
+"Observed attendance at 14 social events by 18 Southern women."

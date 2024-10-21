@@ -44,6 +44,18 @@ public:
     static constexpr bool is_dynamic() { return GraphParameter::is(); }
 };
 
+class Loop : private GraphParameter<true>
+{
+public:
+    static constexpr bool loop() { return GraphParameter::is(); }
+};
+
+class NoLoop : private GraphParameter<false>
+{
+public:
+    static constexpr bool loop() { return GraphParameter::is(); }
+};
+
 enum class FileType
 {
     edge_list,
@@ -52,35 +64,55 @@ enum class FileType
 };
 
 //! @param  file_type       Choose the FileType.
-template <FileType file_type, typename DirectedT = Undirected, typename WeightedT = Unweighted, typename DynamicT = Static>
+template <FileType file_type, typename DirectedT = Undirected, typename WeightedT = Unweighted, typename LoopT = Loop, typename DynamicT = Static>
 class GraphParameters
 {
 public:
     static constexpr bool is_directed() { return DirectedT::is_directed(); }
     static constexpr bool is_weighted() { return WeightedT::is_weighted(); }
     static constexpr bool is_dynamic() { return DynamicT::is_dynamic(); }
+    static constexpr bool loop() { return LoopT::loop(); }
     static constexpr FileType filetype() { return file_type; }
 };
 
 //! Some useful using directives for edge list input file types
-using EdgeListDirectedWeightedStatic = GraphParameters<FileType::edge_list, Directed, Weighted, Static>;
-using EdgeListDirectedWeightedDynamic = GraphParameters<FileType::edge_list, Directed, Weighted, Dynamic>;
-using EdgeListDirectedUnweightedStatic = GraphParameters<FileType::edge_list, Directed, Unweighted, Static>;
-using EdgeListDirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Directed, Unweighted, Dynamic>;
-using EdgeListUndirectedWeightedStatic = GraphParameters<FileType::edge_list, Undirected, Weighted, Static>;
-using EdgeListUndirectedWeightedDynamic = GraphParameters<FileType::edge_list, Undirected, Weighted, Dynamic>;
-using EdgeListUndirectedUnweightedStatic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Static>;
-using EdgeListUndirectedUnweightedDynamic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Dynamic>;
+using EdgeListDirectedWeightedLoopStatic = GraphParameters<FileType::edge_list, Directed, Weighted, Loop, Static>;
+using EdgeListDirectedWeightedLoopDynamic = GraphParameters<FileType::edge_list, Directed, Weighted, Loop, Dynamic>;
+using EdgeListDirectedWeightedNoLoopStatic = GraphParameters<FileType::edge_list, Directed, Weighted, NoLoop, Static>;
+using EdgeListDirectedWeightedNoLoopDynamic = GraphParameters<FileType::edge_list, Directed, Weighted, NoLoop, Dynamic>;
+using EdgeListDirectedUnweightedLoopStatic = GraphParameters<FileType::edge_list, Directed, Unweighted, Loop, Static>;
+using EdgeListDirectedUnweightedLoopDynamic = GraphParameters<FileType::edge_list, Directed, Unweighted, Loop, Dynamic>;
+using EdgeListDirectedUnweightedNoLoopStatic = GraphParameters<FileType::edge_list, Directed, Unweighted, NoLoop, Static>;
+using EdgeListDirectedUnweightedNoLoopDynamic = GraphParameters<FileType::edge_list, Directed, Unweighted, NoLoop, Dynamic>;
+using EdgeListUndirectedWeightedLoopStatic = GraphParameters<FileType::edge_list, Undirected, Weighted, Loop, Static>;
+using EdgeListUndirectedWeightedLoopDynamic = GraphParameters<FileType::edge_list, Undirected, Weighted, Loop, Dynamic>;
+using EdgeListUndirectedWeightedNoLoopStatic = GraphParameters<FileType::edge_list, Undirected, Weighted, NoLoop, Static>;
+using EdgeListUndirectedWeightedNoLoopDynamic = GraphParameters<FileType::edge_list, Undirected, Weighted, NoLoop, Dynamic>;
+using EdgeListUndirectedUnweightedLoopStatic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Loop, Static>;
+using EdgeListUndirectedUnweightedLoopDynamic = GraphParameters<FileType::edge_list, Undirected, Unweighted, Loop, Dynamic>;
+using EdgeListUndirectedUnweightedNoLoopStatic = GraphParameters<FileType::edge_list, Undirected, Unweighted, NoLoop, Static>;
+using EdgeListUndirectedUnweightedNoLoopDynamic = GraphParameters<FileType::edge_list, Undirected, Unweighted, NoLoop, Dynamic>;
 
 //! Some useful using directives for matrix market input file types
-using MatrixMarketDirectedWeightedStatic = GraphParameters<FileType::matrix_market, Directed, Weighted, Static>;
-using MatrixMarketDirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Directed, Weighted, Dynamic>;
-using MatrixMarketDirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Static>;
-using MatrixMarketDirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Dynamic>;
-using MatrixMarketUndirectedWeightedStatic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Static>;
-using MatrixMarketUndirectedWeightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Dynamic>;
-using MatrixMarketUndirectedUnweightedStatic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Static>;
-using MatrixMarketUndirectedUnweightedDynamic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Dynamic>;
+using MatrixMarketDirectedWeightedLoopStatic = GraphParameters<FileType::matrix_market, Directed, Weighted, Loop, Static>;
+using MatrixMarketDirectedWeightedLoopDynamic = GraphParameters<FileType::matrix_market, Directed, Weighted, Loop, Dynamic>;
+using MatrixMarketDirectedWeightedNoLoopStatic = GraphParameters<FileType::matrix_market, Directed, Weighted, NoLoop, Static>;
+using MatrixMarketDirectedWeightedNoLoopDynamic = GraphParameters<FileType::matrix_market, Directed, Weighted, NoLoop, Dynamic>;
+using MatrixMarketDirectedUnweightedLoopStatic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Loop, Static>;
+using MatrixMarketDirectedUnweightedLoopDynamic = GraphParameters<FileType::matrix_market, Directed, Unweighted, Loop, Dynamic>;
+using MatrixMarketDirectedUnweightedNoLoopStatic = GraphParameters<FileType::matrix_market, Directed, Unweighted, NoLoop, Static>;
+using MatrixMarketDirectedUnweightedNoLoopDynamic = GraphParameters<FileType::matrix_market, Directed, Unweighted, NoLoop, Dynamic>;
+using MatrixMarketUndirectedWeightedLoopStatic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Loop, Static>;
+using MatrixMarketUndirectedWeightedLoopDynamic = GraphParameters<FileType::matrix_market, Undirected, Weighted, Loop, Dynamic>;
+using MatrixMarketUndirectedWeightedNoLoopStatic = GraphParameters<FileType::matrix_market, Undirected, Weighted, NoLoop, Static>;
+using MatrixMarketUndirectedWeightedNoLoopDynamic = GraphParameters<FileType::matrix_market, Undirected, Weighted, NoLoop, Dynamic>;
+using MatrixMarketUndirectedUnweightedLoopStatic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Loop, Static>;
+using MatrixMarketUndirectedUnweightedLoopDynamic = GraphParameters<FileType::matrix_market, Undirected, Unweighted, Loop, Dynamic>;
+using MatrixMarketUndirectedUnweightedNoLoopStatic =
+    GraphParameters<FileType::matrix_market, Undirected, Unweighted, NoLoop, Static>;
+using MatrixMarketUndirectedUnweightedNoLoopDynamic =
+    GraphParameters<FileType::matrix_market, Undirected, Unweighted, NoLoop, Dynamic>;
+
 
 //! Some useful using directives for binary format
 using BinaryDirectedWeightedStatic = GraphParameters<FileType::binary, Directed, Weighted, Static>;

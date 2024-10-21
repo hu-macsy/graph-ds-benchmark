@@ -31,8 +31,8 @@ TEST_CASE("write_graph, enzymes, binary")
     auto emplace = [&](Vertex32 u, Vertex32 v) { edges.push_back(Edge32{ u, v }); };
     std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
     auto const [vertex_count, edge_count] =
-        read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedStatic>(graph_input_unweighted_directed,
-                                                                                  std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), EdgeListDirectedUnweightedNoLoopStatic>(graph_input_unweighted_directed,
+                                                                                        std::move(emplace));
 
     size_t constexpr expected_edge_count = 168u;
     CHECK(edges.size() == expected_edge_count);
@@ -101,7 +101,8 @@ TEST_CASE("write_graph, small weighted temporal, binary")
 
     std::ifstream graph_input_small_temporal(graph_path + small_weighted_temporal_graph);
     auto const [vertex_count, edge_count] =
-        read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedDynamic>(graph_input_small_temporal, std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), EdgeListDirectedWeightedNoLoopDynamic>(graph_input_small_temporal,
+                                                                                       std::move(emplace));
 
     size_t constexpr expected_edge_count = 7u;
     REQUIRE(expected_edge_count == timestamped_edges.size());

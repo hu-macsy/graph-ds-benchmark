@@ -17,7 +17,7 @@ TEST_CASE("Vertex Counting")
         };
 
         std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
-        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
+        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedNoLoopStatic>(graph_input, std::move(emplace));
 
         CHECK(vertex_count(edges) == 36);
     }
@@ -31,7 +31,7 @@ TEST_CASE("Vertex Counting")
         };
 
         std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
-        read_graph<Vertex64, decltype(emplace), EdgeListUndirectedWeightedStatic>(graph_input, std::move(emplace));
+        read_graph<Vertex64, decltype(emplace), EdgeListUndirectedWeightedNoLoopStatic>(graph_input, std::move(emplace));
 
         CHECK(vertex_count(edges) == 36);
     }
@@ -65,8 +65,8 @@ TEST_CASE("Edge Shuffling")
 
         std::ifstream graph_input_unweighted_directed(graph_path + unweighted_directed_graph_enzymes);
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedStatic>(graph_input_unweighted_directed,
-                                                                                        std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedNoLoopStatic>(graph_input_unweighted_directed,
+                                                                                              std::move(emplace));
 
         Edges32 edges_copy = edges;
 
@@ -113,8 +113,8 @@ TEST_CASE("Edge Shuffling")
 
         std::ifstream graph_input_unweighted_temporal(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
         auto const [vertex_count, edge_count] =
-            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedDynamic>(graph_input_unweighted_temporal,
-                                                                                         std::move(emplace));
+            read_graph<Vertex32, decltype(emplace), EdgeListUndirectedUnweightedNoLoopDynamic>(graph_input_unweighted_temporal,
+                                                                                               std::move(emplace));
 
         Edges32 edges_copy = timestamped_edges.edges;
 
