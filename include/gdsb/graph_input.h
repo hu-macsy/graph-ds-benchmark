@@ -177,14 +177,6 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
         string_source = string_position;
         v = read_ulong(string_source, &string_position);
 
-        if constexpr (!GraphParameters::loop())
-        {
-            if (u == v)
-            {
-                continue;
-            }
-        }
-
         if (u > n)
         {
             n = u;
@@ -197,6 +189,14 @@ std::tuple<Vertex, uint64_t> read_graph(std::istream& input,
         if constexpr (ExtractSubgraph)
         {
             if (u < subgraph.source_begin || u >= subgraph.source_end || v < subgraph.target_begin || v >= subgraph.target_end)
+            {
+                continue;
+            }
+        }
+
+        if constexpr (!GraphParameters::loop())
+        {
+            if (u == v)
             {
                 continue;
             }
