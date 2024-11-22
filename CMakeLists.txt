@@ -1,5 +1,5 @@
 # Set minimum version of CMake.
-cmake_minimum_required(VERSION 3.11.4)
+cmake_minimum_required(VERSION 3.14)
 
 # Set project name and version
 project(gdsb VERSION 0.2.0 LANGUAGES CXX)
@@ -71,7 +71,8 @@ if(NOT OpenMP_FOUND)
   # After setting basic OpenMP-folders, run find_package again to set everything. Also acts as a final sanity check.
   find_package(OpenMP REQUIRED)
 endif()
-target_link_libraries(gdsb INTERFACE OpenMP::OpenMP_CXX)
+
+target_link_libraries(gdsb PUBLIC OpenMP::OpenMP_CXX)
 
 set_property(TARGET gdsb PROPERTY POSITION_INDEPENDENT_CODE ON)
 
