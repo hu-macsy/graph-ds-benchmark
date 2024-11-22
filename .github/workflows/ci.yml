@@ -34,8 +34,8 @@ jobs:
           ninja
           ./gdsb_mpi_test
 
-  macos-build-latest-with-clang:
-    name: "macOS clang"
+  macos-build-latest-with-llvm-clang:
+    name: "macOS llvm clang"
     runs-on: macos-14
     steps:
       - name: Install prerequisites
@@ -54,5 +54,27 @@ jobs:
           [ ! -d build ] && mkdir build
           cd build
           cmake -DGDSB_MPI=OFF -DGDSB_TEST=ON -DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ -DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang -GNinja ..
+          ninja
+          ./gdsb_test
+
+  macos-build-latest-with-apple-clang:
+    name: "macOS AppleClang"
+    runs-on: macos-14
+    steps:
+      - name: Install prerequisites
+        run: |
+          brew install ninja
+          brew install libomp
+  
+      - name: Checkout gdsb
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      
+      - name: build library and run tests (no MPI functionality)
+        run:  | 
+          [ ! -d build ] && mkdir build
+          cd build
+          cmake -DGDSB_MPI=OFF -DGDSB_TEST=ON -GNinja ..
           ninja
           ./gdsb_test
