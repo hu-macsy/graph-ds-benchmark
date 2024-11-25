@@ -271,7 +271,7 @@ inline BinaryGraphHeaderMetaDataV3 read_binary_graph_header(std::ifstream& input
 
     switch (id.version)
     {
-    case 3:
+    case binary_graph_header_version:
     {
         if (!std::strcmp(id.identifier, "GDSB"))
         {

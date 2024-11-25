@@ -124,10 +124,12 @@ using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undire
 using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, NoLoop, Static>;
 using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, NoLoop, Dynamic>;
 
+uint8_t constexpr binary_graph_header_version = 3u;
+
 struct alignas(8) BinaryGraphHeaderIdentifier
 {
     char identifier[4] = { 'G', 'D', 'S', 'B' };
-    uint8_t version = 3;
+    uint8_t version = binary_graph_header_version;
 };
 
 struct alignas(8) BinaryGraphHeaderMetaDataV3

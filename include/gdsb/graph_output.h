@@ -23,7 +23,7 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
 {
     if constexpr (GraphParameters::filetype() == FileType::binary)
     {
-        if (header_id.version == 3)
+        if (header_id.version == binary_graph_header_version)
         {
             char* const header_id_byte_array = reinterpret_cast<char*>(&header_id);
             output_file.write(header_id_byte_array, sizeof(decltype(header_id)));

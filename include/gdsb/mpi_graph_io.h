@@ -40,7 +40,7 @@ inline BinaryGraphHeaderMetaDataV3 read_binary_graph_header(MPI_File const input
 
     switch (id.version)
     {
-    case 2:
+    case binary_graph_header_version:
     {
         if (!std::strcmp(id.identifier, "GDSB"))
         {
