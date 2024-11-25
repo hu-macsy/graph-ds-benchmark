@@ -523,7 +523,7 @@ TEST_CASE("read_binary_graph, small weighted temporal")
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -605,7 +605,7 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
 
     std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -645,7 +645,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -707,7 +707,7 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 1,
 
     std::ifstream binary_graph(graph_path + small_weighted_temporal_graph_bin);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 

@@ -47,19 +47,18 @@ TEST_CASE("write_graph, enzymes, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedUnweightedStatic, Vertex32, Weight>(out_file, edges, vertex_count, edge_count,
-                                                                  [](std::ofstream& o, auto edge)
-                                                                  {
-                                                                      o.write(reinterpret_cast<const char*>(&edge.source),
-                                                                              sizeof(edge.source));
-                                                                      o.write(reinterpret_cast<const char*>(&edge.target),
-                                                                              sizeof(edge.target));
-                                                                  });
+    write_graph<BinaryDirectedUnweightedStatic, Vertex32, Weight, Timestamp32>(
+        out_file, edges, vertex_count, edge_count,
+        [](std::ofstream& o, auto edge)
+        {
+            o.write(reinterpret_cast<const char*>(&edge.source), sizeof(edge.source));
+            o.write(reinterpret_cast<const char*>(&edge.target), sizeof(edge.target));
+        });
 
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
@@ -116,19 +115,19 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedWeightedDynamic, Vertex32, Weight>(
+    write_graph<BinaryDirectedWeightedDynamic, Vertex32, Weight, Timestamp32>(
         out_file, timestamped_edges, vertex_count, edge_count,
         [](std::ofstream& o, auto edge)
         {
             o.write(reinterpret_cast<const char*>(&edge.edge.source), sizeof(Vertex32));
             o.write(reinterpret_cast<const char*>(&edge.edge.target.vertex), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.edge.target.weight), sizeof(float));
-            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Vertex32));
+            o.write(reinterpret_cast<const char*>(&edge.edge.target.weight), sizeof(Weight));
+            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Timestamp32));
         });
 
     std::ifstream binary_graph(file_path);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 

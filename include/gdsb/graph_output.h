@@ -18,22 +18,23 @@ std::ofstream open_binary_file(std::filesystem::path const& file_path)
     return output_file;
 }
 
-template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT>
+template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT, typename TimestampT>
 void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& header_id, uint64_t const vertex_count, uint64_t const edge_count)
 {
     if constexpr (GraphParameters::filetype() == FileType::binary)
     {
-        if (header_id.version == 2)
+        if (header_id.version == 3)
         {
             char* const header_id_byte_array = reinterpret_cast<char*>(&header_id);
             output_file.write(header_id_byte_array, sizeof(decltype(header_id)));
 
-            BinaryGraphHeaderMetaDataV2 header_data;
+            BinaryGraphHeaderMetaDataV3 header_data;
             header_data.vertex_count = vertex_count;
             header_data.edge_count = edge_count;
 
             header_data.vertex_id_byte_size = sizeof(VertexT);
             header_data.weight_byte_size = sizeof(WeightT);
+            header_data.timestamp_byte_size = sizeof(TimestampT);
 
             header_data.directed = GraphParameters::is_directed();
             header_data.weighted = GraphParameters::is_weighted();
@@ -49,10 +50,10 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
     }
 }
 
-template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT, typename Edges, typename WriteEdgeF>
+template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT, typename TimestampT, typename Edges, typename WriteEdgeF>
 void write_graph(std::ofstream& output_file, Edges&& edges, uint64_t const vertex_count, uint64_t const edge_count, WriteEdgeF&& write_edge_f)
 {
-    write_header<GraphParameters, VertexT, WeightT>(output_file, BinaryGraphHeaderIdentifier{}, vertex_count, edge_count);
+    write_header<GraphParameters, VertexT, WeightT, TimestampT>(output_file, BinaryGraphHeaderIdentifier{}, vertex_count, edge_count);
 
     for (auto const e : edges)
     {
