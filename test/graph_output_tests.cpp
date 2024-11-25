@@ -14,7 +14,7 @@
 using namespace gdsb;
 
 // Set this if you want to develop a new binary file format!
-bool constexpr developing_new_file_format = true;
+bool constexpr developing_new_file_format = false;
 
 TEST_CASE("open_binary_file")
 {
