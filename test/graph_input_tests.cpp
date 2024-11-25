@@ -656,10 +656,11 @@ TEST_CASE("read_binary_graph_partition, small weighted temporal, partition id 0,
     BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(header.weight_byte_size == sizeof(Timestamp32));
 
     REQUIRE(header.directed);
     REQUIRE(header.weighted);
-    REQUIRE(!header.dynamic);
+    REQUIRE(header.dynamic);
 
     uint32_t partition_id = 0;
     uint32_t partition_size = 2;
