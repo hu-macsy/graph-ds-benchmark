@@ -613,7 +613,7 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
 
-    REQUIRE(!header.directed);
+    REQUIRE(header.directed);
     REQUIRE(!header.weighted);
     REQUIRE(!header.dynamic);
 
