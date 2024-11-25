@@ -61,6 +61,9 @@ TEST_CASE("write_graph, enzymes, binary")
     BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
 
     Edges32 edges_in;
     auto read_f = [&](std::ifstream& input)
@@ -130,6 +133,10 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(header.timestamp_byte_size == sizeof(Timestamp32));
+    REQUIRE(header.directed);
+    REQUIRE(header.weighted);
+    REQUIRE(header.dynamic);
 
     WeightedTimestampedEdges32 timestamped_edges_in;
     auto read_f = [&](std::ifstream& input)
