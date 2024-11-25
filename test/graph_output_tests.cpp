@@ -13,6 +13,9 @@
 
 using namespace gdsb;
 
+// Set this if you want to develop a new binary file format!
+bool constexpr developing_new_file_format = true;
+
 TEST_CASE("open_binary_file")
 {
     std::filesystem::path file_path{ graph_path + "write_test.gdsb" };
@@ -37,10 +40,17 @@ TEST_CASE("write_graph, enzymes, binary")
     size_t constexpr expected_edge_count = 168u;
     CHECK(edges.size() == expected_edge_count);
 
-    // In case of developing a new format: use this line to produce the new test graph.
-    // std::filesystem::path file_path{ graph_path + "ENZYMES_g1.bin" };
-
-    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+    std::filesystem::path file_path = [&]() -> std::filesystem::path
+    {
+        if constexpr (developing_new_file_format)
+        {
+            return { graph_path + "ENZYMES_g1.bin" };
+        }
+        else
+        {
+            return { graph_path + "test_graph.bin" };
+        }
+    }();
 
     std::ofstream out_file = open_binary_file(file_path);
 
@@ -90,7 +100,10 @@ TEST_CASE("write_graph, enzymes, binary")
     CHECK(edge_25_to_2_exists);
 
     // In case of developing a new format: comment this line
-    REQUIRE(std::remove(file_path.c_str()) == 0);
+    if constexpr (not developing_new_file_format)
+    {
+        REQUIRE(std::remove(file_path.c_str()) == 0);
+    }
 }
 
 TEST_CASE("write_graph, small weighted temporal, binary")
@@ -110,10 +123,18 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     REQUIRE(expected_edge_count == timestamped_edges.size());
     CHECK(expected_edge_count == edge_count);
 
-    // In case of developing a new format: use this line to produce the new test graph.
-    // std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
+    std::filesystem::path const file_path = [&]() -> std::filesystem::path
+    {
+        if constexpr (developing_new_file_format)
+        {
+            return { graph_path + "small_graph_temporal.bin" };
+        }
+        else
+        {
+            return { graph_path + "small_graph_temporal_test_graph.bin" };
+        }
+    }();
 
-    std::filesystem::path const file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
     std::ofstream out_file = open_binary_file(file_path);
     REQUIRE(out_file);
 
@@ -134,6 +155,7 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
     REQUIRE(header.timestamp_byte_size == sizeof(Timestamp32));
+
     REQUIRE(header.directed);
     REQUIRE(header.weighted);
     REQUIRE(header.dynamic);
@@ -184,6 +206,8 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     CHECK(timestamped_edges_in[idx].edge.target.weight == 1.f);
     CHECK(timestamped_edges_in[idx].timestamp == 2);
 
-    // In case of developing a new format: comment this line
-    REQUIRE(std::remove(file_path.c_str()) == 0);
+    if constexpr (not developing_new_file_format)
+    {
+        REQUIRE(std::remove(file_path.c_str()) == 0);
+    }
 }
