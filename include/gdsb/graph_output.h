@@ -41,7 +41,7 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
             header_data.dynamic = GraphParameters::is_dynamic();
 
             char* const header_data_byte_array = reinterpret_cast<char*>(&header_data);
-            output_file.write(header_data_byte_array, sizeof(decltype(header_data)));
+            output_file.write(header_data_byte_array, sizeof(BinaryGraphHeaderMetaDataV3));
         }
     }
     else
