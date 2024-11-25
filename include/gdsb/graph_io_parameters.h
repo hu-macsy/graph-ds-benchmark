@@ -115,14 +115,14 @@ using MatrixMarketUndirectedUnweightedNoLoopDynamic =
 
 
 //! Some useful using directives for binary format
-using BinaryDirectedWeightedStatic = GraphParameters<FileType::binary, Directed, Weighted, Static>;
-using BinaryDirectedWeightedDynamic = GraphParameters<FileType::binary, Directed, Weighted, Dynamic>;
-using BinaryDirectedUnweightedStatic = GraphParameters<FileType::binary, Directed, Unweighted, Static>;
-using BinaryDirectedUnweightedDynamic = GraphParameters<FileType::binary, Directed, Unweighted, Dynamic>;
-using BinaryUndirectedWeightedStatic = GraphParameters<FileType::binary, Undirected, Weighted, Static>;
-using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undirected, Weighted, Dynamic>;
-using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, Static>;
-using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, Dynamic>;
+using BinaryDirectedWeightedStatic = GraphParameters<FileType::binary, Directed, Weighted, NoLoop, Static>;
+using BinaryDirectedWeightedDynamic = GraphParameters<FileType::binary, Directed, Weighted, NoLoop, Dynamic>;
+using BinaryDirectedUnweightedStatic = GraphParameters<FileType::binary, Directed, Unweighted, NoLoop, Static>;
+using BinaryDirectedUnweightedDynamic = GraphParameters<FileType::binary, Directed, Unweighted, NoLoop, Dynamic>;
+using BinaryUndirectedWeightedStatic = GraphParameters<FileType::binary, Undirected, Weighted, NoLoop, Static>;
+using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undirected, Weighted, NoLoop, Dynamic>;
+using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, NoLoop, Static>;
+using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, NoLoop, Dynamic>;
 
 struct alignas(8) BinaryGraphHeaderIdentifier
 {
