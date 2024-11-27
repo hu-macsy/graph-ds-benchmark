@@ -57,13 +57,14 @@ TEST_CASE("write_graph, enzymes, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedUnweightedStatic, Vertex32, Weight, Timestamp32>(
-        out_file, edges, vertex_count, edge_count,
-        [](std::ofstream& o, auto edge)
-        {
-            o.write(reinterpret_cast<const char*>(&edge.source), sizeof(edge.source));
-            o.write(reinterpret_cast<const char*>(&edge.target), sizeof(edge.target));
-        });
+    write_graph<BinaryDirectedUnweightedStatic, Vertex32>(out_file, edges, vertex_count, edge_count,
+                                                          [](std::ofstream& o, auto edge)
+                                                          {
+                                                              o.write(reinterpret_cast<const char*>(&edge.source),
+                                                                      sizeof(edge.source));
+                                                              o.write(reinterpret_cast<const char*>(&edge.target),
+                                                                      sizeof(edge.target));
+                                                          });
 
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
