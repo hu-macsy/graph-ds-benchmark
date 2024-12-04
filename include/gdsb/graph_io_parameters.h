@@ -115,27 +115,30 @@ using MatrixMarketUndirectedUnweightedNoLoopDynamic =
 
 
 //! Some useful using directives for binary format
-using BinaryDirectedWeightedStatic = GraphParameters<FileType::binary, Directed, Weighted, Static>;
-using BinaryDirectedWeightedDynamic = GraphParameters<FileType::binary, Directed, Weighted, Dynamic>;
-using BinaryDirectedUnweightedStatic = GraphParameters<FileType::binary, Directed, Unweighted, Static>;
-using BinaryDirectedUnweightedDynamic = GraphParameters<FileType::binary, Directed, Unweighted, Dynamic>;
-using BinaryUndirectedWeightedStatic = GraphParameters<FileType::binary, Undirected, Weighted, Static>;
-using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undirected, Weighted, Dynamic>;
-using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, Static>;
-using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, Dynamic>;
+using BinaryDirectedWeightedStatic = GraphParameters<FileType::binary, Directed, Weighted, NoLoop, Static>;
+using BinaryDirectedWeightedDynamic = GraphParameters<FileType::binary, Directed, Weighted, NoLoop, Dynamic>;
+using BinaryDirectedUnweightedStatic = GraphParameters<FileType::binary, Directed, Unweighted, NoLoop, Static>;
+using BinaryDirectedUnweightedDynamic = GraphParameters<FileType::binary, Directed, Unweighted, NoLoop, Dynamic>;
+using BinaryUndirectedWeightedStatic = GraphParameters<FileType::binary, Undirected, Weighted, NoLoop, Static>;
+using BinaryUndirectedWeightedDynamic = GraphParameters<FileType::binary, Undirected, Weighted, NoLoop, Dynamic>;
+using BinaryUndirectedUnweightedStatic = GraphParameters<FileType::binary, Undirected, Unweighted, NoLoop, Static>;
+using BinaryUndirectedUnweightedDynamic = GraphParameters<FileType::binary, Undirected, Unweighted, NoLoop, Dynamic>;
+
+uint8_t constexpr binary_graph_header_version = 3u;
 
 struct alignas(8) BinaryGraphHeaderIdentifier
 {
     char identifier[4] = { 'G', 'D', 'S', 'B' };
-    uint8_t version = 2;
+    uint8_t version = binary_graph_header_version;
 };
 
-struct alignas(8) BinaryGraphHeaderMetaDataV2
+struct alignas(8) BinaryGraphHeader
 {
-    uint64_t vertex_count = 2;
-    uint64_t edge_count = 1;
-    uint8_t vertex_id_byte_size = 4;
-    uint8_t weight_byte_size = 4;
+    uint64_t vertex_count = 2u;
+    uint64_t edge_count = 1u;
+    uint8_t vertex_id_byte_size = 4u;
+    uint8_t weight_byte_size = 4u;
+    uint8_t timestamp_byte_size = 4u;
     bool directed = false;
     bool weighted = false;
     bool dynamic = false;

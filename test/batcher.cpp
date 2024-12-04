@@ -28,7 +28,7 @@ TEST_CASE("Batcher")
 TEST_CASE("partition_batch_count, on enzymes graph")
 {
     std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
 
     SECTION("partition size 2")
     {

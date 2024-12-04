@@ -27,7 +27,7 @@ private:
     MPI_File m_file;
 };
 
-inline BinaryGraphHeaderMetaDataV2 read_binary_graph_header(MPI_File const input)
+inline BinaryGraphHeader read_binary_graph_header(MPI_File const input)
 {
     BinaryGraphHeaderIdentifier id;
 
@@ -40,15 +40,15 @@ inline BinaryGraphHeaderMetaDataV2 read_binary_graph_header(MPI_File const input
 
     switch (id.version)
     {
-    case 2:
+    case binary_graph_header_version:
     {
         if (!std::strcmp(id.identifier, "GDSB"))
         {
             throw std::logic_error(std::string("Binary graph file has wrong identifier: ") + std::string(id.identifier));
         }
 
-        BinaryGraphHeaderMetaDataV2 meta_data;
-        error = MPI_File_read_all(input, &meta_data, sizeof(BinaryGraphHeaderMetaDataV2), MPI_CHAR, &status);
+        BinaryGraphHeader meta_data;
+        error = MPI_File_read_all(input, &meta_data, sizeof(BinaryGraphHeader), MPI_CHAR, &status);
         if (error != MPI_SUCCESS)
         {
             throw std::runtime_error("Could not read meta data.");
@@ -63,7 +63,7 @@ inline BinaryGraphHeaderMetaDataV2 read_binary_graph_header(MPI_File const input
 
 template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_File const input, ReadF&& read)
 {
-    BinaryGraphHeaderMetaDataV2 const data = read_binary_graph_header(input);
+    BinaryGraphHeader const data = read_binary_graph_header(input);
 
     bool continue_reading = true;
     for (uint64_t e = 0; e < data.edge_count && continue_reading; ++e)
@@ -77,7 +77,7 @@ template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_F
 
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File const input,
-                                                           BinaryGraphHeaderMetaDataV2 const& data,
+                                                           BinaryGraphHeader const& data,
                                                            ReadF&& read,
                                                            size_t const edge_size_in_bytes,
                                                            uint32_t const partition_id,
@@ -108,7 +108,7 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File const input,
 // containing edges.
 template <typename Edges>
 std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const input,
-                                                               BinaryGraphHeaderMetaDataV2 const& data,
+                                                               BinaryGraphHeader const& data,
                                                                Edges* const edges,
                                                                size_t const edge_size_in_bytes,
                                                                MPI_Datatype const mpi_datatype,

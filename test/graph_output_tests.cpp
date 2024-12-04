@@ -13,6 +13,9 @@
 
 using namespace gdsb;
 
+// Set this if you want to develop a new binary file format!
+bool constexpr developing_new_file_format = false;
+
 TEST_CASE("open_binary_file")
 {
     std::filesystem::path file_path{ graph_path + "write_test.gdsb" };
@@ -37,31 +40,41 @@ TEST_CASE("write_graph, enzymes, binary")
     size_t constexpr expected_edge_count = 168u;
     CHECK(edges.size() == expected_edge_count);
 
-    // In case of developing a new format: use this line to produce the new test graph.
-    // std::filesystem::path file_path{ graph_path + "ENZYMES_g1.bin" };
-
-    std::filesystem::path file_path{ graph_path + "test_graph.bin" };
+    std::filesystem::path file_path = [&]() -> std::filesystem::path
+    {
+        if constexpr (developing_new_file_format)
+        {
+            return { graph_path + "ENZYMES_g1.bin" };
+        }
+        else
+        {
+            return { graph_path + "test_graph.bin" };
+        }
+    }();
 
     std::ofstream out_file = open_binary_file(file_path);
 
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedUnweightedStatic, Vertex32, Weight>(out_file, edges, vertex_count, edge_count,
-                                                                  [](std::ofstream& o, auto edge)
-                                                                  {
-                                                                      o.write(reinterpret_cast<const char*>(&edge.source),
-                                                                              sizeof(edge.source));
-                                                                      o.write(reinterpret_cast<const char*>(&edge.target),
-                                                                              sizeof(edge.target));
-                                                                  });
+    write_graph<BinaryDirectedUnweightedStatic, Vertex32>(out_file, edges, vertex_count, edge_count,
+                                                          [](std::ofstream& o, auto edge)
+                                                          {
+                                                              o.write(reinterpret_cast<const char*>(&edge.source),
+                                                                      sizeof(edge.source));
+                                                              o.write(reinterpret_cast<const char*>(&edge.target),
+                                                                      sizeof(edge.target));
+                                                          });
 
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
 
     Edges32 edges_in;
     auto read_f = [&](std::ifstream& input)
@@ -88,7 +101,10 @@ TEST_CASE("write_graph, enzymes, binary")
     CHECK(edge_25_to_2_exists);
 
     // In case of developing a new format: comment this line
-    REQUIRE(std::remove(file_path.c_str()) == 0);
+    if constexpr (not developing_new_file_format)
+    {
+        REQUIRE(std::remove(file_path.c_str()) == 0);
+    }
 }
 
 TEST_CASE("write_graph, small weighted temporal, binary")
@@ -108,29 +124,42 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     REQUIRE(expected_edge_count == timestamped_edges.size());
     CHECK(expected_edge_count == edge_count);
 
-    // In case of developing a new format: use this line to produce the new test graph.
-    // std::filesystem::path file_path{ graph_path + "small_graph_temporal.bin" };
+    std::filesystem::path const file_path = [&]() -> std::filesystem::path
+    {
+        if constexpr (developing_new_file_format)
+        {
+            return { graph_path + small_weighted_temporal_graph_bin };
+        }
+        else
+        {
+            return { graph_path + "small_graph_temporal_test_graph.bin" };
+        }
+    }();
 
-    std::filesystem::path const file_path{ graph_path + "small_graph_temporal_test_graph.bin" };
     std::ofstream out_file = open_binary_file(file_path);
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedWeightedDynamic, Vertex32, Weight>(
+    write_graph<BinaryDirectedWeightedDynamic, Vertex32, Weight, Timestamp32>(
         out_file, timestamped_edges, vertex_count, edge_count,
         [](std::ofstream& o, auto edge)
         {
             o.write(reinterpret_cast<const char*>(&edge.edge.source), sizeof(Vertex32));
             o.write(reinterpret_cast<const char*>(&edge.edge.target.vertex), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.edge.target.weight), sizeof(float));
-            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Vertex32));
+            o.write(reinterpret_cast<const char*>(&edge.edge.target.weight), sizeof(Weight));
+            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Timestamp32));
         });
 
     std::ifstream binary_graph(file_path);
 
-    BinaryGraphHeaderMetaDataV2 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(header.timestamp_byte_size == sizeof(Timestamp32));
+
+    REQUIRE(header.directed);
+    REQUIRE(header.weighted);
+    REQUIRE(header.dynamic);
 
     WeightedTimestampedEdges32 timestamped_edges_in;
     auto read_f = [&](std::ifstream& input)
@@ -178,6 +207,8 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     CHECK(timestamped_edges_in[idx].edge.target.weight == 1.f);
     CHECK(timestamped_edges_in[idx].timestamp == 2);
 
-    // In case of developing a new format: comment this line
-    REQUIRE(std::remove(file_path.c_str()) == 0);
+    if constexpr (not developing_new_file_format)
+    {
+        REQUIRE(std::remove(file_path.c_str()) == 0);
+    }
 }

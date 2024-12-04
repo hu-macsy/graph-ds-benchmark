@@ -9,8 +9,9 @@ TEST_CASE("experiment")
     SECTION("out yields no exception")
     {
         std::vector<int> no_data;
+        std::stringstream ss;
 
-        REQUIRE_NOTHROW(gdsb::out("no_data", std::begin(no_data), std::end(no_data)));
+        REQUIRE_NOTHROW(gdsb::out("no_data", std::begin(no_data), std::end(no_data), ss));
     }
 
     SECTION("Data of 31 is printed to stream.")
