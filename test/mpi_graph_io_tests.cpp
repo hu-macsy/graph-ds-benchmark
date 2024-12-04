@@ -95,7 +95,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper input{ file_path };
 
-    BinaryGraphHeaderMetaDataV3 header = mpi::read_binary_graph_header(input.get());
+    BinaryGraphHeader header = mpi::read_binary_graph_header(input.get());
     bool const read_ok = mpi::read_binary_graph(input.get(), header, std::move(read_f));
     REQUIRE(read_ok);
 
@@ -187,7 +187,7 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    BinaryGraphHeaderMetaDataV3 header = mpi::read_binary_graph_header(binary_graph.get());
+    BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
     bool reading_ok = mpi::read_binary_graph(binary_graph.get(), header, std::move(read_f));
     REQUIRE(reading_ok);
 

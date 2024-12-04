@@ -61,8 +61,7 @@ inline BinaryGraphHeader read_binary_graph_header(MPI_File const input)
     }
 }
 
-template <typename ReadF>
-bool read_binary_graph(MPI_File const input, BinaryGraphHeaderMetaDataV3 const& header, ReadF&& read)
+template <typename ReadF> bool read_binary_graph(MPI_File const input, BinaryGraphHeader const& header, ReadF&& read)
 {
     bool continue_reading = true;
     for (uint64_t e = 0; e < header.edge_count && continue_reading; ++e)
