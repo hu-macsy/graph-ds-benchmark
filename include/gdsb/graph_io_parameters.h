@@ -132,7 +132,7 @@ struct alignas(8) BinaryGraphHeaderIdentifier
     uint8_t version = binary_graph_header_version;
 };
 
-struct alignas(8) BinaryGraphHeaderMetaDataV3
+struct alignas(8) BinaryGraphHeader
 {
     uint64_t vertex_count = 2u;
     uint64_t edge_count = 1u;

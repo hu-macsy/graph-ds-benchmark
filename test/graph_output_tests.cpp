@@ -69,7 +69,7 @@ TEST_CASE("write_graph, enzymes, binary")
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
 
-    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
     REQUIRE(header.directed);
@@ -152,7 +152,7 @@ TEST_CASE("write_graph, small weighted temporal, binary")
 
     std::ifstream binary_graph(file_path);
 
-    BinaryGraphHeaderMetaDataV3 header = read_binary_graph_header(binary_graph);
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
     REQUIRE(header.weight_byte_size == sizeof(Weight));
     REQUIRE(header.timestamp_byte_size == sizeof(Timestamp32));
