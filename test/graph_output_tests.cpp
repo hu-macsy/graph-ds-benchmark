@@ -128,7 +128,7 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     {
         if constexpr (developing_new_file_format)
         {
-            return { graph_path + "small_graph_temporal.bin" };
+            return { graph_path + small_weighted_temporal_graph_bin };
         }
         else
         {
