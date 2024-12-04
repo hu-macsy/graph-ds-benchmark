@@ -95,9 +95,12 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
     mpi::FileWrapper input{ file_path };
 
-    auto const [vertex_count, edge_count] = mpi::read_binary_graph(input.get(), std::move(read_f));
-    REQUIRE(vertex_count == 7);
-    REQUIRE(edge_count == 7);
+    BinaryGraphHeader header = mpi::read_binary_graph_header(input.get());
+    bool const read_ok = mpi::read_binary_graph(input.get(), header, std::move(read_f));
+    REQUIRE(read_ok);
+
+    REQUIRE(header.vertex_count == 7);
+    REQUIRE(header.edge_count == 7);
 
     // Note: EOF is an int (for most OS?)
     // int eof_marker;
@@ -120,7 +123,7 @@ TEST_CASE("MPI, Read Small Weighted Temporal Binary File")
     // 3 6 1 7
 
     size_t idx = 0;
-    REQUIRE(timestamped_edges.size() == edge_count);
+    REQUIRE(timestamped_edges.size() == header.edge_count);
     CHECK(timestamped_edges[idx].edge.source == 0);
     CHECK(timestamped_edges[idx].edge.target.vertex == 1);
     CHECK(timestamped_edges[idx].edge.target.weight == 1.f);
@@ -184,11 +187,13 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
     std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
-    auto const [vertex_count, edge_count] = mpi::read_binary_graph(binary_graph.get(), std::move(read_f));
+    BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+    bool reading_ok = mpi::read_binary_graph(binary_graph.get(), header, std::move(read_f));
+    REQUIRE(reading_ok);
 
-    CHECK(vertex_count == 38);
-    CHECK(edge_count == 168);
-    REQUIRE(edges.size() == edge_count);
+    CHECK(header.vertex_count == 38);
+    CHECK(header.edge_count == 168);
+    REQUIRE(edges.size() == header.edge_count);
 
     // TODO: The counterpart of reading this graph file using regular C++ file
     // I/O routines is capable to read the EOF symbol at the end of the file.

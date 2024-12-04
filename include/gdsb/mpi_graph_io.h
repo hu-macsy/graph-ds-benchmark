@@ -61,19 +61,16 @@ inline BinaryGraphHeader read_binary_graph_header(MPI_File const input)
     }
 }
 
-template <typename ReadF> std::tuple<Vertex64, uint64_t> read_binary_graph(MPI_File const input, ReadF&& read)
+template <typename ReadF> bool read_binary_graph(MPI_File const input, BinaryGraphHeader const& header, ReadF&& read)
 {
-    BinaryGraphHeader const data = read_binary_graph_header(input);
-
     bool continue_reading = true;
-    for (uint64_t e = 0; e < data.edge_count && continue_reading; ++e)
+    for (uint64_t e = 0; e < header.edge_count && continue_reading; ++e)
     {
         continue_reading = read(input);
     }
 
-    return std::make_tuple(data.vertex_count, data.edge_count);
+    return continue_reading;
 }
-
 
 template <typename ReadF>
 std::tuple<Vertex64, uint64_t> read_binary_graph_partition(MPI_File const input,
