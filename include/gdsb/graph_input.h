@@ -325,6 +325,19 @@ std::tuple<Vertex64, uint64_t> read_binary_graph_partition(std::ifstream& input,
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
+namespace binary
+{
+
+void read(std::ifstream&, gdsb::Edge32&);
+
+void read(std::ifstream&, gdsb::WeightedEdge32&);
+
+void read(std::ifstream&, gdsb::TimestampedEdge32&);
+
+void read(std::ifstream&, gdsb::WeightedTimestampedEdge32&);
+
+} // namespace binary
+
 template <typename Vertex, typename Label, typename F> void read_labels(std::istream& ins, F&& emplace)
 {
     std::string line;

@@ -49,4 +49,37 @@ float read_float(char const* source, char** end)
     return value;
 }
 
+namespace binary
+{
+
+void read(std::ifstream& input, Edge32& e)
+{
+    input.read(reinterpret_cast<char*>(&e.source), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.target), sizeof(Vertex32));
+}
+
+void read(std::ifstream& input, gdsb::WeightedEdge32& e)
+{
+    input.read(reinterpret_cast<char*>(&e.source), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.target.vertex), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.target.weight), sizeof(Weight));
+}
+
+void read(std::ifstream& input, gdsb::TimestampedEdge32& e)
+{
+    input.read(reinterpret_cast<char*>(&e.edge.source), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.edge.target), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.timestamp), sizeof(Timestamp32));
+}
+
+void read(std::ifstream& input, gdsb::WeightedTimestampedEdge32& e)
+{
+    input.read(reinterpret_cast<char*>(&e.edge.source), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.edge.target.vertex), sizeof(Vertex32));
+    input.read(reinterpret_cast<char*>(&e.edge.target.weight), sizeof(Weight));
+    input.read(reinterpret_cast<char*>(&e.timestamp), sizeof(Timestamp32));
+}
+
+} // namespace binary
+
 } // namespace gdsb
