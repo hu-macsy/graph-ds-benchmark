@@ -159,5 +159,16 @@ MPIWeightedTimestampedEdge32::MPIWeightedTimestampedEdge32()
 
 MPI_Datatype MPIWeightedTimestampedEdge32::get() const { return m_type; }
 
+namespace binary
+{
+MPI_Status read(MPI_File const input, gdsb::Edge32& e)
+{
+    MPI_Status status;
+    MPI_File_read(input, &e.source, 1, MPI_INT32_T, &status);
+    MPI_File_read(input, &e.target, 1, MPI_INT32_T, &status);
+    return status;
+}
+} // namespace binary
+
 } // namespace mpi
 } // namespace gdsb

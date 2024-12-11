@@ -557,3 +557,21 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
     REQUIRE(edge_count == enzymes_g1_edge_count);
     REQUIRE(edges.size() == edge_count);
 }
+
+TEST_CASE("MPI", "read")
+{
+    SECTION("Edge32")
+    {
+        std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::Edge32 e;
+        mpi::binary::read(binary_graph.get(), e);
+
+        CHECK(e.source == 2u);
+        CHECK(e.target == 1u);
+    }
+
+}
