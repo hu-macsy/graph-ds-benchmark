@@ -107,6 +107,95 @@ TEST_CASE("write_graph, enzymes, binary")
     }
 }
 
+TEST_CASE("write_graph, aves-songbird-social, binary")
+{
+    // First we read in a test graph
+    WeightedEdges32 edges;
+    auto emplace = [&](Vertex32 u, Vertex32 v, Weight w) { edges.push_back(WeightedEdge32{ u, Target32{ v, w } }); };
+    std::ifstream graph_input_unweighted_directed(graph_path + undirected_weighted_aves_songbird_social);
+
+    auto const [vertex_count, edge_count] =
+        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedLoopStatic>(graph_input_unweighted_directed,
+                                                                                      std::move(emplace));
+
+    CHECK(vertex_count == aves_songbird_social_vertex_count);
+    CHECK(edge_count == aves_songbird_social_edge_count);
+    REQUIRE(edge_count == edges.size());
+
+    std::filesystem::path file_path = [&]() -> std::filesystem::path
+    {
+        if constexpr (developing_new_file_format)
+        {
+            return { graph_path + undirected_weighted_aves_songbird_social_bin };
+        }
+        else
+        {
+            return { graph_path + "test_graph.bin" };
+        }
+    }();
+
+    std::ofstream out_file = open_binary_file(file_path);
+
+    REQUIRE(out_file);
+
+    // Write Graph
+    write_graph<BinaryUndirectedWeightedStatic, Vertex32>(
+        out_file, edges, vertex_count, edge_count,
+        [](std::ofstream& o, WeightedEdge32 edge)
+        {
+            o.write(reinterpret_cast<const char*>(&edge.source), sizeof(Vertex32));
+            o.write(reinterpret_cast<const char*>(&edge.target.vertex), sizeof(Vertex32));
+            o.write(reinterpret_cast<const char*>(&edge.target.weight), sizeof(Weight));
+        });
+
+    // Now we read in the written graph and check if we read the expected data.
+    std::ifstream binary_graph(file_path);
+
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(!header.directed);
+    REQUIRE(header.weighted);
+    REQUIRE(!header.dynamic);
+
+    WeightedEdges32 edges_in;
+    auto read_f = [&](std::ifstream& input)
+    {
+        edges_in.push_back(WeightedEdge32{});
+        input.read((char*)&edges_in.back().source, sizeof(Vertex32));
+        input.read((char*)&edges_in.back().target.vertex, sizeof(Vertex32));
+        input.read((char*)&edges_in.back().target.weight, sizeof(Weight));
+        return true;
+    };
+
+    auto [vertex_count_in, edge_count_in] = read_binary_graph(binary_graph, header, std::move(read_f));
+
+    // Note: EOF is an int (for most OS?)
+    int eof_marker;
+    binary_graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
+    REQUIRE(binary_graph.eof());
+
+    CHECK(vertex_count_in == aves_songbird_social_vertex_count);
+    CHECK(edge_count_in == aves_songbird_social_edge_count);
+
+    REQUIRE(edges_in.size() == aves_songbird_social_edge_count);
+
+    // Looking for edge: {42, 81, 0.00970873786408}
+    bool edge_42_to_81_exists = std::any_of(std::begin(edges_in), std::end(edges_in),
+                                            [](WeightedEdge32 const& edge) {
+                                                return edge.source == 42u && edge.target.vertex == 81u &&
+                                                       edge.target.weight == float(0.00970873786408);
+                                            });
+    CHECK(edge_42_to_81_exists);
+
+    // In case of developing a new format: comment this line
+    if constexpr (not developing_new_file_format)
+    {
+        REQUIRE(std::remove(file_path.c_str()) == 0);
+    }
+}
+
+
 TEST_CASE("write_graph, small weighted temporal, binary")
 {
     // First we read in a test graph
