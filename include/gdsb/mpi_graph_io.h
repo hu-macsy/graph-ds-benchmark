@@ -135,13 +135,13 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
 namespace binary
 {
 
-MPI_Status read(MPI_File const input, gdsb::Edge32& e);
+bool read(MPI_File const input, gdsb::Edge32& e);
 
-MPI_Status read(MPI_File const input, gdsb::WeightedEdge32& e);
+bool read(MPI_File const input, gdsb::WeightedEdge32& e);
 
-MPI_Status read(MPI_File const input, gdsb::TimestampedEdge32& e);
+bool read(MPI_File const input, gdsb::TimestampedEdge32& e);
 
-MPI_Status read(MPI_File const input, gdsb::WeightedTimestampedEdge32& e);
+bool read(MPI_File const input, gdsb::WeightedTimestampedEdge32& e);
 
 } // namespace binary
 

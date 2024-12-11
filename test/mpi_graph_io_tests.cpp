@@ -568,7 +568,7 @@ TEST_CASE("MPI", "read")
         BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
 
         gdsb::Edge32 e;
-        mpi::binary::read(binary_graph.get(), e);
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
 
         CHECK(e.source == 2u);
         CHECK(e.target == 1u);
@@ -582,7 +582,7 @@ TEST_CASE("MPI", "read")
         BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
 
         gdsb::WeightedEdge32 e;
-        mpi::binary::read(binary_graph.get(), e);
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
 
         // First edge should be {1, 2, 0.0735930735931}
         CHECK(e.source == 1u);
@@ -598,7 +598,7 @@ TEST_CASE("MPI", "read")
         BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
 
         gdsb::TimestampedEdge32 e;
-        mpi::binary::read(binary_graph.get(), e);
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
 
         // First edge should be {1, 2}, {2005}
         CHECK(e.edge.source == 1u);
@@ -614,7 +614,7 @@ TEST_CASE("MPI", "read")
         BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
 
         gdsb::WeightedTimestampedEdge32 e;
-        mpi::binary::read(binary_graph.get(), e);
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
 
         // First edge should be {0, 1, 1}, {1}
         CHECK(e.edge.source == 0u);
