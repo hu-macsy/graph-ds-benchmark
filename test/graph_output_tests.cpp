@@ -195,6 +195,92 @@ TEST_CASE("write_graph, aves-songbird-social, binary")
     }
 }
 
+TEST_CASE("write_graph, reptilia-tortoise-network-pv, binary")
+{
+    // First we read in a test graph
+    TimestampedEdges32 edges;
+    auto emplace = [&](Vertex32 u, Vertex32 v, Timestamp32 t)
+    { edges.push_back(TimestampedEdge32{ Edge32{ u, v }, t }); };
+    std::ifstream graph_input(graph_path + undirected_unweighted_temporal_reptilia_tortoise);
+
+    auto const [vertex_count, edge_count] =
+        read_graph<Vertex32, decltype(emplace), EdgeListUndirectedWeightedLoopStatic>(graph_input, std::move(emplace));
+
+    CHECK(vertex_count == reptilia_tortoise_network_vertex_count);
+    CHECK(edge_count == reptilia_tortoise_network_edge_count);
+    REQUIRE(edge_count == edges.size());
+
+    std::filesystem::path file_path = [&]() -> std::filesystem::path
+    {
+        if constexpr (developing_new_file_format)
+        {
+            return { graph_path + undirected_unweighted_temporal_reptilia_tortoise_bin };
+        }
+        else
+        {
+            return { graph_path + "test_graph.bin" };
+        }
+    }();
+
+    std::ofstream out_file = open_binary_file(file_path);
+
+    REQUIRE(out_file);
+
+    // Write Graph
+    write_graph<BinaryUndirectedUnweightedDynamic, Vertex32>(
+        out_file, edges, vertex_count, edge_count,
+        [](std::ofstream& o, TimestampedEdge32 edge)
+        {
+            o.write(reinterpret_cast<const char*>(&edge.edge.source), sizeof(Vertex32));
+            o.write(reinterpret_cast<const char*>(&edge.edge.target), sizeof(Vertex32));
+            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Timestamp32));
+        });
+
+    // Now we read in the written graph and check if we read the expected data.
+    std::ifstream binary_graph(file_path);
+
+    BinaryGraphHeader header = read_binary_graph_header(binary_graph);
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.weight_byte_size == sizeof(Weight));
+    REQUIRE(header.timestamp_byte_size == sizeof(Timestamp32));
+    REQUIRE(!header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(header.dynamic);
+
+    TimestampedEdges32 edges_in;
+    auto read_f = [&](std::ifstream& input)
+    {
+        edges_in.push_back(TimestampedEdge32{});
+        input.read((char*)&edges_in.back().edge.source, sizeof(Vertex32));
+        input.read((char*)&edges_in.back().edge.target, sizeof(Vertex32));
+        input.read((char*)&edges_in.back().timestamp, sizeof(Timestamp32));
+        return true;
+    };
+
+    auto [vertex_count_in, edge_count_in] = read_binary_graph(binary_graph, header, std::move(read_f));
+
+    // Note: EOF is an int (for most OS?)
+    int eof_marker;
+    binary_graph.read(reinterpret_cast<char*>(&eof_marker), sizeof(decltype(eof_marker)));
+    REQUIRE(binary_graph.eof());
+
+    CHECK(vertex_count_in == reptilia_tortoise_network_vertex_count);
+    CHECK(edge_count_in == reptilia_tortoise_network_edge_count);
+
+    REQUIRE(edges_in.size() == edge_count_in);
+
+    // Looking for edge: {7, 29} {2013}
+    bool edge_7_to_29_exists =
+        std::any_of(std::begin(edges_in), std::end(edges_in), [](TimestampedEdge32 const& edge)
+                    { return edge.edge.source == 7u && edge.edge.target == 29u && edge.timestamp == 2013u; });
+    CHECK(edge_7_to_29_exists);
+
+    // In case of developing a new format: comment this line
+    if constexpr (not developing_new_file_format)
+    {
+        REQUIRE(std::remove(file_path.c_str()) == 0);
+    }
+}
 
 TEST_CASE("write_graph, small weighted temporal, binary")
 {
