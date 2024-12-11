@@ -574,4 +574,19 @@ TEST_CASE("MPI", "read")
         CHECK(e.target == 1u);
     }
 
+    SECTION("WeightedEdge32")
+    {
+        std::filesystem::path file_path(graph_path + undirected_weighted_aves_songbird_social_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::WeightedEdge32 e;
+        mpi::binary::read(binary_graph.get(), e);
+
+        // First edge should be {1, 2, 0.0735930735931}
+        CHECK(e.source == 1u);
+        CHECK(e.target.vertex == 2u);
+        CHECK(e.target.weight == float(0.0735930735931));
+    }
 }
