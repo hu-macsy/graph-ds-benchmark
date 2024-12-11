@@ -177,6 +177,15 @@ MPI_Status read(MPI_File const input, gdsb::WeightedEdge32& e)
     MPI_File_read(input, &e.target.weight, 1, MPI_FLOAT, &status);
     return status;
 }
+
+MPI_Status read(MPI_File const input, gdsb::TimestampedEdge32& e)
+{
+    MPI_Status status;
+    MPI_File_read(input, &e.edge.source, 1, MPI_INT32_T, &status);
+    MPI_File_read(input, &e.edge.target, 1, MPI_INT32_T, &status);
+    MPI_File_read(input, &e.timestamp, 1, MPI_INT32_T, &status);
+    return status;
+}
 } // namespace binary
 
 } // namespace mpi
