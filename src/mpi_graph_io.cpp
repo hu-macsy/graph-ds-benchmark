@@ -161,6 +161,9 @@ MPI_Datatype MPIWeightedTimestampedEdge32::get() const { return m_type; }
 
 namespace binary
 {
+
+// For every call to MPI_File_read() we pass MPI_STATUS_IGNORE since we do not
+// investigate any issues using the status but the returned error codes.
 bool read(MPI_File const input, gdsb::Edge32& e)
 {
     int ec = MPI_File_read(input, &e.source, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
