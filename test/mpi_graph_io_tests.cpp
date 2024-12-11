@@ -43,7 +43,7 @@ TEST_CASE("MPI, Open File")
 
     SECTION("Does not throw using valid path opening binary file.")
     {
-        std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+        std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
         CHECK_NOTHROW(mpi::FileWrapper(file_path));
     }
 
@@ -184,7 +184,7 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
         return true;
     };
 
-    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
     BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
@@ -464,7 +464,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
 
 TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static, partition id 0, partition size 4")
 {
-    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
     BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
@@ -535,7 +535,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
 
 TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static, partition id 0, partition size 1")
 {
-    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
     BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());

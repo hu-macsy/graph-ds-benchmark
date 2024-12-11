@@ -13,7 +13,7 @@ static std::string undirected_unweighted_temporal_reptilia_tortoise{ "reptilia-t
 static std::string small_weighted_temporal_graph{ "small_weighted_temporal_graph.edges" };
 static std::string small_weighted_temporal_graph_bin{ "small_weighted_temporal_graph.bin" };
 static std::string unweighted_directed_graph_enzymes{ "ENZYMES_g1.edges" };
-static std::string unweighted_directed_graph_enzymes_bin{ "ENZYMES_g1.bin" };
+static std::string directed_unweighted_graph_enzymes_bin{ "ENZYMES_g1.bin" };
 static std::string undirected_unweighted_soc_dolphins{ "soc-dolphins.mtx" };
 static std::string undirected_weighted_aves_songbird_social{ "aves-songbird-social.edges" };
 static std::string undirected_weighted_aves_songbird_social_bin{ "aves-songbird-social.bin" };

@@ -607,7 +607,7 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
         return true;
     };
 
-    std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::ifstream binary_graph(graph_path + directed_unweighted_graph_enzymes_bin);
 
     BinaryGraphHeader header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
