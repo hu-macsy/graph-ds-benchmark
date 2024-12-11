@@ -140,6 +140,9 @@ MPI_Status read(MPI_File const input, gdsb::Edge32& e);
 MPI_Status read(MPI_File const input, gdsb::WeightedEdge32& e);
 
 MPI_Status read(MPI_File const input, gdsb::TimestampedEdge32& e);
+
+MPI_Status read(MPI_File const input, gdsb::WeightedTimestampedEdge32& e);
+
 } // namespace binary
 
 class MPIDataTypeAdapter

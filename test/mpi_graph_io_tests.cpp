@@ -605,4 +605,21 @@ TEST_CASE("MPI", "read")
         CHECK(e.edge.target == 2u);
         CHECK(e.timestamp == 2005u);
     }
+
+    SECTION("WeightedTimestampedEdge32")
+    {
+        std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::WeightedTimestampedEdge32 e;
+        mpi::binary::read(binary_graph.get(), e);
+
+        // First edge should be {0, 1, 1}, {1}
+        CHECK(e.edge.source == 0u);
+        CHECK(e.edge.target.vertex == 1u);
+        CHECK(e.edge.target.weight == float(1.));
+        CHECK(e.timestamp == 1u);
+    }
 }
