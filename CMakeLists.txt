@@ -24,10 +24,11 @@ set(public_headers
 
 target_sources(gdsb
   PRIVATE
-    src/timer.cpp
-    src/graph_input.cpp
-    src/graph.cpp
     src/experiment.cpp
+    src/graph_input.cpp
+    src/graph_output.cpp
+    src/graph.cpp
+    src/timer.cpp
 )
 
 find_package(OpenMP)
