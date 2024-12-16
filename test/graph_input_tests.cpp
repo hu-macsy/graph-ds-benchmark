@@ -435,7 +435,7 @@ TEST_CASE("read_graph, floating point weights")
     }
 }
 
-TEST_CASE("read_graph, loops")
+TEST_CASE("read_graph", "loops, ia southernwoman graph")
 {
     Edges32 edges;
     auto emplace = [&](Vertex32 const u, Vertex32 const v) { edges.push_back({ u, v }); };
@@ -504,6 +504,72 @@ TEST_CASE("read_graph, market_matrix")
         }();
 
         CHECK(edge_43_to_1_exists);
+    }
+}
+
+TEST_CASE("read", "binary")
+{
+    SECTION("Edge32, enzymes graph")
+    {
+        std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+        std::ifstream binary_graph{ file_path };
+
+        BinaryGraphHeader header = read_binary_graph_header(binary_graph);
+
+        gdsb::Edge32 e;
+        binary::read(binary_graph, e);
+
+        CHECK(e.source == 2u);
+        CHECK(e.target == 1u);
+    }
+
+    SECTION("WeightedEdge32, songbird social graph")
+    {
+        std::filesystem::path file_path(graph_path + undirected_weighted_aves_songbird_social_bin);
+        std::ifstream binary_graph{ file_path };
+
+        BinaryGraphHeader header = read_binary_graph_header(binary_graph);
+
+        gdsb::WeightedEdge32 e;
+        binary::read(binary_graph, e);
+
+        // First edge should be {1, 2, 0.0735930735931}
+        CHECK(e.source == 1u);
+        CHECK(e.target.vertex == 2u);
+        CHECK(e.target.weight == float(0.0735930735931));
+    }
+
+    SECTION("TimestampedEdge32, reptilia tortoise graph")
+    {
+        std::filesystem::path file_path(graph_path + undirected_unweighted_temporal_reptilia_tortoise_bin);
+        std::ifstream binary_graph{ file_path };
+
+        BinaryGraphHeader header = read_binary_graph_header(binary_graph);
+
+        gdsb::TimestampedEdge32 e;
+        binary::read(binary_graph, e);
+
+        // First edge should be {1, 2}, {2005}
+        CHECK(e.edge.source == 1u);
+        CHECK(e.edge.target == 2u);
+        CHECK(e.timestamp == 2005u);
+    }
+
+    SECTION("WeightedTimestampedEdge32, small weighted temporal graph")
+    {
+        std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+        std::ifstream binary_graph{ file_path };
+
+        BinaryGraphHeader header = read_binary_graph_header(binary_graph);
+
+        gdsb::WeightedTimestampedEdge32 e;
+        binary::read(binary_graph, e);
+
+        // First edge should be {0, 1, 1}, {1}
+        CHECK(e.edge.source == 0u);
+        CHECK(e.edge.target.vertex == 1u);
+        CHECK(e.edge.target.weight == float(1.));
+        CHECK(e.timestamp == 1u);
     }
 }
 
@@ -607,7 +673,7 @@ TEST_CASE("read_binary_graph, undirected, unweighted, static")
         return true;
     };
 
-    std::ifstream binary_graph(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::ifstream binary_graph(graph_path + directed_unweighted_graph_enzymes_bin);
 
     BinaryGraphHeader header = read_binary_graph_header(binary_graph);
     REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));

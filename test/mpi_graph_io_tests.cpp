@@ -43,7 +43,7 @@ TEST_CASE("MPI, Open File")
 
     SECTION("Does not throw using valid path opening binary file.")
     {
-        std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+        std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
         CHECK_NOTHROW(mpi::FileWrapper(file_path));
     }
 
@@ -184,7 +184,7 @@ TEST_CASE("MPI, read_binary_graph, undirected, unweighted, static")
         return true;
     };
 
-    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
     BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
@@ -464,7 +464,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, small weighted temporal, partit
 
 TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static, partition id 0, partition size 4")
 {
-    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
     BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
@@ -535,7 +535,7 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
 
 TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static, partition id 0, partition size 1")
 {
-    std::filesystem::path file_path(graph_path + unweighted_directed_graph_enzymes_bin);
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
 
     BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
@@ -556,4 +556,70 @@ TEST_CASE("MPI, all_read_binary_graph_partition, undirected, unweighted, static,
     REQUIRE(vertex_count == enzymes_g1_vertex_count);
     REQUIRE(edge_count == enzymes_g1_edge_count);
     REQUIRE(edges.size() == edge_count);
+}
+
+TEST_CASE("MPI", "read")
+{
+    SECTION("Edge32, enzymes graph")
+    {
+        std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::Edge32 e;
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
+
+        CHECK(e.source == 2u);
+        CHECK(e.target == 1u);
+    }
+
+    SECTION("WeightedEdge32, songbird social graph")
+    {
+        std::filesystem::path file_path(graph_path + undirected_weighted_aves_songbird_social_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::WeightedEdge32 e;
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
+
+        // First edge should be {1, 2, 0.0735930735931}
+        CHECK(e.source == 1u);
+        CHECK(e.target.vertex == 2u);
+        CHECK(e.target.weight == float(0.0735930735931));
+    }
+
+    SECTION("TimestampedEdge32, reptilia tortoise graph")
+    {
+        std::filesystem::path file_path(graph_path + undirected_unweighted_temporal_reptilia_tortoise_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::TimestampedEdge32 e;
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
+
+        // First edge should be {1, 2}, {2005}
+        CHECK(e.edge.source == 1u);
+        CHECK(e.edge.target == 2u);
+        CHECK(e.timestamp == 2005u);
+    }
+
+    SECTION("WeightedTimestampedEdge32, small weighted temporal graph")
+    {
+        std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
+        mpi::FileWrapper binary_graph{ file_path };
+
+        BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+
+        gdsb::WeightedTimestampedEdge32 e;
+        REQUIRE(mpi::binary::read(binary_graph.get(), e));
+
+        // First edge should be {0, 1, 1}, {1}
+        CHECK(e.edge.source == 0u);
+        CHECK(e.edge.target.vertex == 1u);
+        CHECK(e.edge.target.weight == float(1.));
+        CHECK(e.timestamp == 1u);
+    }
 }

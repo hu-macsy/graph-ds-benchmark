@@ -159,5 +159,83 @@ MPIWeightedTimestampedEdge32::MPIWeightedTimestampedEdge32()
 
 MPI_Datatype MPIWeightedTimestampedEdge32::get() const { return m_type; }
 
+namespace binary
+{
+
+// For every call to MPI_File_read() we pass MPI_STATUS_IGNORE since we do not
+// investigate any issues using the status but the returned error codes.
+bool read(MPI_File const input, gdsb::Edge32& e)
+{
+    int ec = MPI_File_read(input, &e.source, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.target, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    return ec == MPI_SUCCESS;
+}
+
+bool read(MPI_File const input, gdsb::WeightedEdge32& e)
+{
+    int ec = MPI_File_read(input, &e.source, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.target.vertex, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.target.weight, 1, MPI_FLOAT, MPI_STATUS_IGNORE);
+    return ec == MPI_SUCCESS;
+}
+
+bool read(MPI_File const input, gdsb::TimestampedEdge32& e)
+{
+    int ec = MPI_File_read(input, &e.edge.source, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.edge.target, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.timestamp, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    return ec == MPI_SUCCESS;
+}
+
+bool read(MPI_File const input, gdsb::WeightedTimestampedEdge32& e)
+{
+    int ec = MPI_File_read(input, &e.edge.source, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.edge.target.vertex, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.edge.target.weight, 1, MPI_FLOAT, MPI_STATUS_IGNORE);
+    if (ec != MPI_SUCCESS)
+    {
+        return false;
+    }
+
+    ec = MPI_File_read(input, &e.timestamp, 1, MPI_INT32_T, MPI_STATUS_IGNORE);
+    return ec == MPI_SUCCESS;
+}
+} // namespace binary
+
 } // namespace mpi
 } // namespace gdsb

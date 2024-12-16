@@ -132,6 +132,23 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
+namespace binary
+{
+
+// Returned boolean (of all read functions) indicate if anything went wrong
+// during reading from input. Such read errors may also early return from the
+// function. Thus, if the returned value is false, all written data to e (edge)
+// may be invalid.
+bool read(MPI_File const input, gdsb::Edge32& e);
+
+bool read(MPI_File const input, gdsb::WeightedEdge32& e);
+
+bool read(MPI_File const input, gdsb::TimestampedEdge32& e);
+
+bool read(MPI_File const input, gdsb::WeightedTimestampedEdge32& e);
+
+} // namespace binary
+
 class MPIDataTypeAdapter
 {
 public:
