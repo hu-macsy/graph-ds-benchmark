@@ -1,5 +1,8 @@
 #pragma once
 
+#include <gdsb/graph.h>
+#include <gdsb/graph_io_parameters.h>
+
 //! This file contains functionality to write a graph to disk. This
 //! functionality is specifically used to process graphs of different formats,
 //! converting them to a common binary format.
