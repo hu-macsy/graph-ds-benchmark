@@ -435,7 +435,7 @@ TEST_CASE("read_graph, floating point weights")
     }
 }
 
-TEST_CASE("read_graph, loops")
+TEST_CASE("read_graph", "loops, ia southernwoman graph")
 {
     Edges32 edges;
     auto emplace = [&](Vertex32 const u, Vertex32 const v) { edges.push_back({ u, v }); };
@@ -509,7 +509,7 @@ TEST_CASE("read_graph, market_matrix")
 
 TEST_CASE("read", "binary")
 {
-    SECTION("Edge32")
+    SECTION("Edge32, enzymes graph")
     {
         std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
         std::ifstream binary_graph{ file_path };
@@ -523,7 +523,7 @@ TEST_CASE("read", "binary")
         CHECK(e.target == 1u);
     }
 
-    SECTION("WeightedEdge32")
+    SECTION("WeightedEdge32, songbird social graph")
     {
         std::filesystem::path file_path(graph_path + undirected_weighted_aves_songbird_social_bin);
         std::ifstream binary_graph{ file_path };
@@ -539,7 +539,7 @@ TEST_CASE("read", "binary")
         CHECK(e.target.weight == float(0.0735930735931));
     }
 
-    SECTION("TimestampedEdge32")
+    SECTION("TimestampedEdge32, reptilia tortoise graph")
     {
         std::filesystem::path file_path(graph_path + undirected_unweighted_temporal_reptilia_tortoise_bin);
         std::ifstream binary_graph{ file_path };
@@ -555,7 +555,7 @@ TEST_CASE("read", "binary")
         CHECK(e.timestamp == 2005u);
     }
 
-    SECTION("WeightedTimestampedEdge32")
+    SECTION("WeightedTimestampedEdge32, small weighted temporal graph")
     {
         std::filesystem::path file_path(graph_path + small_weighted_temporal_graph_bin);
         std::ifstream binary_graph{ file_path };
