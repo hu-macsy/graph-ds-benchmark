@@ -11,12 +11,7 @@
 namespace gdsb
 {
 
-std::ofstream open_binary_file(std::filesystem::path const& file_path)
-{
-    std::ofstream output_file;
-    output_file.open(file_path.c_str(), std::ios::out | std::ios::binary);
-    return output_file;
-}
+std::ofstream open_binary_file(std::filesystem::path const&);
 
 template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT, typename WeightT, typename TimestampT>
 void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& header_id, uint64_t const vertex_count, uint64_t const edge_count)
