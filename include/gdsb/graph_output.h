@@ -50,8 +50,18 @@ void write_header(std::ofstream& output_file, BinaryGraphHeaderIdentifier&& head
     }
 }
 
-template <typename GraphParameters = GraphParameters<FileType::binary>, typename VertexT = Vertex32, typename WeightT = Weight, typename TimestampT = Timestamp32, typename Edges, typename WriteEdgeF>
-void write_graph(std::ofstream& output_file, Edges&& edges, uint64_t const vertex_count, uint64_t const edge_count, WriteEdgeF&& write_edge_f)
+namespace binary
+{
+
+void write_edge(std::ofstream&, Edge32 const&);
+
+void write_edge(std::ofstream&, WeightedEdge32 const&);
+
+void write_edge(std::ofstream&, TimestampedEdge32 const&);
+
+void write_edge(std::ofstream&, WeightedTimestampedEdge32 const&);
+
+} // namespace binary
 {
     write_header<GraphParameters, VertexT, WeightT, TimestampT>(output_file, BinaryGraphHeaderIdentifier{}, vertex_count, edge_count);
 
