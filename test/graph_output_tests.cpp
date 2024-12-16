@@ -57,14 +57,7 @@ TEST_CASE("write_graph, enzymes, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedUnweightedStatic, Vertex32>(out_file, edges, vertex_count, edge_count,
-                                                          [](std::ofstream& o, auto edge)
-                                                          {
-                                                              o.write(reinterpret_cast<const char*>(&edge.source),
-                                                                      sizeof(edge.source));
-                                                              o.write(reinterpret_cast<const char*>(&edge.target),
-                                                                      sizeof(edge.target));
-                                                          });
+    write_graph<BinaryDirectedUnweightedStatic, Vertex32>(out_file, edges, vertex_count, edge_count);
 
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
@@ -139,14 +132,7 @@ TEST_CASE("write_graph, aves-songbird-social, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryUndirectedWeightedStatic, Vertex32>(
-        out_file, edges, vertex_count, edge_count,
-        [](std::ofstream& o, WeightedEdge32 edge)
-        {
-            o.write(reinterpret_cast<const char*>(&edge.source), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.target.vertex), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.target.weight), sizeof(Weight));
-        });
+    write_graph<BinaryUndirectedWeightedStatic, Vertex32>(out_file, edges, vertex_count, edge_count);
 
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
@@ -227,14 +213,7 @@ TEST_CASE("write_graph, reptilia-tortoise-network-pv, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryUndirectedUnweightedDynamic, Vertex32>(
-        out_file, edges, vertex_count, edge_count,
-        [](std::ofstream& o, TimestampedEdge32 edge)
-        {
-            o.write(reinterpret_cast<const char*>(&edge.edge.source), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.edge.target), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Timestamp32));
-        });
+    write_graph<BinaryUndirectedUnweightedDynamic, Vertex32>(out_file, edges, vertex_count, edge_count);
 
     // Now we read in the written graph and check if we read the expected data.
     std::ifstream binary_graph(file_path);
@@ -315,15 +294,7 @@ TEST_CASE("write_graph, small weighted temporal, binary")
     REQUIRE(out_file);
 
     // Write Graph
-    write_graph<BinaryDirectedWeightedDynamic, Vertex32, Weight, Timestamp32>(
-        out_file, timestamped_edges, vertex_count, edge_count,
-        [](std::ofstream& o, auto edge)
-        {
-            o.write(reinterpret_cast<const char*>(&edge.edge.source), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.edge.target.vertex), sizeof(Vertex32));
-            o.write(reinterpret_cast<const char*>(&edge.edge.target.weight), sizeof(Weight));
-            o.write(reinterpret_cast<const char*>(&edge.timestamp), sizeof(Timestamp32));
-        });
+    write_graph<BinaryDirectedWeightedDynamic, Vertex32, Weight, Timestamp32>(out_file, timestamped_edges, vertex_count, edge_count);
 
     std::ifstream binary_graph(file_path);
 

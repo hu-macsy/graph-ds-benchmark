@@ -60,12 +60,15 @@ void write_edge(std::ofstream&, TimestampedEdge32 const&);
 void write_edge(std::ofstream&, WeightedTimestampedEdge32 const&);
 
 } // namespace binary
+
+template <typename GraphParameters = GraphParameters<FileType::binary>, typename EdgeT, typename VertexT = Vertex32, typename WeightT = Weight, typename TimestampT = Timestamp32, typename Edges>
+void write_graph(std::ofstream& output_file, Edges const& edges, uint64_t const vertex_count, uint64_t const edge_count)
 {
     write_header<GraphParameters, VertexT, WeightT, TimestampT>(output_file, BinaryGraphHeaderIdentifier{}, vertex_count, edge_count);
 
-    for (auto const e : edges)
+    for (EdgeT const& e : edges)
     {
-        write_edge_f(output_file, e);
+        binary::write_edge(output_file, e);
     }
 
     // flush file
