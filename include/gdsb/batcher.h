@@ -83,6 +83,10 @@ private:
     EIt m_end;
 };
 
+inline uint32_t count_of_batches(uint64_t const edge_count, uint64_t batch_size)
+{
+    return edge_count / batch_size + ((edge_count % batch_size) > 0u);
+}
 
 inline uint64_t partition_batch_count(uint64_t const batch_count, uint32_t const partition_id, uint32_t const partition_size)
 {

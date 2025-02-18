@@ -623,3 +623,85 @@ TEST_CASE("MPI", "read")
         CHECK(e.timestamp == 1u);
     }
 }
+
+TEST_CASE("MPI, all_read_binary_graph_partition, partition for partition, undirected, unweighted, static")
+{
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+    mpi::FileWrapper binary_graph{ file_path };
+
+    BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
+
+    mpi::MPIEdge32 mpi_edge_t;
+
+    uint32_t constexpr batch_size = 10;
+    uint32_t const batch_count = count_of_batches(header.edge_count, batch_size);
+
+    uint32_t current_batch = 0;
+
+    Edges32 edges(partition_batch_count(header.edge_count, current_batch, batch_count));
+    auto const [vertex_count, edge_count] =
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), mpi_edge_t.get(),
+                                             current_batch, batch_count);
+
+    REQUIRE(vertex_count == enzymes_g1_vertex_count);
+    REQUIRE(edge_count == 9);
+    REQUIRE(edges.size() == edge_count);
+
+    size_t idx = 0;
+    CHECK((edges[idx].source == 2 && edges[idx++].target == 1));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 1));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 1));
+    CHECK((edges[idx].source == 1 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 25 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 28 && edges[idx++].target == 2));
+    CHECK((edges[idx].source == 1 && edges[idx++].target == 3));
+
+    ++current_batch;
+
+    edges.resize(partition_batch_count(header.edge_count, current_batch, batch_count));
+    auto const [vertex_count, edge_count] =
+        mpi::all_read_binary_graph_partition(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), mpi_edge_t.get(),
+                                             current_batch, batch_count);
+
+    CHECK(idx == edges.size());
+
+    // CHECK((edges[idx].source == 2 && edges[idx++].target == 3));
+    // CHECK((edges[idx].source == 4 && edges[idx++].target == 3));
+    // CHECK((edges[idx].source == 28 && edges[idx++].target == 3));
+    // CHECK((edges[idx].source == 29 && edges[idx++].target == 3));
+    // CHECK((edges[idx].source == 1 && edges[idx++].target == 4));
+    // CHECK((edges[idx].source == 2 && edges[idx++].target == 4));
+    // CHECK((edges[idx].source == 3 && edges[idx++].target == 4));
+    // CHECK((edges[idx].source == 5 && edges[idx++].target == 4));
+    // CHECK((edges[idx].source == 6 && edges[idx++].target == 4));
+    // CHECK((edges[idx].source == 29 && edges[idx++].target == 4));
+    // CHECK((edges[idx].source == 4 && edges[idx++].target == 5));
+    // CHECK((edges[idx].source == 6 && edges[idx++].target == 5));
+    // CHECK((edges[idx].source == 7 && edges[idx++].target == 5));
+    // CHECK((edges[idx].source == 30 && edges[idx++].target == 5));
+    // CHECK((edges[idx].source == 4 && edges[idx++].target == 6));
+    // CHECK((edges[idx].source == 5 && edges[idx++].target == 6));
+    // CHECK((edges[idx].source == 7 && edges[idx++].target == 6));
+    // CHECK((edges[idx].source == 8 && edges[idx++].target == 6));
+    // CHECK((edges[idx].source == 30 && edges[idx++].target == 6));
+    // CHECK((edges[idx].source == 5 && edges[idx++].target == 7));
+    // CHECK((edges[idx].source == 6 && edges[idx++].target == 7));
+    // CHECK((edges[idx].source == 8 && edges[idx++].target == 7));
+    // CHECK((edges[idx].source == 9 && edges[idx++].target == 7));
+    // CHECK((edges[idx].source == 6 && edges[idx++].target == 8));
+    // CHECK((edges[idx].source == 7 && edges[idx++].target == 8));
+    // CHECK((edges[idx].source == 9 && edges[idx++].target == 8));
+    // CHECK((edges[idx].source == 10 && edges[idx++].target == 8));
+    // CHECK((edges[idx].source == 11 && edges[idx++].target == 8));
+    // CHECK((edges[idx].source == 7 && edges[idx++].target == 9));
+    // CHECK((edges[idx].source == 8 && edges[idx++].target == 9));
+    // CHECK((edges[idx].source == 10 && edges[idx++].target == 9));
+    // CHECK((edges[idx].source == 8 && edges[idx++].target == 10));
+    // CHECK((edges[idx].source == 9 && edges[idx++].target == 10));
+}
