@@ -186,7 +186,7 @@ if (GDSB_TEST)
 
   # GDSB test target
   add_executable(gdsb_test
-    test/batcher.cpp
+    test/batcher_tests.cpp
     test/experiment_tests.cpp
     test/graph_input_tests.cpp
     test/graph_test.cpp

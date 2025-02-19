@@ -83,9 +83,17 @@ private:
     EIt m_end;
 };
 
-inline uint32_t count_of_batches(uint64_t const edge_count, uint64_t batch_size)
+constexpr uint32_t count_of_batches(uint64_t const edge_count, uint64_t expected_batch_size)
 {
-    return edge_count / batch_size + ((edge_count % batch_size) > 0u);
+    return edge_count / expected_batch_size;
+}
+
+inline size_t fair_batch_size(uint64_t const edge_count, uint64_t max_batch_size)
+{
+    uint64_t const batch_size = edge_count / max_batch_size;
+    uint64_t const remaining = edge_count % max_batch_size;
+    uint64_t fair_size = (batch_size * max_batch_size) + (remaining / batch_size);
+    return fair_size;
 }
 
 inline uint64_t partition_batch_count(uint64_t const batch_count, uint32_t const partition_id, uint32_t const partition_size)

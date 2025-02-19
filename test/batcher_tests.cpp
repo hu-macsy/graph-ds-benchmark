@@ -68,3 +68,33 @@ TEST_CASE("partition_batch_count, on enzymes graph")
         CHECK(edge_count == 36);
     }
 }
+
+TEST_CASE("count_of_batches()")
+{
+    SECTION("simple")
+    {
+        uint64_t constexpr edge_count = 30;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t cob = count_of_batches(edge_count, max_batch_size);
+
+        CHECK(cob == 3);
+    }
+
+    SECTION("simple with rest")
+    {
+        uint64_t constexpr edge_count = 33;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t cob = count_of_batches(edge_count, max_batch_size);
+
+        CHECK(cob == 3);
+    }
+
+    SECTION("simple with max rest")
+    {
+        uint64_t constexpr edge_count = 39;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t cob = count_of_batches(edge_count, max_batch_size);
+
+        CHECK(cob == 3);
+    }
+}
