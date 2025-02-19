@@ -135,18 +135,14 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
 // Parameter edges must be a pointer to the first element of the array/vector
 // containing edges.
 template <typename Edges>
-std::tuple<Vertex64, uint64_t> all_read_binary_graph_batch(MPI_File const input,
-                                                           BinaryGraphHeader const& data,
-                                                           Edges* const edges,
-                                                           size_t const edge_size_in_bytes,
-                                                           MPI_Datatype const mpi_datatype,
-                                                           uint64_t const edge_count,
-                                                           uint64_t const fair_batch_size,
-                                                           uint32_t const current_batch_num,
-                                                           uint32_t const count_of_batches)
+void all_read_binary_graph_batch(MPI_File const input,
+                                 BinaryGraphHeader const& data,
+                                 Edges* const edges,
+                                 size_t const edge_size_in_bytes,
+                                 uint64_t const offset,
+                                 uint64_t const count,
+                                 MPI_Datatype const mpi_datatype)
 {
-    auto const [offset, count] = fair_batch_offset(fair_batch_size, current_batch_num, count_of_batches, edge_count);
-
     // Header offset should be implicit since input is already read until begin of edges
     size_t const offset_in_bytes = offset * edge_size_in_bytes;
     int const seek_error = MPI_File_seek(input, offset_in_bytes, MPI_SEEK_CUR);
@@ -161,8 +157,6 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_batch(MPI_File const input,
     {
         throw std::runtime_error("Could not successfully read all edges from MPI file.");
     }
-
-    return std::make_tuple(data.vertex_count, edge_count);
 }
 
 namespace binary
