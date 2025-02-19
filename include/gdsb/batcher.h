@@ -88,11 +88,11 @@ constexpr uint32_t count_of_batches(uint64_t const edge_count, uint64_t expected
     return edge_count / expected_batch_size;
 }
 
-inline size_t fair_batch_size(uint64_t const edge_count, uint64_t max_batch_size)
+constexpr size_t fair_batch_size(uint64_t const edge_count, uint64_t max_batch_size)
 {
-    uint64_t const batch_size = edge_count / max_batch_size;
+    uint64_t const batch_count = edge_count / max_batch_size;
     uint64_t const remaining = edge_count % max_batch_size;
-    uint64_t fair_size = (batch_size * max_batch_size) + (remaining / batch_size);
+    uint64_t fair_size = max_batch_size + (remaining / batch_count);
     return fair_size;
 }
 
