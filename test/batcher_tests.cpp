@@ -98,3 +98,42 @@ TEST_CASE("count_of_batches()")
         CHECK(cob == 3);
     }
 }
+
+TEST_CASE("fair_batch_size()")
+{
+    SECTION("simple")
+    {
+        uint64_t constexpr edge_count = 30;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+
+        CHECK(fbs == 10);
+    }
+
+    SECTION("simple with rest")
+    {
+        uint64_t constexpr edge_count = 33;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+
+        CHECK(fbs == 11);
+    }
+
+    SECTION("simple with max rest")
+    {
+        uint64_t constexpr edge_count = 39;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+
+        CHECK(fbs == 13);
+    }
+
+    SECTION("worst case, 2 remaining unincluded ")
+    {
+        uint64_t constexpr edge_count = 38;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+
+        CHECK(fbs == 12);
+    }
+}
