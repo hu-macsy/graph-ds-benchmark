@@ -132,6 +132,39 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
+// Parameter edges must be a pointer to the first element of the array/vector
+// containing edges.
+template <typename Edges>
+std::tuple<Vertex64, uint64_t> all_read_binary_graph_batch(MPI_File const input,
+                                                           BinaryGraphHeader const& data,
+                                                           Edges* const edges,
+                                                           size_t const edge_size_in_bytes,
+                                                           MPI_Datatype const mpi_datatype,
+                                                           uint64_t const edge_count,
+                                                           uint64_t const fair_batch_size,
+                                                           uint32_t const current_batch_num,
+                                                           uint32_t const count_of_batches)
+{
+    auto const [offset, count] = fair_batch_offset(fair_batch_size, current_batch_num, count_of_batches, edge_count);
+
+    // Header offset should be implicit since input is already read until begin of edges
+    size_t const offset_in_bytes = offset * edge_size_in_bytes;
+    int const seek_error = MPI_File_seek(input, offset_in_bytes, MPI_SEEK_CUR);
+    if (seek_error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not seek to specified offset [" + std::to_string(offset) + "] within MPI file.");
+    }
+
+    MPI_Status status;
+    int const read_all_error = MPI_File_read_all(input, edges, count, mpi_datatype, &status);
+    if (read_all_error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not successfully read all edges from MPI file.");
+    }
+
+    return std::make_tuple(data.vertex_count, edge_count);
+}
+
 namespace binary
 {
 
