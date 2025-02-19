@@ -96,7 +96,23 @@ constexpr size_t fair_batch_size(uint64_t const edge_count, uint64_t max_batch_s
     return fair_size;
 }
 
-inline uint64_t partition_batch_count(uint64_t const batch_count, uint32_t const partition_id, uint32_t const partition_size)
+constexpr std::pair<uint64_t, uint64_t>
+fair_batch_offset(uint64_t const fair_size, uint64_t current_batch_num, uint64_t batches_count, uint64_t edge_count)
+{
+    uint64_t begin = current_batch_num * fair_size;
+
+    bool const is_last_batch = (current_batch_num + 1) == batches_count;
+    if (is_last_batch)
+    {
+        uint64_t const count = edge_count - begin;
+        return std::make_pair(begin, count);
+    }
+
+    uint64_t const count = fair_size;
+    return std::make_pair(begin, count);
+}
+
+constexpr uint64_t partition_batch_count(uint64_t const batch_count, uint32_t const partition_id, uint32_t const partition_size)
 {
     uint64_t partition_batch_count = batch_count / partition_size;
     if (partition_id == partition_size - 1)

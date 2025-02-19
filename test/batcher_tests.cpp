@@ -137,3 +137,113 @@ TEST_CASE("fair_batch_size()")
         CHECK(fbs == 12);
     }
 }
+
+TEST_CASE("fair_batch_offset()")
+{
+    SECTION("simple")
+    {
+
+        uint64_t constexpr edge_count = 30u;
+        uint64_t constexpr max_batch_size = 10u;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+        REQUIRE(fbs == 10u);
+
+        uint32_t cob = count_of_batches(edge_count, fbs);
+        REQUIRE(cob == 3);
+
+        uint64_t current_batch_num = 0u;
+        auto [begin, count] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin == 0u);
+        CHECK(count == 10u);
+    }
+
+    SECTION("simple with rest")
+    {
+        uint64_t constexpr edge_count = 33;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+        REQUIRE(fbs == 11);
+
+        uint32_t cob = count_of_batches(edge_count, fbs);
+        REQUIRE(cob == 3);
+
+        uint64_t current_batch_num = 0u;
+        auto [begin_0, count_0] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_0 == 0u);
+        CHECK(count_0 == fbs);
+
+        ++current_batch_num;
+        auto [begin_1, count_1] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_1 == 11u);
+        CHECK(count_1 == fbs);
+
+        ++current_batch_num;
+        auto [begin_2, count_2] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_2 == 22u);
+        CHECK(count_2 == fbs);
+    }
+
+    SECTION("simple with max rest")
+    {
+        uint64_t constexpr edge_count = 39;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+
+        CHECK(fbs == 13);
+
+        uint32_t cob = count_of_batches(edge_count, fbs);
+        REQUIRE(cob == 3);
+
+        uint64_t current_batch_num = 0u;
+        auto [begin_0, count_0] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_0 == 0u);
+        CHECK(count_0 == fbs);
+
+        ++current_batch_num;
+        auto [begin_1, count_1] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_1 == 13u);
+        CHECK(count_1 == fbs);
+
+        ++current_batch_num;
+        auto [begin_2, count_2] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_2 == 26u);
+        CHECK(count_2 == fbs);
+    }
+
+    SECTION("worst case, 2 remaining unincluded ")
+    {
+        uint64_t constexpr edge_count = 38;
+        uint64_t constexpr max_batch_size = 10;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+
+        CHECK(fbs == 12);
+
+        uint32_t cob = count_of_batches(edge_count, fbs);
+        REQUIRE(cob == 3);
+
+        uint64_t current_batch_num = 0u;
+        auto [begin_0, count_0] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_0 == 0u);
+        CHECK(count_0 == fbs);
+
+        ++current_batch_num;
+        auto [begin_1, count_1] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_1 == 12u);
+        CHECK(count_1 == fbs);
+
+        ++current_batch_num;
+        auto [begin_2, count_2] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin_2 == 24u);
+        CHECK(count_2 == fbs + 2);
+    }
+}
