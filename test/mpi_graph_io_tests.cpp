@@ -966,6 +966,8 @@ TEST_CASE("MPI, all_read_binary_graph_partition, partition for partition, undire
 
     ++current_batch;
     auto const [offset_15, count_15] = fair_batch_offset(batch_size, current_batch, cob, header.edge_count);
+    uint64_t remaining_edges = 8u;
+    REQUIRE(count_15 == batch_size + remaining_edges);
     edges.resize(count_15);
     REQUIRE(edges.size() == count_15);
     mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), 0u, count_15, mpi_edge_t.get());
@@ -981,15 +983,6 @@ TEST_CASE("MPI, all_read_binary_graph_partition, partition for partition, undire
     CHECK((edges[idx].source == 36 && edges[idx++].target == 35));
     CHECK((edges[idx].source == 37 && edges[idx++].target == 35));
     CHECK((edges[idx].source == 22 && edges[idx++].target == 36));
-
-    ++current_batch;
-    auto const [offset_16, count_16] = fair_batch_offset(batch_size, current_batch, cob, header.edge_count);
-    edges.resize(count_16);
-    REQUIRE(edges.size() == count_16);
-    CHECK(count_16 == 8);
-    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), 0u, count_16, mpi_edge_t.get());
-    idx = 0;
-
     CHECK((edges[idx].source == 23 && edges[idx++].target == 36));
     CHECK((edges[idx].source == 31 && edges[idx++].target == 36));
     CHECK((edges[idx].source == 34 && edges[idx++].target == 36));
