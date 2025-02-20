@@ -136,13 +136,20 @@ TEST_CASE("fair_batch_size()")
 
         CHECK(fbs == 12);
     }
+
+    SECTION("safe")
+    {
+        uint64_t constexpr edge_count = 30u;
+        uint64_t constexpr max_batch_size = 100u;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+        REQUIRE(fbs == 30u);
+    }
 }
 
 TEST_CASE("fair_batch_offset()")
 {
     SECTION("simple")
     {
-
         uint64_t constexpr edge_count = 30u;
         uint64_t constexpr max_batch_size = 10u;
         uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
@@ -245,5 +252,22 @@ TEST_CASE("fair_batch_offset()")
 
         CHECK(begin_2 == 24u);
         CHECK(count_2 == fbs + 2);
+    }
+
+    SECTION("safe")
+    {
+        uint64_t constexpr edge_count = 30u;
+        uint64_t constexpr max_batch_size = 100u;
+        uint32_t fbs = fair_batch_size(edge_count, max_batch_size);
+        REQUIRE(fbs == 30u);
+
+        uint32_t cob = count_of_batches(edge_count, fbs);
+        REQUIRE(cob == 1);
+
+        uint64_t current_batch_num = 0u;
+        auto [begin, count] = fair_batch_offset(fbs, current_batch_num, cob, edge_count);
+
+        CHECK(begin == 0u);
+        CHECK(count == 30u);
     }
 }

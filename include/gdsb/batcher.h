@@ -90,6 +90,11 @@ constexpr uint32_t count_of_batches(uint64_t const edge_count, uint64_t expected
 
 constexpr size_t fair_batch_size(uint64_t const edge_count, uint64_t max_batch_size)
 {
+    if (edge_count <= max_batch_size)
+    {
+        return edge_count;
+    }
+
     uint64_t const batch_count = edge_count / max_batch_size;
     uint64_t const remaining = edge_count % max_batch_size;
     uint64_t fair_size = max_batch_size + (remaining / batch_count);
