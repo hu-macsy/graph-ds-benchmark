@@ -132,34 +132,46 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
+struct ReadBatch
+{
+    // Set this to the desired batch size.
+    uint64_t batch_size{ 1 };
+    // Set this to the expected size of edge in bytes.
+    size_t edge_size_in_bytes{ 4 };
+    // Leave this as is, will be used by all_read_binary_graph_batch().
+    uint64_t count_read_in_edges{ 0 };
+};
+
 // Parameter edges must be a pointer to the first element of the array/vector
 // containing edges.
 //
-// We give no guarantees to successfully reading 'count' elements from file.
-// Issues arise whenever count would exceed the file EOF marker. The caller of
-// this function must guarantee the correctness of the count of edges to be read
-// from file in order to behave correctly.
+// We do not read from file exceeding the edge count of 'data' (therefore, not
+// reading past EOF). Please make sure to handle 'read_batch' correctly which is
+// an in-out parameter. We set the 'read_batch.count_read_in_edges' according to
+// the edge count we could read from file.
 template <typename Edges>
-void all_read_binary_graph_batch(MPI_File const input,
-                                 BinaryGraphHeader const& data,
-                                 Edges* const edges,
-                                 size_t const edge_size_in_bytes,
-                                 uint64_t const offset,
-                                 uint64_t const count,
-                                 MPI_Datatype const mpi_datatype)
+void all_read_binary_graph_batch(MPI_File const input, BinaryGraphHeader const& data, Edges* const edges, ReadBatch& read_batch, MPI_Datatype const mpi_datatype)
 {
-    // Header offset should be implicit since input is already read until begin of edges
-    size_t const offset_in_bytes = offset * edge_size_in_bytes;
-    int const seek_error = MPI_File_seek(input, offset_in_bytes, MPI_SEEK_CUR);
-    if (seek_error != MPI_SUCCESS)
+    if (read_batch.batch_size > std::numeric_limits<int>::max())
     {
-        throw std::runtime_error("Could not seek to specified offset [" + std::to_string(offset) + "] within MPI file.");
+        // Have a look at the count type of MPI_File_read_all()
+        throw std::runtime_error("Count of edges exceeds MPI read count type (int) maximum.");
     }
 
-    if (count > std::numeric_limits<int>::max())
+    if (read_batch.count_read_in_edges == data.edge_count)
     {
-        throw std::runtime_error("Count of edges exceeds MPI read count type maximum.");
+        return;
     }
+
+    uint64_t potential_count = read_batch.batch_size;
+    uint64_t potential_count_read_in_edges = read_batch.count_read_in_edges + potential_count;
+    if (potential_count_read_in_edges > data.edge_count)
+    {
+        potential_count = data.edge_count - read_batch.count_read_in_edges;
+    }
+
+    int count = static_cast<int>(potential_count);
+    read_batch.count_read_in_edges += potential_count;
 
     MPI_Status status;
     int const read_all_error = MPI_File_read_all(input, edges, count, mpi_datatype, &status);
