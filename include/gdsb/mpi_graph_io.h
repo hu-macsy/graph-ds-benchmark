@@ -151,6 +151,11 @@ void all_read_binary_graph_batch(MPI_File const input,
         throw std::runtime_error("Could not seek to specified offset [" + std::to_string(offset) + "] within MPI file.");
     }
 
+    if (count > std::numeric_limits<int>::max())
+    {
+        throw std::runtime_error("Count of edges exceeds MPI read count type maximum.");
+    }
+
     MPI_Status status;
     int const read_all_error = MPI_File_read_all(input, edges, count, mpi_datatype, &status);
     if (read_all_error != MPI_SUCCESS)

@@ -992,3 +992,32 @@ TEST_CASE("MPI, all_read_binary_graph_batch, batch for batch")
     CHECK((edges[idx].source == 34 && edges[idx++].target == 37));
     CHECK((edges[idx].source == 35 && edges[idx++].target == 37));
 }
+
+TEST_CASE("MPI, all_read_binary_graph_batch, read issues")
+{
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+    mpi::FileWrapper binary_graph{ file_path };
+
+    BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
+
+    mpi::MPIEdge32 mpi_edge_t;
+
+    SECTION("Read Success")
+    {
+        Edges32 edges(header.edge_count);
+        mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), 0, header.edge_count,
+                                         mpi_edge_t.get());
+    }
+
+    SECTION("Read exceeds counter")
+    {
+        Edges32 edges(header.edge_count);
+        uint64_t count = std::numeric_limits<uint32_t>::max();
+        CHECK_THROWS(mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), sizeof(Edge32), 0, count,
+                                                      mpi_edge_t.get()));
+    }
+}
