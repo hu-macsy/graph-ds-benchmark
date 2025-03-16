@@ -624,7 +624,7 @@ TEST_CASE("MPI", "read")
     }
 }
 
-TEST_CASE("MPI, all_read_binary_graph_partition, partition for partition, undirected, unweighted, static")
+TEST_CASE("MPI, all_read_binary_graph_batch, batch for batch")
 {
     std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
     mpi::FileWrapper binary_graph{ file_path };
