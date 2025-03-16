@@ -134,6 +134,11 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
 
 // Parameter edges must be a pointer to the first element of the array/vector
 // containing edges.
+//
+// We give no guarantees to successfully reading 'count' elements from file.
+// Issues arise whenever count would exceed the file EOF marker. The caller of
+// this function must guarantee the correctness of the count of edges to be read
+// from file in order to behave correctly.
 template <typename Edges>
 void all_read_binary_graph_batch(MPI_File const input,
                                  BinaryGraphHeader const& data,
@@ -162,6 +167,18 @@ void all_read_binary_graph_batch(MPI_File const input,
     {
         throw std::runtime_error("Could not successfully read all edges from MPI file.");
     }
+
+    // It's not really clear from several MPI documentations I've read which
+    // field actually contains the number of elements read from file given the
+    // count one wants to read. The status.MPI_SOURCE field seems to
+    // surprisingly provide that data point.. However, this seems to read beyond
+    // EOF and still be equal to the requested count.
+    //
+    // Still we won't do the following since that leads to a really unclear API.
+    // return status.MPI_SOURCE == count;
+    //
+    // TODO: Find a way to check if we read exceeding EOF. Perhaps we could
+    // better model the view on the file?
 }
 
 namespace binary
