@@ -132,6 +132,67 @@ std::tuple<Vertex64, uint64_t> all_read_binary_graph_partition(MPI_File const in
     return std::make_tuple(data.vertex_count, edge_count);
 }
 
+struct ReadBatch
+{
+    // Set this to the desired batch size.
+    uint64_t batch_size{ 1 };
+    // Set this to the expected size of edge in bytes.
+    size_t edge_size_in_bytes{ 4 };
+    // Leave this as is, will be used by all_read_binary_graph_batch().
+    uint64_t count_read_in_edges{ 0 };
+};
+
+// Parameter edges must be a pointer to the first element of the array/vector
+// containing edges.
+//
+// We do not read from file exceeding the edge count of 'data' (therefore, not
+// reading past EOF). Please make sure to handle 'read_batch' correctly which is
+// an in-out parameter. We set the 'read_batch.count_read_in_edges' according to
+// the edge count we could read from file.
+template <typename Edges>
+void all_read_binary_graph_batch(MPI_File const input, BinaryGraphHeader const& data, Edges* const edges, ReadBatch& read_batch, MPI_Datatype const mpi_datatype)
+{
+    if (read_batch.batch_size > std::numeric_limits<int>::max())
+    {
+        // Have a look at the count type of MPI_File_read_all()
+        throw std::runtime_error("Count of edges exceeds MPI read count type (int) maximum.");
+    }
+
+    if (read_batch.count_read_in_edges == data.edge_count)
+    {
+        return;
+    }
+
+    uint64_t potential_count = read_batch.batch_size;
+    uint64_t potential_count_read_in_edges = read_batch.count_read_in_edges + potential_count;
+    if (potential_count_read_in_edges > data.edge_count)
+    {
+        potential_count = data.edge_count - read_batch.count_read_in_edges;
+    }
+
+    int count = static_cast<int>(potential_count);
+    read_batch.count_read_in_edges += potential_count;
+
+    MPI_Status status;
+    int const read_all_error = MPI_File_read_all(input, edges, count, mpi_datatype, &status);
+    if (read_all_error != MPI_SUCCESS)
+    {
+        throw std::runtime_error("Could not successfully read all edges from MPI file.");
+    }
+
+    // It's not really clear from several MPI documentations I've read which
+    // field actually contains the number of elements read from file given the
+    // count one wants to read. The status.MPI_SOURCE field seems to
+    // surprisingly provide that data point.. However, this seems to read beyond
+    // EOF and still be equal to the requested count.
+    //
+    // Still we won't do the following since that leads to a really unclear API.
+    // return status.MPI_SOURCE == count;
+    //
+    // TODO: Find a way to check if we read exceeding EOF. Perhaps we could
+    // better model the view on the file?
+}
+
 namespace binary
 {
 

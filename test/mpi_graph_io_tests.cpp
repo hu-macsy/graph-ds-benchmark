@@ -623,3 +623,419 @@ TEST_CASE("MPI", "read")
         CHECK(e.timestamp == 1u);
     }
 }
+
+TEST_CASE("MPI, all_read_binary_graph_batch, batch for batch")
+{
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+    mpi::FileWrapper binary_graph{ file_path };
+
+    BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
+
+    mpi::MPIEdge32 mpi_edge_t;
+
+    uint32_t constexpr max_batch_size = 10u;
+    mpi::ReadBatch read_batch;
+    read_batch.edge_size_in_bytes = sizeof(Edge32);
+    read_batch.batch_size = fair_batch_size(header.edge_count, max_batch_size);
+
+    REQUIRE(read_batch.batch_size == 10u);
+
+    uint32_t const cob = count_of_batches(header.edge_count, read_batch.batch_size);
+    REQUIRE(cob == 16u);
+
+    uint32_t current_batch = 0;
+    auto const [offset, count] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+
+    Edges32 edges(count);
+    REQUIRE(edges.size() == count);
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+
+    size_t idx = 0;
+    CHECK(edges[idx].source == 2);
+    CHECK(edges[idx++].target == 1);
+
+    CHECK(edges[idx].source == 3);
+    CHECK(edges[idx++].target == 1);
+
+    CHECK(edges[idx].source == 4);
+    CHECK(edges[idx++].target == 1);
+
+    CHECK(edges[idx].source == 1);
+    CHECK(edges[idx++].target == 2);
+
+    CHECK(edges[idx].source == 3);
+    CHECK(edges[idx++].target == 2);
+
+    CHECK(edges[idx].source == 4);
+    CHECK(edges[idx++].target == 2);
+
+    CHECK(edges[idx].source == 25);
+    CHECK(edges[idx++].target == 2);
+
+    CHECK(edges[idx].source == 28);
+    CHECK(edges[idx++].target == 2);
+
+    CHECK(edges[idx].source == 1);
+    CHECK(edges[idx++].target == 3);
+
+    CHECK(edges[idx].source == 2);
+    CHECK(edges[idx++].target == 3);
+
+    CHECK(idx == edges.size());
+
+    ++current_batch;
+    auto const [offset_1, count_1] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+
+    edges.resize(count_1);
+    REQUIRE(edges.size() == count_1);
+    read_batch.batch_size = count_1;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+
+    idx = 0;
+
+    CHECK(edges[idx].source == 4);
+    CHECK(edges[idx++].target == 3);
+
+    CHECK(edges[idx].source == 28);
+    CHECK(edges[idx++].target == 3);
+
+    CHECK(edges[idx].source == 29);
+    CHECK(edges[idx++].target == 3);
+
+    CHECK(edges[idx].source == 1);
+    CHECK(edges[idx++].target == 4);
+
+    CHECK(edges[idx].source == 2);
+    CHECK(edges[idx++].target == 4);
+
+    CHECK(edges[idx].source == 3);
+    CHECK(edges[idx++].target == 4);
+
+    CHECK(edges[idx].source == 5);
+    CHECK(edges[idx++].target == 4);
+
+    CHECK(edges[idx].source == 6);
+    CHECK(edges[idx++].target == 4);
+
+    CHECK(edges[idx].source == 29);
+    CHECK(edges[idx++].target == 4);
+
+    CHECK(edges[idx].source == 4);
+    CHECK(edges[idx++].target == 5);
+
+    CHECK(idx == edges.size());
+
+    ++current_batch;
+    auto const [offset_2, count_2] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+
+    edges.resize(count_2);
+    REQUIRE(edges.size() == count_2);
+    read_batch.batch_size = count_2;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+
+    idx = 0;
+
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 5));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 5 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 6));
+    CHECK((edges[idx].source == 5 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 7));
+
+    ++current_batch;
+    auto const [offset_3, count_3] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+
+    edges.resize(count_3);
+    REQUIRE(edges.size() == count_3);
+    read_batch.batch_size = count_3;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 9 && edges[idx++].target == 7));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 9 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 11 && edges[idx++].target == 8));
+    CHECK((edges[idx].source == 7 && edges[idx++].target == 9));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 9));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 9));
+
+    ++current_batch;
+    auto const [offset_4, count_4] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_4);
+    read_batch.batch_size = count_4;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 10));
+    CHECK((edges[idx].source == 9 && edges[idx++].target == 10));
+    CHECK((edges[idx].source == 11 && edges[idx++].target == 10));
+    CHECK((edges[idx].source == 12 && edges[idx++].target == 10));
+    CHECK((edges[idx].source == 13 && edges[idx++].target == 10));
+    CHECK((edges[idx].source == 8 && edges[idx++].target == 11));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 11));
+    CHECK((edges[idx].source == 12 && edges[idx++].target == 11));
+    CHECK((edges[idx].source == 13 && edges[idx++].target == 11));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 12));
+
+    ++current_batch;
+    auto const [offset_5, count_5] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_5);
+    read_batch.batch_size = count_5;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 11 && edges[idx++].target == 12));
+    CHECK((edges[idx].source == 13 && edges[idx++].target == 12));
+    CHECK((edges[idx].source == 27 && edges[idx++].target == 12));
+    CHECK((edges[idx].source == 10 && edges[idx++].target == 13));
+    CHECK((edges[idx].source == 11 && edges[idx++].target == 13));
+    CHECK((edges[idx].source == 12 && edges[idx++].target == 13));
+    CHECK((edges[idx].source == 26 && edges[idx++].target == 13));
+    CHECK((edges[idx].source == 27 && edges[idx++].target == 13));
+    CHECK((edges[idx].source == 15 && edges[idx++].target == 14));
+    CHECK((edges[idx].source == 16 && edges[idx++].target == 14));
+
+    ++current_batch;
+    auto const [offset_6, count_6] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_6);
+    read_batch.batch_size = count_6;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 17 && edges[idx++].target == 14));
+    CHECK((edges[idx].source == 26 && edges[idx++].target == 14));
+    CHECK((edges[idx].source == 14 && edges[idx++].target == 15));
+    CHECK((edges[idx].source == 16 && edges[idx++].target == 15));
+    CHECK((edges[idx].source == 17 && edges[idx++].target == 15));
+    CHECK((edges[idx].source == 26 && edges[idx++].target == 15));
+    CHECK((edges[idx].source == 14 && edges[idx++].target == 16));
+    CHECK((edges[idx].source == 15 && edges[idx++].target == 16));
+    CHECK((edges[idx].source == 17 && edges[idx++].target == 16));
+    CHECK((edges[idx].source == 18 && edges[idx++].target == 16));
+
+    ++current_batch;
+    auto const [offset_7, count_7] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_7);
+    read_batch.batch_size = count_7;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 14 && edges[idx++].target == 17));
+    CHECK((edges[idx].source == 15 && edges[idx++].target == 17));
+    CHECK((edges[idx].source == 16 && edges[idx++].target == 17));
+    CHECK((edges[idx].source == 18 && edges[idx++].target == 17));
+    CHECK((edges[idx].source == 16 && edges[idx++].target == 18));
+    CHECK((edges[idx].source == 17 && edges[idx++].target == 18));
+    CHECK((edges[idx].source == 19 && edges[idx++].target == 18));
+    CHECK((edges[idx].source == 20 && edges[idx++].target == 18));
+    CHECK((edges[idx].source == 18 && edges[idx++].target == 19));
+    CHECK((edges[idx].source == 20 && edges[idx++].target == 19));
+
+    ++current_batch;
+    auto const [offset_8, count_8] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_8);
+    read_batch.batch_size = count_8;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 21 && edges[idx++].target == 19));
+    CHECK((edges[idx].source == 18 && edges[idx++].target == 20));
+    CHECK((edges[idx].source == 19 && edges[idx++].target == 20));
+    CHECK((edges[idx].source == 21 && edges[idx++].target == 20));
+    CHECK((edges[idx].source == 19 && edges[idx++].target == 21));
+    CHECK((edges[idx].source == 20 && edges[idx++].target == 21));
+    CHECK((edges[idx].source == 22 && edges[idx++].target == 21));
+    CHECK((edges[idx].source == 23 && edges[idx++].target == 21));
+    CHECK((edges[idx].source == 24 && edges[idx++].target == 21));
+    CHECK((edges[idx].source == 31 && edges[idx++].target == 21));
+
+    ++current_batch;
+    auto const [offset_9, count_9] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_9);
+    read_batch.batch_size = count_9;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 21 && edges[idx++].target == 22));
+    CHECK((edges[idx].source == 23 && edges[idx++].target == 22));
+    CHECK((edges[idx].source == 24 && edges[idx++].target == 22));
+    CHECK((edges[idx].source == 31 && edges[idx++].target == 22));
+    CHECK((edges[idx].source == 36 && edges[idx++].target == 22));
+    CHECK((edges[idx].source == 21 && edges[idx++].target == 23));
+    CHECK((edges[idx].source == 22 && edges[idx++].target == 23));
+    CHECK((edges[idx].source == 24 && edges[idx++].target == 23));
+    CHECK((edges[idx].source == 36 && edges[idx++].target == 23));
+    CHECK((edges[idx].source == 21 && edges[idx++].target == 24));
+
+    ++current_batch;
+    auto const [offset_10, count_10] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_10);
+    read_batch.batch_size = count_10;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 22 && edges[idx++].target == 24));
+    CHECK((edges[idx].source == 23 && edges[idx++].target == 24));
+    CHECK((edges[idx].source == 34 && edges[idx++].target == 24));
+    CHECK((edges[idx].source == 2 && edges[idx++].target == 25));
+    CHECK((edges[idx].source == 28 && edges[idx++].target == 25));
+    CHECK((edges[idx].source == 29 && edges[idx++].target == 25));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 25));
+    CHECK((edges[idx].source == 13 && edges[idx++].target == 26));
+    CHECK((edges[idx].source == 14 && edges[idx++].target == 26));
+    CHECK((edges[idx].source == 15 && edges[idx++].target == 26));
+
+    ++current_batch;
+    auto const [offset_11, count_11] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_11);
+    read_batch.batch_size = count_11;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 27 && edges[idx++].target == 26));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 26));
+    CHECK((edges[idx].source == 12 && edges[idx++].target == 27));
+    CHECK((edges[idx].source == 13 && edges[idx++].target == 27));
+    CHECK((edges[idx].source == 26 && edges[idx++].target == 27));
+    CHECK((edges[idx].source == 29 && edges[idx++].target == 27));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 27));
+    CHECK((edges[idx].source == 2 && edges[idx++].target == 28));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 28));
+    CHECK((edges[idx].source == 25 && edges[idx++].target == 28));
+
+    ++current_batch;
+    auto const [offset_12, count_12] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_12);
+    read_batch.batch_size = count_12;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 29 && edges[idx++].target == 28));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 28));
+    CHECK((edges[idx].source == 3 && edges[idx++].target == 29));
+    CHECK((edges[idx].source == 4 && edges[idx++].target == 29));
+    CHECK((edges[idx].source == 25 && edges[idx++].target == 29));
+    CHECK((edges[idx].source == 27 && edges[idx++].target == 29));
+    CHECK((edges[idx].source == 28 && edges[idx++].target == 29));
+    CHECK((edges[idx].source == 30 && edges[idx++].target == 29));
+    CHECK((edges[idx].source == 5 && edges[idx++].target == 30));
+    CHECK((edges[idx].source == 6 && edges[idx++].target == 30));
+
+    ++current_batch;
+    auto const [offset_13, count_13] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_13);
+    read_batch.batch_size = count_13;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 25 && edges[idx++].target == 30));
+    CHECK((edges[idx].source == 26 && edges[idx++].target == 30));
+    CHECK((edges[idx].source == 27 && edges[idx++].target == 30));
+    CHECK((edges[idx].source == 28 && edges[idx++].target == 30));
+    CHECK((edges[idx].source == 29 && edges[idx++].target == 30));
+    CHECK((edges[idx].source == 21 && edges[idx++].target == 31));
+    CHECK((edges[idx].source == 22 && edges[idx++].target == 31));
+    CHECK((edges[idx].source == 34 && edges[idx++].target == 31));
+    CHECK((edges[idx].source == 35 && edges[idx++].target == 31));
+    CHECK((edges[idx].source == 36 && edges[idx++].target == 31));
+
+    ++current_batch;
+    auto const [offset_14, count_14] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    edges.resize(count_14);
+    read_batch.batch_size = count_14;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 33 && edges[idx++].target == 32));
+    CHECK((edges[idx].source == 35 && edges[idx++].target == 32));
+    CHECK((edges[idx].source == 37 && edges[idx++].target == 32));
+    CHECK((edges[idx].source == 32 && edges[idx++].target == 33));
+    CHECK((edges[idx].source == 34 && edges[idx++].target == 33));
+    CHECK((edges[idx].source == 35 && edges[idx++].target == 33));
+    CHECK((edges[idx].source == 37 && edges[idx++].target == 33));
+    CHECK((edges[idx].source == 24 && edges[idx++].target == 34));
+    CHECK((edges[idx].source == 31 && edges[idx++].target == 34));
+    CHECK((edges[idx].source == 33 && edges[idx++].target == 34));
+
+    ++current_batch;
+    auto const [offset_15, count_15] = fair_batch_offset(read_batch.batch_size, current_batch, cob, header.edge_count);
+    uint64_t remaining_edges = 8u;
+    REQUIRE(count_15 == read_batch.batch_size + remaining_edges);
+    edges.resize(count_15);
+    read_batch.batch_size = count_15;
+    mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+    idx = 0;
+
+    CHECK((edges[idx].source == 35 && edges[idx++].target == 34));
+    CHECK((edges[idx].source == 36 && edges[idx++].target == 34));
+    CHECK((edges[idx].source == 37 && edges[idx++].target == 34));
+    CHECK((edges[idx].source == 31 && edges[idx++].target == 35));
+    CHECK((edges[idx].source == 32 && edges[idx++].target == 35));
+    CHECK((edges[idx].source == 33 && edges[idx++].target == 35));
+    CHECK((edges[idx].source == 34 && edges[idx++].target == 35));
+    CHECK((edges[idx].source == 36 && edges[idx++].target == 35));
+    CHECK((edges[idx].source == 37 && edges[idx++].target == 35));
+    CHECK((edges[idx].source == 22 && edges[idx++].target == 36));
+    CHECK((edges[idx].source == 23 && edges[idx++].target == 36));
+    CHECK((edges[idx].source == 31 && edges[idx++].target == 36));
+    CHECK((edges[idx].source == 34 && edges[idx++].target == 36));
+    CHECK((edges[idx].source == 35 && edges[idx++].target == 36));
+    CHECK((edges[idx].source == 32 && edges[idx++].target == 37));
+    CHECK((edges[idx].source == 33 && edges[idx++].target == 37));
+    CHECK((edges[idx].source == 34 && edges[idx++].target == 37));
+    CHECK((edges[idx].source == 35 && edges[idx++].target == 37));
+
+    CHECK(read_batch.count_read_in_edges == header.edge_count);
+}
+
+TEST_CASE("MPI, all_read_binary_graph_batch, read issues")
+{
+    std::filesystem::path file_path(graph_path + directed_unweighted_graph_enzymes_bin);
+    mpi::FileWrapper binary_graph{ file_path };
+
+    BinaryGraphHeader header = mpi::read_binary_graph_header(binary_graph.get());
+    REQUIRE(header.vertex_id_byte_size == sizeof(Vertex32));
+    REQUIRE(header.directed);
+    REQUIRE(!header.weighted);
+    REQUIRE(!header.dynamic);
+
+    mpi::MPIEdge32 mpi_edge_t;
+
+    mpi::ReadBatch read_batch;
+    read_batch.edge_size_in_bytes = sizeof(Edge32);
+
+    SECTION("Read Success")
+    {
+        read_batch.batch_size = header.edge_count;
+        Edges32 edges(header.edge_count);
+        mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+        CHECK(read_batch.count_read_in_edges == header.edge_count);
+    }
+
+    SECTION("Read exceeds counter")
+    {
+        Edges32 edges(header.edge_count);
+        read_batch.batch_size = std::numeric_limits<uint32_t>::max();
+        CHECK_THROWS(mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get()));
+    }
+
+    SECTION("Read exceeds counter")
+    {
+        read_batch.batch_size = header.edge_count + 1;
+        Edges32 edges(read_batch.batch_size, Edge32{ 0u, 0u });
+        mpi::all_read_binary_graph_batch(binary_graph.get(), header, &(edges[0]), read_batch, mpi_edge_t.get());
+        CHECK(edges[header.edge_count].source == 0u);
+        CHECK(read_batch.count_read_in_edges == header.edge_count);
+    }
+}
