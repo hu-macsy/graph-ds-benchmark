@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 # Set project name and version
-project(gdsb VERSION 0.2.0 LANGUAGES CXX)
+project(gdsb VERSION 1.0.0 LANGUAGES CXX)
 
 include(GNUInstallDirs)
 
