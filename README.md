@@ -4,6 +4,8 @@
   <a href="https://github.com/hu-macsy/graph-ds-benchmark/actions/workflows/ci.yml"><img src="https://github.com/hu-macsy/graph-ds-benchmark/actions/workflows/ci.yml/badge.svg"></a>
 </p>
 
+_A C++ Graph I/O. Fast and Simple._
+
 The GDSB library offers various tools for graph data structures and experiments using benchmark functionality including:
 - standard POSIX I/O graph file I/O, see [graph_input.h](/include/gdsb/graph_input.h), [graph_output.h](/include/gdsb/graph_input.h), and [graph_io_parameters.h](/include/gdsb/graph_io_parameters.h)
 - full support to read GDSB binary graph files using MPI I/O, see [mpi_graph_io.h](/include/gdsb/mpi_graph_io.h), [mpi_error_handler.h](/include/gdsb/mpi_error_handler.h)
