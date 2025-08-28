@@ -7,8 +7,10 @@
 _A C++ Graph I/O. Fast and Simple._
 
 The GDSB library offers various tools for graph data structures and experiments using benchmark functionality including:
-- standard POSIX I/O graph file I/O, see [graph_input.h](/include/gdsb/graph_input.h), [graph_output.h](/include/gdsb/graph_input.h), and [graph_io_parameters.h](/include/gdsb/graph_io_parameters.h)
-- full support to read GDSB binary graph files using MPI I/O, see [mpi_graph_io.h](/include/gdsb/mpi_graph_io.h), [mpi_error_handler.h](/include/gdsb/mpi_error_handler.h)
+- optimized POSIX graph file I/O, see [graph_input.h](/include/gdsb/graph_input.h), [graph_output.h](/include/gdsb/graph_input.h), and [graph_io_parameters.h](/include/gdsb/graph_io_parameters.h)
+- easy to use and up to 2.5x faster MPI graph fileI/O, see
+  [mpi_graph_io.h](/include/gdsb/mpi_graph_io.h),
+  [mpi_error_handler.h](/include/gdsb/mpi_error_handler.h)
 - graph and edge data structures, see [graph.h](/include/gdsb/graph.h)
 - experiment environment to benchmark procedures, see
   [experiment.h](/include/gdsb/experiment.h)
@@ -17,6 +19,12 @@ The GDSB library offers various tools for graph data structures and experiments 
   [sort_permutation.h](/include/gdsb/sort_permutation.h)
 - a batcher system to create and apply edge batches which may be fed to a graph
   data structure, see [sort_permutation.h](/include/gdsb/batcher.h)
+- using C++17
+
+More information is provided in the paper [ScaleRunner: A Fast MPI-Based Random
+Walk Engine for Multi-CPU
+Systems](https://link.springer.com/chapter/10.1007/978-3-031-99872-0_9) where
+GDSB is used to read in graphs in parallel storing edges on multiple compute nodes.
 
 ## Releases
 
